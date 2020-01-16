@@ -196,27 +196,22 @@ class GoogleAPI:
                 exists, id = self.exists_folder(parent)
 
                 if exists:
-                    print(parent, "exists!")
                     if parent_id == root:
                         parent_id = id
                     else:
                         found = False
                         for folder in self.METADATA:
                             if folder.get("parents")[0] == parent_id and folder.get("name") == parent:
-                                print("Found parent ID")
                                 parent_id = folder.get("id")
                                 found = True
                                 break
 
                         if not found:
-                            print("Not found", parent)
                             parent_id = self._create_sub_folder_id(parent_id, parent)
                 else:
-                    print(parent, "does not exists!")
                     if parent_id == root:
                         parent_id = self.create_folder(parent)
                     else:
-                        print("Creating final folder", parent, "under", parent_id)
                         parent_id = self._create_sub_folder_id(parent_id, parent)
 
                 id = parent_id
