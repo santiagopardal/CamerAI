@@ -71,6 +71,7 @@ def check_movement_in_batch(path):
 
 class System:
     def __init__(self):
+        self.last_upload = 0
         self.last_image = None
         if os.path.exists("cameras.pickle"):
             with open("cameras.pickle", "rb") as pck:
@@ -109,8 +110,9 @@ class System:
 
         while True:
             print("Sleeping...")
-            if datetime.datetime.now().hour % 2 == 0:
+            if datetime.datetime.now().hour % 2 == 0 and self.last_upload != datetime.datetime.now().hour:
                 self._upload_time()
+                self.last_upload = datetime.datetime.now().hour
 
             time.sleep(300)
 
