@@ -4,6 +4,7 @@ from google_auth_oauthlib.flow import InstalledAppFlow
 from google.auth.transport.requests import Request
 from googleapiclient.http import MediaFileUpload
 import pickle
+import time
 
 
 class GoogleAPI:
@@ -22,7 +23,14 @@ class GoogleAPI:
 
         if not exists:
             print("Created path...")
-            id = self._setup_path(filepath)
+            path_setted_up = False
+            while not path_setted_up:
+                try:
+                    id = self._setup_path(filepath)
+                    path_setted_up = True
+                except Exception:
+                    print("Could not set up the path", filepath)
+                time.sleep(0.001)
 
         file_metadata = {'name': filename,
                          'parents': [id]}
@@ -179,7 +187,7 @@ class GoogleAPI:
 
         return file.get("id")
 
-    def setup_path(self, path):
+    def _setup_path(self, path):
         if str(path).startswith("to upload/"):
             path = path[len("to upload/"):]
 
