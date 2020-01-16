@@ -9,12 +9,11 @@ import argparse
 sys = System()
 api = GoogleAPI()
 system = System()
-sys.add_camera(FI9803PV3("192.168.0.14", 88, "Back Yard"))
-sys.add_camera(FI89182("192.168.0.15", 88, "Back Yard 2"))
-sys.add_camera(FI9803PV3("192.168.1.100", 88, "Back Yard"))
-sys.add_camera(FI9803PV3("192.168.1.110", 88, "Back Yard"))
+sys.add_camera(FI9803PV3("192.168.0.14", 88, "Front Yard"))
+sys.add_camera(FI89182("192.168.0.15", 88, "Front 2"))
+sys.add_camera(FI9803PV3("192.168.0.11", 80, "Back Yard"))
+sys.add_camera(FI9803PV3("192.168.0.11", 81, "Back Yard 2"))
 sys.run()
-
 
 """
 def check_movement_in_batch(path):

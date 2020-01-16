@@ -39,6 +39,7 @@ class GoogleAPI:
         }
 
         file = self.CREDENTIALS.files().create(body=file_metadata, fields="id").execute()
+        self.METADATA.append(self.CREDENTIALS.files().get(fileId=file.get("id"), fields='*').execute())
 
         return file.get("id")
 
@@ -55,6 +56,7 @@ class GoogleAPI:
         }
 
         file = self.CREDENTIALS.files().create(body=file_metadata, fields="id").execute()
+        self.METADATA.append(self.CREDENTIALS.files().get(fileId=file.get("id"), fields='*').execute())
 
         return file.get("id")
 
@@ -173,10 +175,11 @@ class GoogleAPI:
         }
 
         file = self.CREDENTIALS.files().create(body=file_metadata, fields="id").execute()
+        self.METADATA.append(self.CREDENTIALS.files().get(fileId=file.get("id"), fields='*').execute())
 
         return file.get("id")
 
-    def _setup_path(self, path):
+    def setup_path(self, path):
         if str(path).startswith("to upload/"):
             path = path[len("to upload/"):]
 
@@ -186,25 +189,37 @@ class GoogleAPI:
 
         if len(parents) == 1:
             id = self.create_folder(folder)
-            self.METADATA.append(self.CREDENTIALS.files().get(fileId=id, fields='*').execute())
         else:
-            id = None
-            i = 0
+            root = str(self.CREDENTIALS.files().get(fileId="root", fields='*').execute().get("id"))
+            parent_id = root
+            for parent in parents:
+                exists, id = self.exists_folder(parent)
 
-            while i < len(parents):
-                prev_id = id
+                if exists:
+                    print(parent, "exists!")
+                    if parent_id == root:
+                        parent_id = id
+                    else:
+                        found = False
+                        for folder in self.METADATA:
+                            if folder.get("parents")[0] == parent_id and folder.get("name") == parent:
+                                print("Found parent ID")
+                                parent_id = folder.get("id")
+                                found = True
+                                break
 
-                id = prev_id
-
-                if i == 0:
-                    id = self.create_folder(parents[i])
+                        if not found:
+                            print("Not found", parent)
+                            parent_id = self._create_sub_folder_id(parent_id, parent)
                 else:
-                    self.METADATA.append(self.CREDENTIALS.files().get(fileId=id, fields='*').execute())
-                    id = self._create_sub_folder_id(id, parents[i])
+                    print(parent, "does not exists!")
+                    if parent_id == root:
+                        parent_id = self.create_folder(parent)
+                    else:
+                        print("Creating final folder", parent, "under", parent_id)
+                        parent_id = self._create_sub_folder_id(parent_id, parent)
 
-                self.METADATA.append(self.CREDENTIALS.files().get(fileId=id, fields='*').execute())
-
-                i = i + 1
+                id = parent_id
 
         return id
 
