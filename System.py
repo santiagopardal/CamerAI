@@ -109,10 +109,10 @@ class System:
 
         while True:
             print("Sleeping...")
-            if datetime.datetime.now().minute % 30 == 0:
+            if datetime.datetime.now().hour % 2 == 0:
                 self._upload_time()
 
-            time.sleep(60)
+            time.sleep(300)
 
     def _thread_worker(self, camera):
         while True:
