@@ -1,6 +1,6 @@
 from GoogleAPI import GoogleAPI
 from System import System
-
+from Camera import FI9803PV3, FI89182
 
 sys = System()
 api = GoogleAPI()
