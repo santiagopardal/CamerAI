@@ -223,7 +223,7 @@ class GoogleAPI:
 
     def _update_metadata(self):
         results = self.CREDENTIALS.files().list(q="mimeType='application/vnd.google-apps.folder'",
-                                                pageSize=10, fields="nextPageToken, files(id, name)").execute()
+                                                pageSize=1000, fields="nextPageToken, files(id, name)").execute()
         results = results.get("files")
         for file in results:
             id = file.get("id")
