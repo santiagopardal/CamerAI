@@ -111,8 +111,8 @@ class System:
         while True:
             print("Sleeping...")
             if datetime.datetime.now().hour % 2 == 0 and self.last_upload != datetime.datetime.now().hour:
-                self._upload_time()
                 self.last_upload = datetime.datetime.now().hour
+                self._upload_time()
 
             time.sleep(300)
 
