@@ -4,14 +4,12 @@ from System import System
 
 sys = System()
 api = GoogleAPI()
-"""
 system = System()
 sys.add_camera(FI9803PV3("192.168.0.14", 88, "Front Yard"))
 sys.add_camera(FI89182("192.168.0.15", 88, "Front 2"))
 sys.add_camera(FI9803PV3("192.168.0.11", 80, "Back Yard"))
 sys.add_camera(FI9803PV3("192.168.0.11", 81, "Back Yard 2"))
 sys.run()
-"""
 
 """
 def check_movement_in_batch(path):
@@ -78,6 +76,3 @@ def check_movement_in_batch(path):
 
 check_movement_in_batch("Front Yard/2020-01-15")
 """
-
-for i in range(10):
-    api.remove_repeated()
