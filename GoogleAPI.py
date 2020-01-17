@@ -236,7 +236,10 @@ class GoogleAPI:
         for item in items:
             if item.get("name") in all:
                 print("Removing", item.get("name"))
-                self.CREDENTIALS.files().delete(fileId=item.get("id")).execute()
+                try:
+                    self.CREDENTIALS.files().delete(fileId=item.get("id")).execute()
+                except Exception:
+                    pass
             else:
                 all.append(item.get("name"))
 
