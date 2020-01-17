@@ -238,8 +238,8 @@ class GoogleAPI:
                 print("Removing", item.get("name"))
                 try:
                     self.CREDENTIALS.files().delete(fileId=item.get("id")).execute()
-                except Exception:
-                    pass
+                except Exception as e:
+                    print("Error removing", item.get("name"), "\nError is", e)
             else:
                 all.append(item.get("name"))
 
