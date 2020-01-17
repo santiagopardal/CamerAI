@@ -25,7 +25,7 @@ class Camera:
 
     def store_live_image(self):
         folder = self.place + "/"
-        filename = str(datetime.datetime.now().time()) + ".jpeg"
+        filename = str(datetime.datetime.now().time()).replace(":", "-") + ".jpeg"
 
         if not os.path.exists(folder):
             os.mkdir(folder)
