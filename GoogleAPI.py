@@ -233,3 +233,17 @@ class GoogleAPI:
         for file in results:
             id = file.get("id")
             self.METADATA.append(self.CREDENTIALS.files().get(fileId=id, fields='*').execute())
+
+    def remove_repeated(self):
+        results = self.CREDENTIALS.files().list(pageSize=1000, fields="nextPageToken, files(id, name)").execute()
+        items = results.get("files", [])
+        all = []
+
+        for item in items:
+            if item.get("name") in all:
+                print("Removing", item.get("name"))
+                self.CREDENTIALS.files().delete(fileId=item.get("id")).execute()
+            else:
+                all.append(item.get("name"))
+
+        return all
