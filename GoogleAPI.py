@@ -99,15 +99,9 @@ class GoogleAPI:
         return res, id
 
     def list_folders(self):
-        results = self.CREDENTIALS.files().list(pageSize=10, fields="nextPageToken, files(id, name)").execute()
-        items = results.get("files", [])
-
-        if not items:
-            res = []
-        else:
-            res = []
-            for item in items:
-                res.append(item.get("name"))
+        res = []
+        for folder in self.METADATA:
+            res.append(folder.get("name"))
 
         return res
 
