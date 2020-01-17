@@ -161,6 +161,7 @@ class GoogleAPI:
                 for d in self.METADATA:
                     if d.get("name") == parents_list[0] and d.get("id") == data.get("parents")[0]:
                         found = True
+                        break
 
                 if found:
                     res = data.get("id")
