@@ -1,9 +1,5 @@
 from GoogleAPI import GoogleAPI
 from System import System
-from Camera import *
-import cv2
-import imutils
-import argparse
 
 
 sys = System()
