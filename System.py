@@ -72,7 +72,7 @@ def check_movement_in_batch(path):
 
 class System:
     def __init__(self):
-        self.last_upload = datetime.datetime.now().hour
+        self.last_upload = -4
         self.last_image = None
         if os.path.exists("cameras.pickle"):
             with open("cameras.pickle", "rb") as pck:
