@@ -120,7 +120,7 @@ class System:
     def _thread_worker(self, camera):
         while True:
             camera.store_live_image()
-            time.sleep(0.75)
+            time.sleep(0.5)
 
     def _upload_time(self):
         print("Upload time!")
