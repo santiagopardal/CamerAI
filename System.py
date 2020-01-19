@@ -167,6 +167,6 @@ class System:
                                 os.remove(filepath + file)
                                 uploaded = True
                             except Exception as e:
-                                print("Error uploading!!!\n" + str(e))
+                                print("Error uploading:\n" + str(e))
                                 intents = intents + 1
                     time.sleep(0.0001)
