@@ -62,12 +62,10 @@ def check_movement_in_batch(path):
                                     movements.append(image)
                                     last_image = frame
 
-                    if image in movements:
-                        pass
-                    else:
+                    if image not in movements:
                         os.remove(path + "/" + image)
-                except Exception:
-                    pass
+                except Exception as e:
+                    print("Error checking movement on image {}, error is: {}".format(image, e))
 
 
 class System:
