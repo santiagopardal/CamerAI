@@ -1,19 +1,21 @@
 from GoogleAPI import GoogleAPI
 from System import System
 from Camera import FI9803PV3, FI89182
-"""
+
+
 import System
 import threading
-t1 = threading.Thread(target=System.check_movement_in_batch, args=("Front Yard/2020-07-28"))
-t2 = threading.Thread(target=System.check_movement_in_batch, args=("Front Yard 2/2020-07-28"))
-t3 = threading.Thread(target=System.check_movement_in_batch, args=("Back Yard/2020-07-28"))
-t4 = threading.Thread(target=System.check_movement_in_batch, args=("Back Yard 2/2020-07-28"))
 
-t1.daemon = True
-t2.daemon = True
-t3.daemon = True
-t4.daemon = True
-
+import System
+import threading
+t1 = threading.Thread(target=System.check_movement_in_batch, args=("Front Yard/2020-07-28",))
+t2 = threading.Thread(target=System.check_movement_in_batch, args=("Front Yard 2/2020-07-28",))
+t3 = threading.Thread(target=System.check_movement_in_batch, args=("Back Yard/2020-07-28",))
+t4 = threading.Thread(target=System.check_movement_in_batch, args=("Back Yard 2/2020-07-28",))
+t1.daemon = False
+t2.daemon = False
+t3.daemon = False
+t4.daemon = False
 t1.start()
 t2.start()
 t3.start()
@@ -28,7 +30,7 @@ sys.add_camera(FI89182("192.168.1.133", 2222, "Front Yard 2", "admin", "maxi7500
 sys.add_camera(FI9803PV3("192.168.1.132", 4444, "Back Yard", "admin", "maxi7500"))
 sys.add_camera(FI9803PV3("192.168.1.130", 3333, "Back Yard 2", "admin", "maxi7500"))
 sys.run()
-
+"""
 """
 def check_movement_in_batch(path):
     if os.path.exists(path + ".DS_Store"):
