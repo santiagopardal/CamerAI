@@ -45,11 +45,11 @@ class Camera:
 
 
 class FI9803PV3(Camera):
-    def __init__(self, ip: str, port: int, place: str):
+    def __init__(self, ip: str, port: int, place: str, user: str, password: str):
         super().__init__(ip, port, place, "http://" + ip + ":" + str(port)
-                         + "/cgi-bin/CGIProxy.fcgi?cmd=snapPicture2&usr=admin&pwd=maxi7500")
+                         + "/cgi-bin/CGIProxy.fcgi?cmd=snapPicture2&usr=" + user + "&pwd=" + password)
 
-        self.live_video_url = "rtsp://admin:maxi7500@" + ip + ":" + str(port + 2) + "/videoMain"
+        self.live_video_url = "rtsp://" + user + ":" + password + "@" + ip + ":" + str(port + 2) + "/videoMain"
         self.live_video = cv2.VideoCapture(self.live_video_url)
 
     def record(self):
@@ -70,6 +70,7 @@ class FI9803PV3(Camera):
 
 
 class FI89182(Camera):
-    def __init__(self, ip: str, port: int, place: str):
+    def __init__(self, ip: str, port: int, place: str, user: str, password: str):
         super().__init__(ip, port, place,
-                         "http://" + ip + ":" + str(port) + "/snapshot.cgi?user=python&pwd=maxithor0057&count=0")
+                         "http://" + ip + ":" + str(port) + "/snapshot.cgi?user=" +
+                         user + "&pwd=" + password + "&count=0")
