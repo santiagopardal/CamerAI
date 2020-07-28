@@ -91,9 +91,9 @@ class System:
 
         if can_insert:
             self.cameras.append(camera)
-            with open("cameras.pickle", "wb") as pck:
-                pickle.dump(self.cameras, pck)
-                pck.close()
+#            with open("cameras.pickle", "wb") as pck:
+#                pickle.dump(self.cameras, pck)
+#                pck.close()
 
     def remove_camera(self, camera):
         self.cameras.remove(camera)
@@ -109,16 +109,16 @@ class System:
 
         while True:
             print("Sleeping...")
-            if datetime.datetime.now().hour % 2 == 0 and self.last_upload != datetime.datetime.now().hour:
-                self.last_upload = datetime.datetime.now().hour
-                self._upload_time()
+         #   if datetime.datetime.now().hour % 2 == 0 and self.last_upload != datetime.datetime.now().hour:
+         #       self.last_upload = datetime.datetime.now().hour
+         #       self._upload_time()
 
             time.sleep(300)
 
     def _thread_worker(self, camera):
         while True:
-            camera.store_live_image()
-            time.sleep(0.35)
+            camera.record()
+            #time.sleep(0.35)
 
     def _upload_time(self):
         print("Upload time!")

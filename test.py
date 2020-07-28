@@ -2,15 +2,22 @@ from GoogleAPI import GoogleAPI
 from System import System
 from Camera import FI9803PV3, FI89182
 
-sys = System()
-api = GoogleAPI()
-system = System()
-sys.add_camera(FI9803PV3("192.168.0.14", 88, "Front Yard"))
-sys.add_camera(FI89182("192.168.0.15", 88, "Front Yard 2"))
-sys.add_camera(FI9803PV3("192.168.0.11", 80, "Back Yard"))
-sys.add_camera(FI9803PV3("192.168.0.11", 81, "Back Yard 2"))
-sys.run()
+import System
+System.check_movement_in_batch("Front Yard/2020-07-28")
+System.check_movement_in_batch("Front Yard 2/2020-07-28")
+System.check_movement_in_batch("Back Yard/2020-07-28")
+System.check_movement_in_batch("Back Yard 2/2020-07-28")
+"""
 
+sys = System()
+#api = GoogleAPI()
+#system = System()
+sys.add_camera(FI9803PV3("192.168.1.131", 1111, "Front Yard"))
+sys.add_camera(FI89182("192.168.1.133", 2222, "Front Yard 2"))
+sys.add_camera(FI9803PV3("192.168.1.132", 4444, "Back Yard"))
+sys.add_camera(FI9803PV3("192.168.1.130", 3333, "Back Yard 2"))
+sys.run()
+"""
 """
 def check_movement_in_batch(path):
     if os.path.exists(path + ".DS_Store"):
