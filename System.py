@@ -4,12 +4,13 @@ import time
 import threading
 import GoogleAPI
 import datetime
+from Camera import Camera
 import cv2
 import argparse
 import imutils
 
 
-def check_movement_in_batch(path):
+def check_movement_in_batch(path: str):
     if os.path.exists(path + ".DS_Store"):
         os.remove(path + ".DS_Store")
 
@@ -82,7 +83,7 @@ class System:
                 pickle.dump(self.cameras, pck)
                 pck.close()
 
-    def add_camera(self, camera):
+    def add_camera(self, camera: Camera):
         can_insert = True
         i = 0
         while can_insert and i < len(self.cameras):
@@ -95,7 +96,7 @@ class System:
 #                pickle.dump(self.cameras, pck)
 #                pck.close()
 
-    def remove_camera(self, camera):
+    def remove_camera(self, camera: Camera):
         self.cameras.remove(camera)
         with open("cameras.pickle", "wb") as pck:
             pickle.dump(self.cameras, pck)
@@ -115,7 +116,7 @@ class System:
 
             time.sleep(300)
 
-    def _thread_worker(self, camera):
+    def _thread_worker(self, camera: Camera):
         while True:
             camera.record()
             #time.sleep(0.35)
@@ -134,7 +135,7 @@ class System:
             thread.daemon = True
             thread.start()
 
-    def _upload(self, path):
+    def _upload(self, path: str):
         api = GoogleAPI.GoogleAPI()
 
         for folder in os.listdir(path):

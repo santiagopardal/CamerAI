@@ -70,6 +70,6 @@ class FI9803PV3(Camera):
 
 
 class FI89182(Camera):
-    def __init__(self, ip, port, place):
+    def __init__(self, ip: str, port: int, place: str):
         super().__init__(ip, port, place,
                          "http://" + ip + ":" + str(port) + "/snapshot.cgi?user=python&pwd=maxithor0057&count=0")
