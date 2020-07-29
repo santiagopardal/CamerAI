@@ -12,7 +12,7 @@ import imutils
 
 def delete_file(path: str):
     thread = threading.Thread(target=os.remove, args=(path, ))
-    thread.daemon = True
+    thread.daemon = False
     thread.start()
 
 
