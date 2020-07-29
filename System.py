@@ -10,8 +10,14 @@ import argparse
 import imutils
 
 
+def delete_file(path: str):
+    thread = threading.Thread(target=os.remove, args=(path, ))
+    thread.daemon = False
+    thread.start()
+
+
 def check_movement_in_batch(path: str):
-    print("Cleaning on {} started at {}".format(path, datetime.datetime.now().hour))
+    print("Cleaning on {} started at {}:{}".format(path, datetime.datetime.now().hour, datetime.datetime.now().minute))
     if os.path.exists(path + ".DS_Store"):
         os.remove(path + ".DS_Store")
 
@@ -65,11 +71,12 @@ def check_movement_in_batch(path: str):
                                     last_image = frame
 
                     if image not in movements:
-                        os.remove(path + "/" + image)
+                        delete_file(path + "/" + image)
+                        #os.remove(path + "/" + image)
                 except Exception as e:
                     print("Error checking movement on image {}, error is: {}".format(image, e))
 
-        print("Cleaning on {} finished at {}".format(path, datetime.datetime.now().hour))
+        print("Cleaning on {} finished at {}:{}".format(path, datetime.datetime.now().hour, datetime.datetime.now().minute))
 
 
 class System:
