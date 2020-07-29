@@ -11,6 +11,7 @@ import imutils
 
 
 def check_movement_in_batch(path: str):
+    print("Cleaning on {} started at {}".format(path, datetime.datetime.now().hour))
     if os.path.exists(path + ".DS_Store"):
         os.remove(path + ".DS_Store")
 
@@ -67,6 +68,8 @@ def check_movement_in_batch(path: str):
                         os.remove(path + "/" + image)
                 except Exception as e:
                     print("Error checking movement on image {}, error is: {}".format(image, e))
+
+        print("Cleaning on {} finished at {}".format(path, datetime.datetime.now().hour))
 
 
 class System:
