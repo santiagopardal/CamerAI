@@ -62,6 +62,8 @@ class FI9803PV3(Camera):
         except Exception as e:
             print("Error downloading image from camera {} on ip {}".format(self.place, self.IP))
             print(e)
+            del self.live_video
+            self.live_video = cv2.VideoCapture(self.live_video_url)
 
     def __get_and_store_image(self):
         try:
@@ -82,7 +84,8 @@ class FI9803PV3(Camera):
         except Exception as e:
             print("Error downloading image from camera {} on ip {}".format(self.place, self.IP))
             print(e)
-
+            del self.live_video
+            self.live_video = cv2.VideoCapture(self.live_video_url)
 
 
 class FI89182(Camera):
