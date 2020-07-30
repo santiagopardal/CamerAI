@@ -54,6 +54,17 @@ class FI9803PV3(Camera):
 
     def record(self):
         try:
+            if self.live_video.isOpened():
+                self.__get_and_store_image()
+            else:
+                self.live_video = cv2.VideoCapture(self.live_video_url)
+                self.__get_and_store_image()
+        except Exception as e:
+            print("Error downloading image from camera {} on ip {}".format(self.place, self.IP))
+            print(e)
+
+    def __get_and_store_image(self):
+        try:
             _, frame = self.live_video.read()
 
             folder = self.place + "/"
@@ -71,6 +82,7 @@ class FI9803PV3(Camera):
         except Exception as e:
             print("Error downloading image from camera {} on ip {}".format(self.place, self.IP))
             print(e)
+
 
 
 class FI89182(Camera):
