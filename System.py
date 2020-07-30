@@ -7,6 +7,7 @@ import datetime
 from Camera import Camera
 import cv2
 import argparse
+import Constants
 import imutils
 
 
@@ -124,12 +125,12 @@ class System:
          #       self.last_upload = datetime.datetime.now().hour
          #       self.__upload_time()
 
-            time.sleep(300)
+            time.sleep(Constants.UPDATE_EVERY_SECCONDS)
 
     def __thread_worker(self, camera: Camera):
         while True:
             camera.record()
-            #time.sleep(0.35)
+            time.sleep(1/Constants.FRAMERATE)
 
     def __upload_time(self):
         print("Upload time!")
