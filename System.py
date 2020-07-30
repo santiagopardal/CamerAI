@@ -114,7 +114,7 @@ class System:
 
     def run(self):
         for camera in self.cameras:
-            thread = threading.Thread(target=self._thread_worker, args=(camera,))
+            thread = threading.Thread(target=self.__thread_worker, args=(camera,))
             thread.daemon = True
             thread.start()
 
