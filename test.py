@@ -2,29 +2,6 @@ from GoogleAPI import GoogleAPI
 from System import System
 from Camera import FI9803PV3, FI89182
 """
-import System
-import threading
-<<<<<<< HEAD
-t1 = threading.Thread(target=System.check_movement_in_batch, args=("Front Yard/2020-07-29",))
-t2 = threading.Thread(target=System.check_movement_in_batch, args=("Front Yard 2/2020-07-29",))
-t3 = threading.Thread(target=System.check_movement_in_batch, args=("Back Yard/2020-07-29",))
-t4 = threading.Thread(target=System.check_movement_in_batch, args=("Back Yard 2/2020-07-29",))
-t1.daemon = False
-t2.daemon = False
-t3.daemon = False
-t4.daemon = False
-||||||| 566129a
-t1 = threading.Thread(target=System.check_movement_in_batch, args=("Front Yard/2020-07-28"))
-t2 = threading.Thread(target=System.check_movement_in_batch, args=("Front Yard 2/2020-07-28"))
-t3 = threading.Thread(target=System.check_movement_in_batch, args=("Back Yard/2020-07-28"))
-t4 = threading.Thread(target=System.check_movement_in_batch, args=("Back Yard 2/2020-07-28"))
-
-t1.daemon = True
-t2.daemon = True
-t3.daemon = True
-t4.daemon = True
-
-=======
 t1 = threading.Thread(target=System.check_movement_in_batch, args=("Front Yard/2020-07-29",))
 t2 = threading.Thread(target=System.check_movement_in_batch, args=("Front Yard 2/2020-07-29",))
 t3 = threading.Thread(target=System.check_movement_in_batch, args=("Back Yard/2020-07-29",))
@@ -35,7 +12,6 @@ t2.daemon = False
 t3.daemon = False
 t4.daemon = False
 
->>>>>>> ee6e752b1fdfce9bba9124f1a447a86e90e4f7a0
 t1.start()
 t2.start()
 t3.start()
