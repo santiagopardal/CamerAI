@@ -122,16 +122,16 @@ class System:
             print("Sleeping...")
          #   if datetime.datetime.now().hour % 2 == 0 and self.last_upload != datetime.datetime.now().hour:
          #       self.last_upload = datetime.datetime.now().hour
-         #       self._upload_time()
+         #       self.__upload_time()
 
             time.sleep(300)
 
-    def _thread_worker(self, camera: Camera):
+    def __thread_worker(self, camera: Camera):
         while True:
             camera.record()
             #time.sleep(0.35)
 
-    def _upload_time(self):
+    def __upload_time(self):
         print("Upload time!")
 
         if not os.path.exists("to upload"):
@@ -141,11 +141,11 @@ class System:
             if not os.path.exists("to upload/" + camera.place):
                 os.mkdir("to upload/" + camera.place)
 
-            thread = threading.Thread(target=self._upload, args=(camera.place,))
+            thread = threading.Thread(target=self.__upload, args=(camera.place,))
             thread.daemon = True
             thread.start()
 
-    def _upload(self, path: str):
+    def __upload(self, path: str):
         api = GoogleAPI.GoogleAPI()
 
         for folder in os.listdir(path):

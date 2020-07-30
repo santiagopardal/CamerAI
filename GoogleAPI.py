@@ -10,14 +10,14 @@ import time
 class GoogleAPI:
     def __init__(self):
         self.SCOPES = ['https://www.googleapis.com/auth/drive']
-        self.CREDENTIALS = self._get_credentials()
+        self.CREDENTIALS = self.__get_credentials()
         self.METADATA = []
         self._update_metadata()
 
     def upload(self, filepath, filename, mimetype):
         service = self.CREDENTIALS
 
-        id = self._get_folder_id(self._get_parents(filepath))
+        id = self.__get_folder_id(self.__get_parents(filepath))
 
         exists = not (id is None)
 
@@ -26,7 +26,7 @@ class GoogleAPI:
             path_setted_up = False
             while not path_setted_up:
                 try:
-                    id = self._setup_path(filepath)
+                    id = self.__setup_path(filepath)
                     path_setted_up = True
                 except Exception:
                     print("Could not set up the path", filepath)
@@ -119,7 +119,7 @@ class GoogleAPI:
         for item in items:
             self.CREDENTIALS.files().delete(fileId=item.get("id")).execute()
 
-    def _get_credentials(self):
+    def __get_credentials(self):
         creds = None
         # The file token.pickle stores the user's access and refresh tokens, and is
         # created automatically when the authorization flow completes for the first
@@ -142,7 +142,7 @@ class GoogleAPI:
 
         return service
 
-    def _get_parents(self, folder):
+    def __get_parents(self, folder):
         parent_folders = folder.split("/")
 
         if parent_folders[len(parent_folders) - 1] == '':
@@ -153,7 +153,7 @@ class GoogleAPI:
 
         return parent_folders
 
-    def _get_folder_id(self, parents_list):
+    def __get_folder_id(self, parents_list):
         res = None
         for data in self.METADATA:
             if data.get("name") == parents_list[1]:
@@ -169,7 +169,7 @@ class GoogleAPI:
 
         return res
 
-    def _create_sub_folder_id(self, parent_id, name):
+    def __create_sub_folder_id(self, parent_id, name):
 
         file_metadata = {
             "name": name,
@@ -182,7 +182,7 @@ class GoogleAPI:
 
         return file.get("id")
 
-    def _setup_path(self, path):
+    def __setup_path(self, path):
         if str(path).startswith("to upload/"):
             path = path[len("to upload/"):]
 
@@ -210,18 +210,18 @@ class GoogleAPI:
                                 break
 
                         if not found:
-                            parent_id = self._create_sub_folder_id(parent_id, parent)
+                            parent_id = self.__create_sub_folder_id(parent_id, parent)
                 else:
                     if parent_id == root:
                         parent_id = self.create_folder(parent)
                     else:
-                        parent_id = self._create_sub_folder_id(parent_id, parent)
+                        parent_id = self.__create_sub_folder_id(parent_id, parent)
 
                 id = parent_id
 
         return id
 
-    def _update_metadata(self):
+    def __update_metadata(self):
         results = self.CREDENTIALS.files().list(q="mimeType='application/vnd.google-apps.folder'",
                                                 pageSize=1000, fields="nextPageToken, files(id, name)").execute()
         results = results.get("files")
