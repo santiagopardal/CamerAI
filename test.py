@@ -1,7 +1,7 @@
 from GoogleAPI import GoogleAPI
 from System import System
 from Camera import FI9803PV3, FI89182
-
+"""
 import System
 import threading
 t1 = threading.Thread(target=System.check_movement_in_batch, args=("Front Yard/2020-07-29",))
@@ -28,7 +28,7 @@ sys.add_camera(FI89182("192.168.1.133", 2222, "Front Yard 2", "admin", "maxi7500
 sys.add_camera(FI9803PV3("192.168.1.132", 4444, "Back Yard", "admin", "maxi7500"))
 sys.add_camera(FI9803PV3("192.168.1.130", 3333, "Back Yard 2", "admin", "maxi7500"))
 sys.run()
-"""
+
 """
 def check_movement_in_batch(path):
     if os.path.exists(path + ".DS_Store"):
