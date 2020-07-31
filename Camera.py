@@ -69,28 +69,32 @@ class FI9803PV3(Camera):
             self.live_video = cv2.VideoCapture(self.live_video_url)
 
     def __get_and_store_image(self):
-        try:
-            if self.live_video.isOpened():
-                _, frame = self.live_video.read()
+        stored = False
+        while not stored:
+            try:
+                if self.live_video.isOpened():
+                    _, frame = self.live_video.read()
 
-                folder = self.place + "/"
-                filename = str(datetime.datetime.now().time()).replace(":", "-") + ".jpeg"
+                    folder = self.place + "/"
+                    filename = str(datetime.datetime.now().time()).replace(":", "-") + ".jpeg"
 
-                if not os.path.exists(folder):
-                    os.mkdir(folder)
+                    if not os.path.exists(folder):
+                        os.mkdir(folder)
 
-                folder = folder + str(datetime.datetime.now().date()) + "/"
+                    folder = folder + str(datetime.datetime.now().date()) + "/"
 
-                if not os.path.exists(folder):
-                    os.mkdir(folder)
+                    if not os.path.exists(folder):
+                        os.mkdir(folder)
 
-                cv2.imwrite(folder + filename, frame)
-        except Exception as e:
-            print("Error downloading image from camera {} on ip {}".format(self.place, self.IP))
-            print(e)
-            self.live_video.release()
-            del self.live_video
-            self.live_video = cv2.VideoCapture(self.live_video_url)
+                    cv2.imwrite(folder + filename, frame)
+
+                    stored = True
+            except Exception as e:
+                print("Error downloading image from camera {} on ip {}".format(self.place, self.IP))
+                print(e)
+                self.live_video.release()
+                del self.live_video
+                self.live_video = cv2.VideoCapture(self.live_video_url)
 
 
 class FI89182(Camera):
