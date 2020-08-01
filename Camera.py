@@ -88,7 +88,6 @@ class FI9803PV3(Camera):
                 print("Error downloading image from camera {} on ip {}".format(self.place, self.IP))
                 print(e)
                 self.__connect()
-                self.__initialize_record_thread()
 
     def __initialize_record_thread(self):
         if self.record_thread is not None:
