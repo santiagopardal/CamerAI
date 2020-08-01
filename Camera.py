@@ -3,6 +3,7 @@ from PIL import Image
 import io
 import datetime
 import os
+import time
 import cv2
 
 
@@ -50,23 +51,19 @@ class FI9803PV3(Camera):
                          + "/cgi-bin/CGIProxy.fcgi?cmd=snapPicture2&usr=" + user + "&pwd=" + password)
 
         self.live_video_url = "rtsp://" + user + ":" + password + "@" + ip + ":" + str(port + 2) + "/videoMain"
-        self.live_video = cv2.VideoCapture(self.live_video_url)
+        self.live_video = None
+        self.__connect()
 
     def record(self):
         try:
             if self.live_video.isOpened():
                 self.__get_and_store_image()
             else:
-                self.live_video.release()
-                del self.live_video
-                self.live_video = cv2.VideoCapture(self.live_video_url)
-                self.__get_and_store_image()
+                self.__connect()
         except Exception as e:
             print("Error downloading image from camera {} on ip {}".format(self.place, self.IP))
             print(e)
-            self.live_video.release()
-            del self.live_video
-            self.live_video = cv2.VideoCapture(self.live_video_url)
+            self.__connect()
 
     def __get_and_store_image(self):
         stored = False
@@ -89,12 +86,21 @@ class FI9803PV3(Camera):
                     cv2.imwrite(folder + filename, frame)
 
                     stored = True
+                else:
+                    self.__connect()
             except Exception as e:
                 print("Error downloading image from camera {} on ip {}".format(self.place, self.IP))
                 print(e)
-                self.live_video.release()
-                del self.live_video
-                self.live_video = cv2.VideoCapture(self.live_video_url)
+                if not self.live_video.isOpened():
+                    self.__connect()
+
+    def __connect(self):
+        if self.live_video is None:
+            self.live_video = cv2.VideoCapture(self.live_video_url)
+        else:
+            self.live_video.release()
+            del self.live_video
+            self.live_video = cv2.VideoCapture(self.live_video_url)
 
 
 class FI89182(Camera):

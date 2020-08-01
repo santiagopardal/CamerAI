@@ -128,9 +128,13 @@ class System:
             time.sleep(Constants.UPDATE_EVERY_SECCONDS)
 
     def __thread_worker(self, camera: Camera):
+        previous_capture = 0
+
         while True:
-            camera.record()
-            time.sleep(1/Constants.FRAMERATE)
+            if time.time() - previous_capture > 1/Constants.FRAMERATE:
+                previous_capture = time.time()
+                camera.record()
+                time.sleep(1/Constants.FRAMERATE)
 
     def __upload_time(self):
         print("Upload time!")
