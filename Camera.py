@@ -15,6 +15,8 @@ class Camera:
         self.port = port
         self.place = place
         self.screenshot_url = screenshot_url
+        self.record_thread = None
+        self.kill_thread = False
 
     def equals(self, cam):
         return cam.getIP() == self.IP and cam.getPort() == self.port
@@ -31,12 +33,16 @@ class Camera:
         thread = threading.Thread(target=self.__record_thread_worker, args=())
         thread.daemon = False
         thread.start()
+        self.record_thread = thread
+
+    def stop_recording(self):
+        self.kill_thread = True
+        self.record_thread = None
 
     def __record_thread_worker(self):
         previous_capture = 0
-        while True:
+        while not self.kill_thread:
             if time.time() - previous_capture > 1/Constants.FRAMERATE:
-                previous_capture = time.time()
                 folder = self.place + "/"
                 filename = str(datetime.datetime.now().time()).replace(":", "-") + ".jpeg"
 
@@ -48,10 +54,13 @@ class Camera:
                     os.mkdir(folder)
 
                 try:
+                    previous_capture = time.time()
                     urllib.request.urlretrieve(self.screenshot_url, folder + filename)
                 except Exception as e:
                     print("Error downloading image from camera {} on ip {}".format(self.place, self.IP))
                     print(e)
+
+            time.sleep(0.001)
 
 
 class FI9803PV3(Camera):
@@ -61,8 +70,6 @@ class FI9803PV3(Camera):
 
         self.live_video_url = "rtsp://" + user + ":" + password + "@" + ip + ":" + str(port + 2) + "/videoMain"
         self.live_video = None
-        self.record_thread = None
-        self.kill_thread = False
         self.__connect()
 
     def record(self):
@@ -110,6 +117,8 @@ class FI9803PV3(Camera):
                         self.__store_image(frame)
                 else:
                     self.__connect()
+
+                time.sleep(0.001)
             except Exception as e:
                 print("Error downloading image from camera {} on ip {}".format(self.place, self.IP))
                 print(e)
