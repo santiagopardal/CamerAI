@@ -115,7 +115,7 @@ class FI9803PV3(Camera):
                 print(e)
                 self.__connect()
 
-    def __get_and_store_image(self, frame):
+    def __store_image(self, frame):
             try:
                 folder = self.place + "/"
                 filename = str(datetime.datetime.now().time()).replace(":", "-") + ".jpeg"
