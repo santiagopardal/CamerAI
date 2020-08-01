@@ -115,9 +115,7 @@ class System:
 
     def run(self):
         for camera in self.cameras:
-            thread = threading.Thread(target=self.__thread_worker, args=(camera,))
-            thread.daemon = True
-            thread.start()
+            camera.record()
 
         while True:
             print("Sleeping...")
@@ -126,15 +124,6 @@ class System:
          #       self.__upload_time()
 
             time.sleep(Constants.UPDATE_EVERY_SECCONDS)
-
-    def __thread_worker(self, camera: Camera):
-        previous_capture = 0
-
-        while True:
-            if time.time() - previous_capture > 1/Constants.FRAMERATE:
-                previous_capture = time.time()
-                camera.record()
-                time.sleep(1/Constants.FRAMERATE)
 
     def __upload_time(self):
         print("Upload time!")
