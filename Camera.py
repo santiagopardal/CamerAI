@@ -111,6 +111,11 @@ class FI9803PV3(Camera):
                 if self.live_video.isOpened():
                     _, frame = self.live_video.read()
 
+                    while frame is None:
+                        print("Reconnecting!")
+                        self.__connect()
+                        _, frame = self.live_video.read()
+
                     if time.time() - previous_capture > 1/Constants.FRAMERATE:
                         previous_capture = time.time()
                         thread = threading.Thread(target=self.__store_image, args=(frame,))
