@@ -149,12 +149,27 @@ class FI9803PV3(Camera):
                 print(e)
 
     def __connect(self):
-        if self.live_video is None:
-            self.live_video = cv2.VideoCapture(self.live_video_url)
-        else:
-            self.live_video.release()
-            del self.live_video
-            self.live_video = cv2.VideoCapture(self.live_video_url)
+        connected = False
+        i = 0
+        while not connected:
+            try:
+                if self.live_video is None:
+                    self.live_video = cv2.VideoCapture(self.live_video_url)
+                else:
+                    print("Reconnecting camera at {} on IP {}".format(self.place, self.IP))
+                    self.live_video.release()
+                    del self.live_video
+                    self.live_video = cv2.VideoCapture(self.live_video_url)
+
+                connected = True
+
+                print("Connected camera at {} on IP {}".format(self.place, self.IP))
+            except Exception as e:
+                if i < 6:
+                    i += 1
+                seconds = 2**i
+                print("Could not connect, retrying in {} seconds".format(seconds))
+                time.sleep(seconds)
 
 
 class FI89182(Camera):
