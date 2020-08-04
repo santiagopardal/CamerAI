@@ -4,10 +4,10 @@ from System import check_movement_in_batch
 from Camera import FI9803PV3, FI89182
 import threading
 """
-t1 = threading.Thread(target=check_movement_in_batch, args=("Front Yard/2020-07-31",))
-t2 = threading.Thread(target=check_movement_in_batch, args=("Front Yard 2/2020-07-31",))
-t3 = threading.Thread(target=check_movement_in_batch, args=("Back Yard/2020-07-31",))
-t4 = threading.Thread(target=check_movement_in_batch, args=("Back Yard 2/2020-07-31",))
+t1 = threading.Thread(target=check_movement_in_batch, args=("Front Yard/2020-08-02",))
+t2 = threading.Thread(target=check_movement_in_batch, args=("Front Yard 2/2020-08-02",))
+t3 = threading.Thread(target=check_movement_in_batch, args=("Back Yard/2020-08-02",))
+t4 = threading.Thread(target=check_movement_in_batch, args=("Back Yard 2/2020-08-02",))
 
 t1.daemon = False
 t2.daemon = False

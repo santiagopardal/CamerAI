@@ -7,6 +7,8 @@ import time
 import cv2
 import threading
 import Constants
+from CNNs import create_model
+import numpy as np
 
 
 class Camera:
@@ -17,6 +19,8 @@ class Camera:
         self.screenshot_url = screenshot_url
         self.record_thread = None
         self.kill_thread = False
+        self.neural_network = create_model()
+        self.neural_network.load_weights("Neural Network/model_weights")
 
     def equals(self, cam):
         return cam.getIP() == self.IP and cam.getPort() == self.port
@@ -38,6 +42,21 @@ class Camera:
     def stop_recording(self):
         self.kill_thread = True
         self.record_thread = None
+
+    def _movement(self, previous_frame, frame) -> bool:
+        previous_frame = cv2.resize(previous_frame, (256, 144), interpolation=cv2.INTER_AREA)
+        previous_frame = cv2.cvtColor(previous_frame, cv2.COLOR_RGB2GRAY)
+
+        img = cv2.resize(frame, (256, 144), interpolation=cv2.INTER_AREA)
+        img = cv2.cvtColor(img, cv2.COLOR_RGB2GRAY)
+        diff = cv2.absdiff(previous_frame, img)
+        diff = np.array(diff / 255, dtype="float32")
+
+        images = np.array([diff]).reshape((256, 144, 1))
+
+        movement = self.neural_network.predict(np.array([images]))
+
+        return movement[0][0] >= 0.6
 
     def __record_thread_worker(self):
         previous_capture = 0
@@ -106,34 +125,42 @@ class FI9803PV3(Camera):
 
     def __record_thread_worker(self):
         previous_capture = 0
+        previous_frame = None
         while not self.kill_thread:
             try:
                 if self.live_video.isOpened():
                     _, frame = self.live_video.read()
 
+                    if previous_frame is None:
+                        previous_frame = frame
+
                     while frame is None:
                         print("Reconnecting!")
                         self.__connect()
-                        _, frame = self.live_video.read()
+                        _, previous_frame = self.live_video.read()
+                        frame = previous_frame
 
-                    if time.time() - previous_capture > 1/Constants.FRAMERATE:
-                        previous_capture = time.time()
-                        thread = threading.Thread(target=self.__store_image, args=(frame,))
+                    tme = time.time()
+                    if tme - previous_capture > 1/Constants.FRAMERATE:
+                        previous_capture = tme
+                        thread = threading.Thread(target=self.__store_image, args=(previous_frame, frame, datetime.datetime.now().time()))
                         thread.daemon = False
                         thread.start()
+
+                    previous_frame = frame
                 else:
                     self.__connect()
-
-                time.sleep(0.001)
             except Exception as e:
                 print("Error downloading image from camera {} on ip {}".format(self.place, self.IP))
                 print(e)
                 self.__connect()
 
-    def __store_image(self, frame):
+    def __store_image(self, previous_frame, frame, tme):
+        movement = self._movement(previous_frame, frame)
+        if movement:
             try:
                 folder = self.place + "/"
-                filename = str(datetime.datetime.now().time()).replace(":", "-") + ".jpeg"
+                filename = str(tme).replace(":", "-") + ".jpeg"
 
                 if not os.path.exists(folder):
                     os.mkdir(folder)
