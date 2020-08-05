@@ -9,6 +9,7 @@ import threading
 import Constants
 from CNNs import create_model
 import numpy as np
+import requests
 
 
 class Camera:
@@ -54,27 +55,48 @@ class Camera:
 
         images = np.array([diff]).reshape((256, 144, 1))
 
-        movement = self.neural_network.predict(np.array([images]))
+        movement = self.neural_network.predict_on_batch(np.array([images]))
 
         return movement[0][0] >= 0.6
 
+    def _store_frame(self, frame, tme):
+        try:
+            folder = self.place + "/"
+            filename = str(tme).replace(":", "-") + ".jpeg"
+
+            if not os.path.exists(folder):
+                os.mkdir(folder)
+
+            folder = folder + str(datetime.datetime.now().date()) + "/"
+
+            if not os.path.exists(folder):
+                os.mkdir(folder)
+
+            cv2.imwrite(folder + filename, frame)
+            del frame
+        except Exception as e:
+            print("Error storing image from camera on {} and ip {}".format(self.place, self.IP))
+            print(e)
+
     def __record_thread_worker(self):
         previous_capture = 0
+        previous_frame = None
         while not self.kill_thread:
             if time.time() - previous_capture > 1/Constants.FRAMERATE:
-                folder = self.place + "/"
-                filename = str(datetime.datetime.now().time()).replace(":", "-") + ".jpeg"
-
-                if not os.path.exists(folder):
-                    os.mkdir(folder)
-
-                folder = folder + str(datetime.datetime.now().date()) + "/"
-                if not os.path.exists(folder):
-                    os.mkdir(folder)
 
                 try:
                     previous_capture = time.time()
-                    urllib.request.urlretrieve(self.screenshot_url, folder + filename)
+                    response = requests.get(self.screenshot_url, stream=True).raw
+                    frame = np.asarray(bytearray(response.read()), dtype="uint8")
+                    frame = cv2.imdecode(frame, cv2.IMREAD_COLOR)
+
+                    if previous_frame is not None:
+                        movement = self._movement(previous_frame, frame)
+
+                        if movement:
+                            self._store_frame(frame, datetime.datetime.now().time())
+
+                    previous_frame = frame
                 except Exception as e:
                     print("Error downloading image from camera {} on ip {}".format(self.place, self.IP))
                     print(e)
@@ -126,6 +148,7 @@ class FI9803PV3(Camera):
     def __record_thread_worker(self):
         previous_capture = 0
         previous_frame = None
+
         while not self.kill_thread:
             try:
                 if self.live_video.isOpened():
@@ -143,37 +166,24 @@ class FI9803PV3(Camera):
                     tme = time.time()
                     if tme - previous_capture > 1/Constants.FRAMERATE:
                         previous_capture = tme
-                        thread = threading.Thread(target=self.__store_image, args=(previous_frame, frame, datetime.datetime.now().time()))
+                        thread = threading.Thread(target=self.__handle_new_frame, args=(previous_frame, frame,
+                                                                                        datetime.datetime.now().time()))
                         thread.daemon = False
                         thread.start()
 
                     previous_frame = frame
                 else:
                     self.__connect()
+
             except Exception as e:
                 print("Error downloading image from camera {} on ip {}".format(self.place, self.IP))
                 print(e)
                 self.__connect()
 
-    def __store_image(self, previous_frame, frame, tme):
+    def __handle_new_frame(self, previous_frame, frame, tme):
         movement = self._movement(previous_frame, frame)
         if movement:
-            try:
-                folder = self.place + "/"
-                filename = str(tme).replace(":", "-") + ".jpeg"
-
-                if not os.path.exists(folder):
-                    os.mkdir(folder)
-
-                folder = folder + str(datetime.datetime.now().date()) + "/"
-
-                if not os.path.exists(folder):
-                    os.mkdir(folder)
-
-                cv2.imwrite(folder + filename, frame)
-            except Exception as e:
-                print("Error storing image from camera on {} and ip {}".format(self.place, self.IP))
-                print(e)
+            self._store_frame(frame, tme)
 
     def __connect(self):
         connected = False
