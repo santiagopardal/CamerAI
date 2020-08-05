@@ -82,10 +82,10 @@ class Camera:
         previous_capture = 0
         previous_frame = None
         while not self.kill_thread:
-            if time.time() - previous_capture > 1/Constants.FRAMERATE:
+            if time.perf_counter() - previous_capture > 1/Constants.FRAMERATE:
 
                 try:
-                    previous_capture = time.time()
+                    previous_capture = time.perf_counter()
                     response = requests.get(self.screenshot_url, stream=True).raw
                     frame = np.asarray(bytearray(response.read()), dtype="uint8")
                     frame = cv2.imdecode(frame, cv2.IMREAD_COLOR)
@@ -163,7 +163,7 @@ class FI9803PV3(Camera):
                         _, previous_frame = self.live_video.read()
                         frame = previous_frame
 
-                    tme = time.time()
+                    tme = time.perf_counter()
                     if tme - previous_capture > 1/Constants.FRAMERATE:
                         previous_capture = tme
                         thread = threading.Thread(target=self.__handle_new_frame, args=(previous_frame, frame,
