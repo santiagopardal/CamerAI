@@ -1,0 +1,2 @@
+model_checkpoint_path: "CNN-64-64-128-128"
+all_model_checkpoint_paths: "CNN-64-64-128-128"
