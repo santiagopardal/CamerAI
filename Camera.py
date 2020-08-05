@@ -21,7 +21,7 @@ class Camera:
         self.record_thread = None
         self.kill_thread = False
         self.neural_network = create_model()
-        self.neural_network.load_weights("Neural Network/model_weights")
+        self.neural_network.load_weights("Neural Network/v2/model_weights")
 
     def equals(self, cam):
         return cam.getIP() == self.IP and cam.getPort() == self.port
