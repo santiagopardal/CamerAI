@@ -79,8 +79,8 @@ class Camera:
                 os.mkdir(folder)
 
             frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
-            image = Image.fromarray(frame)
-            image.save(folder + filename, optimize=True, quality=50)
+            frame = Image.fromarray(frame)
+            frame.save(folder + filename, optimize=True, quality=50)
             del frame
         except Exception as e:
             print("Error storing image from camera on {} and ip {}".format(self.place, self.IP))
