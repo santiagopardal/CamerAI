@@ -9,6 +9,7 @@ from Constants import MOVEMENT_SENSITIVITY
 model = create_model()
 model.load_weights("Neural Network/v2/model_weights")
 
+
 def detect_movement(previous_frame, frame):
     previous_frame = cv2.resize(previous_frame, (256, 144), interpolation=cv2.INTER_AREA)
     previous_frame = cv2.cvtColor(previous_frame, cv2.COLOR_RGB2GRAY)
@@ -27,24 +28,25 @@ def detect_movement(previous_frame, frame):
         print(movement)
         cv2.imwrite("./images/{}.jpeg".format(datetime.datetime.now().time()), frame)
 
+
 def show_video():
     cap = cv2.VideoCapture("rtsp://admin:maxi7500@192.168.1.131:1113/videoMain")
 
-    _, previous_image = cap.read()
+    _, previous_frame = cap.read()
 
     while(cap.isOpened()):
         try:
             ret, frame = cap.read()
 
-            thread = threading.Thread(target=detect_movement, args=(previous_image, frame,))
-            thread.daemon = True
-            thread.start()
+            if previous_frame is not None:
 
-            cap.read()
+                thread = threading.Thread(target=detect_movement, args=(previous_frame, frame,))
+                thread.daemon = True
+                thread.start()
 
             cv2.imshow('frame', frame)
 
-            previous_image = frame
+            previous_frame = frame
 
             if cv2.waitKey(20) & 0xFF == ord('q'):
                 break
