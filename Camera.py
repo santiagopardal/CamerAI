@@ -10,6 +10,7 @@ import Constants
 from CNNs import create_model
 import numpy as np
 import requests
+from PIL import Image
 
 
 class Camera:
@@ -77,7 +78,9 @@ class Camera:
             if not os.path.exists(folder):
                 os.mkdir(folder)
 
-            cv2.imwrite(folder + filename, frame)
+            frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
+            image = Image.fromarray(frame)
+            image.save(folder + filename, optimize=True, quality=50)
             del frame
         except Exception as e:
             print("Error storing image from camera on {} and ip {}".format(self.place, self.IP))
