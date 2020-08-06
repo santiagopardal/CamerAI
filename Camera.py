@@ -35,7 +35,7 @@ class Camera:
         return image
 
     def record(self):
-        thread = threading.Thread(target=self.__record_thread_worker, args=())
+        thread = threading.Thread(target=self._record_thread_worker, args=())
         thread.daemon = False
         thread.start()
         self.record_thread = thread
@@ -83,7 +83,7 @@ class Camera:
             print("Error storing image from camera on {} and ip {}".format(self.place, self.IP))
             print(e)
 
-    def __record_thread_worker(self):
+    def _record_thread_worker(self):
         previous_capture = 0
         previous_frame = None
         while not self.kill_thread:
@@ -140,17 +140,17 @@ class FI9803PV3(Camera):
             self.kill_thread = True
             self.record_thread.join()
             self.kill_thread = False
-            thread = threading.Thread(target=self.__record_thread_worker, args=())
+            thread = threading.Thread(target=self._record_thread_worker, args=())
             thread.daemon = False
             thread.start()
             self.record_thread = thread
         else:
-            thread = threading.Thread(target=self.__record_thread_worker, args=())
+            thread = threading.Thread(target=self._record_thread_worker, args=())
             thread.daemon = False
             thread.start()
             self.record_thread = thread
 
-    def __record_thread_worker(self):
+    def _record_thread_worker(self):
         previous_capture = 0
         previous_frame = None
 
@@ -171,7 +171,7 @@ class FI9803PV3(Camera):
                     tme = time.perf_counter()
                     if tme - previous_capture > 1/Constants.FRAMERATE:
                         previous_capture = tme
-                        thread = threading.Thread(target=self._handle_new_frame, args=(previous_frame, frame,
+                        thread = threading.Thread(target=self._handle_new_frame, args=(previous_frame,frame,
                                                                                         datetime.datetime.now().time()))
                         thread.daemon = False
                         thread.start()
