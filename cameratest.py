@@ -4,9 +4,10 @@ import datetime
 from time import perf_counter
 import threading
 from CNNs import create_model
+from Constants import MOVEMENT_SENSITIVITY
 
 model = create_model()
-model.load_weights("Neural Network/model_weights")
+model.load_weights("Neural Network/v2/model_weights")
 
 def detect_movement(previous_frame, frame):
     previous_frame = cv2.resize(previous_frame, (256, 144), interpolation=cv2.INTER_AREA)
@@ -22,7 +23,7 @@ def detect_movement(previous_frame, frame):
 
     movement = model.predict(np.array([images]))
 
-    if movement[0][0] >= 0.6:
+    if movement[0][0] >= MOVEMENT_SENSITIVITY:
         print(movement)
         cv2.imwrite("./images/{}.jpeg".format(datetime.datetime.now().time()), frame)
 

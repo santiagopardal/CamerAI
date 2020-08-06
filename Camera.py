@@ -57,7 +57,7 @@ class Camera:
 
         movement = self.neural_network.predict_on_batch(np.array([images]))
 
-        return movement[0][0] >= 0.6
+        return movement[0][0] >= Constants.MOVEMENT_SENSITIVITY
 
     def _store_frame(self, frame, tme):
         try:
