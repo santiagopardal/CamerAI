@@ -96,7 +96,8 @@ class Camera:
                     frame = cv2.imdecode(frame, cv2.IMREAD_COLOR)
 
                     if previous_frame is not None:
-                        thread = threading.Thread(target=self._handle_new_frame, args=(previous_frame, frame, time.perf_counter(),))
+                        thread = threading.Thread(target=self._handle_new_frame, args=(previous_frame, frame,
+                                                                                       datetime.datetime.now().time(),))
                         thread.daemon = False
                         thread.start()
 
