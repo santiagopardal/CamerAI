@@ -96,7 +96,7 @@ class Camera:
                     frame = cv2.imdecode(frame, cv2.IMREAD_COLOR)
 
                     if previous_frame is not None:
-                        thread = threading.Thread(target=self._handle_new_frame, args=(previous_frame, frame))
+                        thread = threading.Thread(target=self._handle_new_frame, args=(previous_frame, frame, time.perf_counter(),))
                         thread.daemon = False
                         thread.start()
 
@@ -170,7 +170,7 @@ class FI9803PV3(Camera):
                     tme = time.perf_counter()
                     if tme - previous_capture > 1/Constants.FRAMERATE:
                         previous_capture = tme
-                        thread = threading.Thread(target=self.__handle_new_frame, args=(previous_frame, frame,
+                        thread = threading.Thread(target=self._handle_new_frame, args=(previous_frame, frame,
                                                                                         datetime.datetime.now().time()))
                         thread.daemon = False
                         thread.start()
@@ -183,11 +183,6 @@ class FI9803PV3(Camera):
                 print("Error downloading image from camera {} on ip {}".format(self.place, self.IP))
                 print(e)
                 self.__connect()
-
-    def __handle_new_frame(self, previous_frame, frame, tme):
-        movement = self._movement(previous_frame, frame)
-        if movement:
-            self._store_frame(frame, tme)
 
     def __connect(self):
         connected = False
