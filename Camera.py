@@ -44,6 +44,11 @@ class Camera:
         self.kill_thread = True
         self.record_thread = None
 
+    def _handle_new_frame(self, previous_frame, frame, tme):
+        movement = self._movement(previous_frame, frame)
+        if movement:
+            self._store_frame(frame, tme)
+
     def _movement(self, previous_frame, frame) -> bool:
         previous_frame = cv2.resize(previous_frame, (256, 144), interpolation=cv2.INTER_AREA)
         previous_frame = cv2.cvtColor(previous_frame, cv2.COLOR_RGB2GRAY)
@@ -91,10 +96,9 @@ class Camera:
                     frame = cv2.imdecode(frame, cv2.IMREAD_COLOR)
 
                     if previous_frame is not None:
-                        movement = self._movement(previous_frame, frame)
-
-                        if movement:
-                            self._store_frame(frame, datetime.datetime.now().time())
+                        thread = threading.Thread(target=self._handle_new_frame, args=(previous_frame, frame))
+                        thread.daemon = False
+                        thread.start()
 
                     previous_frame = frame
                 except Exception as e:
