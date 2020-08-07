@@ -34,7 +34,7 @@ def show_video():
 
     _, previous_frame = cap.read()
 
-    while(cap.isOpened()):
+    while cap.isOpened():
         try:
             ret, frame = cap.read()
 
