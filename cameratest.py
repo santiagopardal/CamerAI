@@ -7,7 +7,7 @@ from CNNs import create_model
 from Constants import MOVEMENT_SENSITIVITY
 
 model = create_model()
-model.load_weights("Neural Network/v2/model_weights")
+model.load_weights("Neural Network/v4.7/model_weights")
 
 
 def detect_movement(previous_frame, frame):
@@ -44,7 +44,7 @@ def show_video():
                 thread.daemon = True
                 thread.start()
 
-            cv2.imshow('frame', frame)
+                cv2.imshow('frame', frame)
 
             previous_frame = frame
 
