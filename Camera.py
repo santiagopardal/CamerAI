@@ -22,7 +22,7 @@ class Camera:
         self.record_thread = None
         self.kill_thread = False
         self.neural_network = create_model()
-        self.neural_network.load_weights("Neural Network/v4.7/model_weights")
+        self.neural_network.load_weights("Neural Network/v4.8.3/model_weights")
 
     def equals(self, cam):
         return cam.getIP() == self.IP and cam.getPort() == self.port
@@ -56,6 +56,7 @@ class Camera:
 
         img = cv2.resize(frame, (256, 144), interpolation=cv2.INTER_AREA)
         img = cv2.cvtColor(img, cv2.COLOR_RGB2GRAY)
+
         diff = cv2.absdiff(previous_frame, img)
         diff = np.array(diff / 255, dtype="float32")
 

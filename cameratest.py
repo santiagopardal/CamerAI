@@ -3,11 +3,12 @@ import numpy as np
 import datetime
 from time import perf_counter
 import threading
+import datetime
 from CNNs import create_model
 from Constants import MOVEMENT_SENSITIVITY
 
 model = create_model()
-model.load_weights("Neural Network/v4.7/model_weights")
+model.load_weights("Neural Network/v4.8.3/model_weights")
 
 
 def detect_movement(previous_frame, frame):
@@ -38,8 +39,7 @@ def show_video():
         try:
             ret, frame = cap.read()
 
-            if previous_frame is not None:
-
+            if previous_frame is not None and frame is not None:
                 thread = threading.Thread(target=detect_movement, args=(previous_frame, frame,))
                 thread.daemon = True
                 thread.start()
