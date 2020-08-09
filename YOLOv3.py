@@ -66,9 +66,13 @@ def find_all(classes_to_find: list, path: str):
 
             classes_found, confidences = detect(img)
 
-            for clss in classes_found:
+            found = False
+            i = 0
+            while i < len(classes_found) and not found:
+                clss = classes_found[i]
                 if clss in classes_to_find:
-                    res.append((clss, confidences[classes_found.index(clss)]))
+                    res.append(image)
+                i = i + 1
     else:
         if path.endswith(".jpeg"):
             img = cv2.imread(path)
@@ -76,6 +80,6 @@ def find_all(classes_to_find: list, path: str):
 
             for clss in classes_found:
                 if clss in classes_to_find:
-                    res.append((clss, confidences[classes_found.index(clss)]))
+                    res.append(path)
 
     return res
