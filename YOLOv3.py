@@ -2,13 +2,15 @@ import cv2
 import numpy as np
 import os
 
-configsThreshold = 0.75
-nsmThreshold = 0.4
+configsThreshold = 0.2
+nmsThreshold = 0.4
+resolution = 352
+version = 3
 
-classesFile = "./YOLO v3/coco.names"
+classesFile = "./YOLO v{}/coco.names".format(str(version))
 classes = []
-modelConfigs = "./YOLO v3/yolov3.cfg"
-modelWeights = "./YOLO v3/yolov3.weights"
+modelConfigs = "./YOLO v{}/{}/yolov{}.cfg".format(str(version), str(resolution), str(version))
+modelWeights = "./YOLO v{}/{}/yolov{}.weights".format(str(version), str(resolution), str(version))
 
 with open(classesFile, "rt") as file:
     classes = file.read().rstrip("\n").split("\n")
@@ -16,7 +18,6 @@ with open(classesFile, "rt") as file:
 yolo = cv2.dnn.readNetFromDarknet(modelConfigs, modelWeights)
 yolo.setPreferableBackend(cv2.dnn.DNN_BACKEND_OPENCV)
 yolo.setPreferableTarget(cv2.dnn.DNN_TARGET_CPU)
-
 
 def getOutputsNames(model):
     names = model.getLayerNames()
@@ -40,11 +41,14 @@ def postprocess(outputs):
                 classesIds.append(classId)
                 confidences.append(confidence)
 
+    print(classesIds)
+    print(confidences)
+
     return classesIds, confidences
 
 
 def detect(frame):
-    blob = cv2.dnn.blobFromImage(frame, 1/255, (416, 416), [0, 0, 0, 0], 1,  crop=False)
+    blob = cv2.dnn.blobFromImage(frame, 1/255, (resolution, resolution), [0, 0, 0, 0], 1,  crop=False)
 
     yolo.setInput(blob)
 
@@ -66,20 +70,24 @@ def find_all(classes_to_find: list, path: str):
 
             classes_found, confidences = detect(img)
 
-            found = False
             i = 0
+            found = False
             while i < len(classes_found) and not found:
                 clss = classes_found[i]
                 if clss in classes_to_find:
-                    res.append(image)
+                    res.append(os.path.join(path, image))
                 i = i + 1
     else:
         if path.endswith(".jpeg"):
             img = cv2.imread(path)
             classes_found, confidences = detect(img)
 
-            for clss in classes_found:
+            i = 0
+            found = False
+            while i < len(classes_found) and not found:
+                clss = classes_found[i]
                 if clss in classes_to_find:
                     res.append(path)
+                i = i + 1
 
     return res
