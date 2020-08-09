@@ -11,6 +11,7 @@ from CNNs import create_model
 import numpy as np
 import requests
 from PIL import Image
+import YOLOv3
 
 
 class Camera:
@@ -49,6 +50,12 @@ class Camera:
         movement = self._movement(previous_frame, frame)
         if movement:
             self._store_frame(frame, tme)
+
+            hour = datetime.datetime.now().hour
+
+            if hour >= 1 and hour <= 6 and YOLOv3.there_is("person", frame):
+                pass #TODO send email.
+
 
     def _movement(self, previous_frame, frame) -> bool:
         previous_frame = cv2.resize(previous_frame, (256, 144), interpolation=cv2.INTER_AREA)

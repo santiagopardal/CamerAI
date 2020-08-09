@@ -8,10 +8,10 @@ import YOLOv3
 import cv2
 
 start = time.perf_counter()
-found = YOLOv3.find_all(["person"], "./Front Yard/2020-08-09/")
+img = cv2.imread("./Front Yard/2020-08-09/09-38-48.993245.jpeg")
+print("There is car:", YOLOv3.there_is("person", img))
 print("It took {} secods".format(time.perf_counter()-start))
-print(found)
-print(len(found))
+
 """
 t1 = threading.Thread(target=check_movement_in_batch, args=("Front Yard/2020-08-02",))
 t2 = threading.Thread(target=check_movement_in_batch, args=("Front Yard 2/2020-08-02",))

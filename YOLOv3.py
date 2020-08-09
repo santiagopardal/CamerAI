@@ -47,7 +47,7 @@ def postprocess(outputs):
     return classesIds, confidences
 
 
-def detect(frame):
+def detect(frame) -> tuple:
     blob = cv2.dnn.blobFromImage(frame, 1/255, (resolution, resolution), [0, 0, 0, 0], 1,  crop=False)
 
     yolo.setInput(blob)
@@ -58,6 +58,11 @@ def detect(frame):
     clssIds = [classes[classesIds[i]] for i in range(len(classesIds))]
 
     return clssIds, confidences
+
+
+def there_is(clss: str, frame) -> bool:
+    classesIds, confidences = detect(frame)
+    return clss in classesIds
 
 
 def find_all(classes_to_find: list, path: str):
@@ -76,6 +81,7 @@ def find_all(classes_to_find: list, path: str):
                 clss = classes_found[i]
                 if clss in classes_to_find:
                     res.append(os.path.join(path, image))
+                    found = True
                 i = i + 1
     else:
         if path.endswith(".jpeg"):
@@ -88,6 +94,7 @@ def find_all(classes_to_find: list, path: str):
                 clss = classes_found[i]
                 if clss in classes_to_find:
                     res.append(path)
+                    found = True
                 i = i + 1
 
     return res
