@@ -53,9 +53,8 @@ class Camera:
 
             hour = datetime.datetime.now().hour
 
-            if hour >= 1 and hour <= 6 and YOLOv3.there_is("person", frame):
-                pass #TODO send email.
-
+            if 1 <= hour <= 6 and YOLOv3.there_is("person", frame):
+                pass  # TODO send email.
 
     def _movement(self, previous_frame, frame) -> bool:
         previous_frame = cv2.resize(previous_frame, (256, 144), interpolation=cv2.INTER_AREA)
@@ -98,7 +97,7 @@ class Camera:
         previous_capture = 0
         previous_frame = None
         while not self.kill_thread:
-            if time.perf_counter() - previous_capture > 1/Constants.FRAMERATE:
+            if time.perf_counter() - previous_capture > 1 / Constants.FRAMERATE:
 
                 try:
                     previous_capture = time.perf_counter()
@@ -180,10 +179,10 @@ class FI9803PV3(Camera):
                         frame = previous_frame
 
                     tme = time.perf_counter()
-                    if tme - previous_capture > 1/Constants.FRAMERATE:
+                    if tme - previous_capture > 1 / Constants.FRAMERATE:
                         previous_capture = tme
-                        thread = threading.Thread(target=self._handle_new_frame, args=(previous_frame,frame,
-                                                                                        datetime.datetime.now().time()))
+                        thread = threading.Thread(target=self._handle_new_frame, args=(previous_frame, frame,
+                                                                                       datetime.datetime.now().time()))
                         thread.daemon = False
                         thread.start()
 
@@ -215,7 +214,7 @@ class FI9803PV3(Camera):
             except Exception as e:
                 if i < 6:
                     i += 1
-                seconds = 2**i
+                seconds = 2 ** i
                 print("Could not connect, retrying in {} seconds".format(seconds))
                 time.sleep(seconds)
 
