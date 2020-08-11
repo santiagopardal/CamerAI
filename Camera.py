@@ -1,5 +1,4 @@
 import urllib.request
-from PIL import Image
 import io
 import datetime
 import os
