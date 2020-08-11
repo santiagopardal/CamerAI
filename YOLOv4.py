@@ -1,22 +1,23 @@
-import cv2
 import numpy as np
 import os
+import cv2
 
-configsThreshold = 0.2
-nmsThreshold = 0.4
-resolution = 448
+configsThreshold = 0.5
+nmsThreshold = 0.6
+resolution = 416
 
-classesFile = "./YOLO v3/coco.names"
+classesFile = "./YOLO v4/coco.names"
 classes = []
-modelConfigs = "./YOLO v3/{}/yolov3.cfg".format(str(resolution))
-modelWeights = "./YOLO v3/{}/yolov3.weights".format(str(resolution))
+modelConfigs = "./YOLO v4/{}/yolov4.cfg".format(str(resolution))
+modelWeights = "./YOLO v4/{}/yolov4.weights".format(str(resolution))
 
 with open(classesFile, "rt") as file:
     classes = file.read().rstrip("\n").split("\n")
 
-yolo = cv2.dnn.readNetFromDarknet(modelConfigs, modelWeights)
+yolo = cv2.dnn.readNet(modelWeights, modelConfigs, "darknet")
 yolo.setPreferableBackend(cv2.dnn.DNN_BACKEND_OPENCV)
 yolo.setPreferableTarget(cv2.dnn.DNN_TARGET_CPU)
+
 
 def getOutputsNames(model):
     names = model.getLayerNames()
@@ -40,19 +41,16 @@ def postprocess(outputs):
                 classesIds.append(classId)
                 confidences.append(confidence)
 
-    print(classesIds)
-    print(confidences)
-
     return classesIds, confidences
 
 
 def detect(frame) -> tuple:
-    blob = cv2.dnn.blobFromImage(frame, 1/255, (resolution, resolution), [0, 0, 0, 0], 1,  crop=False)
+    blob = cv2.dnn.blobFromImage(frame, 1.0 / 255, (resolution, resolution), [0, 0, 0, 0], 1, crop=False)
 
     yolo.setInput(blob)
 
     outputs = yolo.forward(getOutputsNames(yolo))
-
+    
     classesIds, confidences = postprocess(outputs)
     clssIds = [classes[classesIds[i]] for i in range(len(classesIds))]
 

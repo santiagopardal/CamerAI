@@ -11,7 +11,7 @@ from CNNs import create_model
 import numpy as np
 import requests
 from PIL import Image
-import YOLOv3
+import YOLOv4
 
 
 class Camera:
@@ -53,7 +53,7 @@ class Camera:
 
             hour = datetime.datetime.now().hour
 
-            if 1 <= hour <= 6 and YOLOv3.there_is("person", frame):
+            if 1 <= hour <= 6 and YOLOv4.there_is("person", frame):
                 pass  # TODO send email.
 
     def _movement(self, previous_frame, frame) -> bool:
