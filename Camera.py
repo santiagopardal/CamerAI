@@ -33,7 +33,7 @@ class Camera:
     def set_motion_handler(self, motion_handler: MotionEventHandler):
         self._motion_handler = motion_handler
 
-    def equals(self, cam: Camera):
+    def equals(self, cam):
         return cam.getIP() == self._IP and cam.getPort() == self._port
 
     def screenshot(self):
