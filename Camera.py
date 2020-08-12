@@ -57,6 +57,7 @@ class Camera:
             hour = datetime.datetime.now().hour
 
             if 1 <= hour <= 6 and self._YOLO.there_is("person", frame):
+                print("Person")
                 pass  # TODO send email.
 
     def _movement(self, previous_frame, frame) -> bool:
@@ -127,14 +128,14 @@ class FI9803PV3(Camera):
         super().__init__(ip, port, place, "http://" + ip + ":" + str(port)
                          + "/cgi-bin/CGIProxy.fcgi?cmd=snapPicture2&usr=" + user + "&pwd=" + password)
 
-        self.live_video_url = "rtsp://" + user + ":" + password + "@" + ip + ":" + str(port + 2) + "/videoMain"
-        self.live_video = None
+        self._live_video_url = "rtsp://" + user + ":" + password + "@" + ip + ":" + str(port + 2) + "/videoMain"
+        self._live_video = None
         self.__connect()
 
     def record(self):
         try:
-            if self.live_video is not None:
-                if self.live_video.isOpened():
+            if self._live_video is not None:
+                if self._live_video.isOpened():
                     self.__initialize_record_thread()
                 else:
                     self.__connect()
@@ -143,7 +144,7 @@ class FI9803PV3(Camera):
                 self.__connect()
                 self.__initialize_record_thread()
         except Exception as e:
-            while not self.live_video.isOpened():
+            while not self._live_video.isOpened():
                 print("Error downloading image from camera {} on ip {}".format(self._place, self._IP))
                 print(e)
                 self.__connect()
@@ -169,8 +170,8 @@ class FI9803PV3(Camera):
 
         while not self._kill_thread:
             try:
-                if self.live_video.isOpened():
-                    _, frame = self.live_video.read()
+                if self._live_video.isOpened():
+                    _, frame = self._live_video.read()
 
                     if previous_frame is None:
                         previous_frame = frame
@@ -178,7 +179,7 @@ class FI9803PV3(Camera):
                     while frame is None:
                         print("Reconnecting!")
                         self.__connect()
-                        _, previous_frame = self.live_video.read()
+                        _, previous_frame = self._live_video.read()
                         frame = previous_frame
 
                     tme = time.perf_counter()
@@ -203,13 +204,13 @@ class FI9803PV3(Camera):
         i = 0
         while not connected:
             try:
-                if self.live_video is None:
-                    self.live_video = cv2.VideoCapture(self.live_video_url)
+                if self._live_video is None:
+                    self._live_video = cv2.VideoCapture(self._live_video_url)
                 else:
                     print("Reconnecting camera at {} on IP {}".format(self._place, self._IP))
-                    self.live_video.release()
-                    del self.live_video
-                    self.live_video = cv2.VideoCapture(self.live_video_url)
+                    self._live_video.release()
+                    del self._live_video
+                    self._live_video = cv2.VideoCapture(self._live_video_url)
 
                 connected = True
 
