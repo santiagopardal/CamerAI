@@ -57,8 +57,8 @@ class YOLO:
         return clssIds, confidences
 
     def there_is(self, clss: str, frame) -> bool:
-        classesIds, confidences = self.detect(frame)
-        return clss in classesIds
+        classes_ids, _ = self.detect(frame)
+        return clss in classes_ids
 
     def find_all(self, classes_to_find: list, path: str) -> list:
         res = []
@@ -68,7 +68,7 @@ class YOLO:
             for image in images:
                 img = cv2.imread(os.path.join(path, image))
 
-                classes_found, confidences = self.detect(img)
+                classes_found, _ = self.detect(img)
 
                 i = 0
                 found = False

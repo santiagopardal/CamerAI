@@ -1,6 +1,7 @@
 import time
 from YOLO import YOLOv4Tiny
 
+
 class MotionEventHandler:
     def __init__(self):
         pass
@@ -15,10 +16,10 @@ class NightMotionEventHandler(MotionEventHandler):
 
         self._motion_frames = {}
 
-    def handle(self, motionframe):
+    def handle(self, event):
         yolo = YOLOv4Tiny()
 
-        if yolo.there_is("person", motionframe):
+        if yolo.there_is("person", event):
             if len(self._motion_frames) >= 1:
                 times = list(self._motion_frames.values())
                 motion_start = times[0]
@@ -42,9 +43,9 @@ class NightMotionEventHandler(MotionEventHandler):
                     if should_send:
                         self._send_email()
                     else:
-                        self._motion_frames[motionframe] = time.perf_counter()
+                        self._motion_frames[event] = time.perf_counter()
             else:
-                self._motion_frames[motionframe] = time.perf_counter()
+                self._motion_frames[event] = time.perf_counter()
 
     def _send_email(self):
         print("Sending email")

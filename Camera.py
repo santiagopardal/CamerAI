@@ -221,7 +221,7 @@ class FI9803PV3(Camera):
                 connected = True
 
                 print("Connected camera at {} on IP {}".format(self._place, self._IP))
-            except Exception as e:
+            except Exception:
                 if i < 6:
                     i += 1
                 seconds = 2 ** i
