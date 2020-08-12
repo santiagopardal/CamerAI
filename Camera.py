@@ -11,6 +11,7 @@ import numpy as np
 import requests
 from PIL import Image
 from YOLO import YOLOv4Tiny
+from MotionEventHandler import NightMotionEventHandler, MotionEventHandler
 
 
 class Camera:
@@ -24,11 +25,15 @@ class Camera:
         self._neural_network = create_model()
         self._neural_network.load_weights("Neural Network/v4.8.3/model_weights")
         self._YOLO = YOLOv4Tiny()
+        self._motion_handler = MotionEventHandler()
 
     def get_place(self):
         return self._place
 
-    def equals(self, cam):
+    def set_motion_handler(self, motion_handler: MotionEventHandler):
+        self._motion_handler = motion_handler
+
+    def equals(self, cam: Camera):
         return cam.getIP() == self._IP and cam.getPort() == self._port
 
     def screenshot(self):
@@ -54,11 +59,12 @@ class Camera:
         if movement:
             self._store_frame(frame, tme)
 
-            hour = datetime.datetime.now().hour
+            self._motion_handler.handle(frame)
+            #hour = datetime.datetime.now().hour
 
-            if 1 <= hour <= 6 and self._YOLO.there_is("person", frame):
+            """if 1 <= hour <= 6 and self._YOLO.there_is("person", frame):
                 print("Person")
-                pass  # TODO send email.
+                pass  # TODO send email."""
 
     def _movement(self, previous_frame, frame) -> bool:
         previous_frame = cv2.resize(previous_frame, (256, 144), interpolation=cv2.INTER_AREA)
@@ -125,10 +131,10 @@ class Camera:
 
 class FI9803PV3(Camera):
     def __init__(self, ip: str, port: int, place: str, user: str, password: str):
-        super().__init__(ip, port, place, "http://" + ip + ":" + str(port)
-                         + "/cgi-bin/CGIProxy.fcgi?cmd=snapPicture2&usr=" + user + "&pwd=" + password)
+        super().__init__(ip, port, place, "http://{}:{}/cgi-bin/CGIProxy.fcgi?cmd=snapPicture2&usr={}&pwd={}".
+                         format(ip, str(port), user, password))
 
-        self._live_video_url = "rtsp://" + user + ":" + password + "@" + ip + ":" + str(port + 2) + "/videoMain"
+        self._live_video_url = "rtsp://{}:{}@{}:{}/videoMain".format(user, password, ip, str(port + 2))
         self._live_video = None
         self.__connect()
 
@@ -226,5 +232,4 @@ class FI9803PV3(Camera):
 class FI89182(Camera):
     def __init__(self, ip: str, port: int, place: str, user: str, password: str):
         super().__init__(ip, port, place,
-                         "http://" + ip + ":" + str(port) + "/snapshot.cgi?user=" +
-                         user + "&pwd=" + password + "&count=0")
+                         "http://{}:{}/snapshot.cgi?user={}&pwd={}&count=0".format(ip, str(port), user, password))

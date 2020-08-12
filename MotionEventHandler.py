@@ -1,5 +1,5 @@
 import time
-
+from YOLO import YOLOv4Tiny
 
 class MotionEventHandler:
     def __init__(self):
@@ -16,34 +16,35 @@ class NightMotionEventHandler(MotionEventHandler):
         self._motion_frames = {}
 
     def handle(self, motionframe):
-        if len(self._motion_frames) >= 1:
-            times = list(self._motion_frames.values())
-            motion_start = times[0]
+        yolo = YOLOv4Tiny()
 
-            if time.perf_counter() - motion_start <= 10:
-                self._send_email()
-            else:
-                tme = time.perf_counter()
-                i = 0
-                should_send = False
-                while i < len(times) and not should_send:
-                    motion_start = times[i]
+        if yolo.there_is("person", motionframe):
+            if len(self._motion_frames) >= 1:
+                times = list(self._motion_frames.values())
+                motion_start = times[0]
 
-                    if tme - motion_start <= 10:
-                        should_send = True
-                    else:
-                        self._motion_frames.pop(list(self._motion_frames.keys())[i])
-
-                    i = i + 1
-
-                if should_send:
+                if time.perf_counter() - motion_start <= 10:
                     self._send_email()
                 else:
-                    self._motion_frames[motionframe] = time.perf_counter()
-        else:
-            self._motion_frames[motionframe] = time.perf_counter()
+                    tme = time.perf_counter()
+                    i = 0
+                    should_send = False
+                    while i < len(times) and not should_send:
+                        motion_start = times[i]
 
-        print(self._motion_frames)
+                        if tme - motion_start <= 10:
+                            should_send = True
+                        else:
+                            self._motion_frames.pop(list(self._motion_frames.keys())[i])
+
+                        i = i + 1
+
+                    if should_send:
+                        self._send_email()
+                    else:
+                        self._motion_frames[motionframe] = time.perf_counter()
+            else:
+                self._motion_frames[motionframe] = time.perf_counter()
 
     def _send_email(self):
         print("Sending email")
