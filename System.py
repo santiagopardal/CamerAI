@@ -98,7 +98,7 @@ class System:
         can_insert = True
         i = 0
         while can_insert and i < len(self.cameras):
-            can_insert = self.cameras[i].place != camera.place
+            can_insert = self.cameras[i].get_place() != camera.get_place()
             i += 1
 
         if can_insert:

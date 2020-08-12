@@ -4,7 +4,7 @@ from System import check_movement_in_batch
 from Camera import FI9803PV3, FI89182
 import threading
 import time
-import YOLOv4
+from YOLO import YOLOv4Tiny
 import cv2
 
 """

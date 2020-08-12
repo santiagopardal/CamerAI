@@ -10,25 +10,29 @@ from CNNs import create_model
 import numpy as np
 import requests
 from PIL import Image
-import YOLOv4
+from YOLO import YOLOv4Tiny
 
 
 class Camera:
     def __init__(self, ip: str, port: int, place: str, screenshot_url: str):
-        self.IP = ip
-        self.port = port
-        self.place = place
-        self.screenshot_url = screenshot_url
-        self.record_thread = None
-        self.kill_thread = False
-        self.neural_network = create_model()
-        self.neural_network.load_weights("Neural Network/v4.8.3/model_weights")
+        self._IP = ip
+        self._port = port
+        self._place = place
+        self._screenshot_url = screenshot_url
+        self._record_thread = None
+        self._kill_thread = False
+        self._neural_network = create_model()
+        self._neural_network.load_weights("Neural Network/v4.8.3/model_weights")
+        self._YOLO = YOLOv4Tiny()
+
+    def get_place(self):
+        return self._place
 
     def equals(self, cam):
-        return cam.getIP() == self.IP and cam.getPort() == self.port
+        return cam.getIP() == self._IP and cam.getPort() == self._port
 
     def screenshot(self):
-        with urllib.request.urlopen(self.screenshot_url) as url:
+        with urllib.request.urlopen(self._screenshot_url) as url:
             f = io.BytesIO(url.read())
 
         image = Image.open(f)
@@ -39,11 +43,11 @@ class Camera:
         thread = threading.Thread(target=self._record_thread_worker, args=())
         thread.daemon = False
         thread.start()
-        self.record_thread = thread
+        self._record_thread = thread
 
     def stop_recording(self):
-        self.kill_thread = True
-        self.record_thread = None
+        self._kill_thread = True
+        self._record_thread = None
 
     def _handle_new_frame(self, previous_frame, frame, tme):
         movement = self._movement(previous_frame, frame)
@@ -52,7 +56,7 @@ class Camera:
 
             hour = datetime.datetime.now().hour
 
-            if 1 <= hour <= 6 and YOLOv4.there_is("person", frame):
+            if 1 <= hour <= 6 and self._YOLO.there_is("person", frame):
                 pass  # TODO send email.
 
     def _movement(self, previous_frame, frame) -> bool:
@@ -67,13 +71,13 @@ class Camera:
 
         images = np.array([diff]).reshape((256, 144, 1))
 
-        movement = self.neural_network.predict_on_batch(np.array([images]))
+        movement = self._neural_network.predict_on_batch(np.array([images]))
 
         return movement[0][0] >= Constants.MOVEMENT_SENSITIVITY
 
     def _store_frame(self, frame, tme):
         try:
-            folder = self.place + "/"
+            folder = self._place + "/"
             filename = str(tme).replace(":", "-") + ".jpeg"
 
             if not os.path.exists(folder):
@@ -89,18 +93,18 @@ class Camera:
             frame.save(folder + filename, optimize=True, quality=50)
             del frame
         except Exception as e:
-            print("Error storing image from camera on {} and ip {}".format(self.place, self.IP))
+            print("Error storing image from camera on {} and ip {}".format(self._place, self._IP))
             print(e)
 
     def _record_thread_worker(self):
         previous_capture = 0
         previous_frame = None
-        while not self.kill_thread:
+        while not self._kill_thread:
             if time.perf_counter() - previous_capture > 1 / Constants.FRAMERATE:
 
                 try:
                     previous_capture = time.perf_counter()
-                    response = requests.get(self.screenshot_url, stream=True).raw
+                    response = requests.get(self._screenshot_url, stream=True).raw
                     frame = np.asarray(bytearray(response.read()), dtype="uint8")
                     frame = cv2.imdecode(frame, cv2.IMREAD_COLOR)
 
@@ -112,7 +116,7 @@ class Camera:
 
                     previous_frame = frame
                 except Exception as e:
-                    print("Error downloading image from camera {} on ip {}".format(self.place, self.IP))
+                    print("Error downloading image from camera {} on ip {}".format(self._place, self._IP))
                     print(e)
 
             time.sleep(0.001)
@@ -140,30 +144,30 @@ class FI9803PV3(Camera):
                 self.__initialize_record_thread()
         except Exception as e:
             while not self.live_video.isOpened():
-                print("Error downloading image from camera {} on ip {}".format(self.place, self.IP))
+                print("Error downloading image from camera {} on ip {}".format(self._place, self._IP))
                 print(e)
                 self.__connect()
 
     def __initialize_record_thread(self):
-        if self.record_thread is not None:
-            self.kill_thread = True
-            self.record_thread.join()
-            self.kill_thread = False
+        if self._record_thread is not None:
+            self._kill_thread = True
+            self._record_thread.join()
+            self._kill_thread = False
             thread = threading.Thread(target=self._record_thread_worker, args=())
             thread.daemon = False
             thread.start()
-            self.record_thread = thread
+            self._record_thread = thread
         else:
             thread = threading.Thread(target=self._record_thread_worker, args=())
             thread.daemon = False
             thread.start()
-            self.record_thread = thread
+            self._record_thread = thread
 
     def _record_thread_worker(self):
         previous_capture = 0
         previous_frame = None
 
-        while not self.kill_thread:
+        while not self._kill_thread:
             try:
                 if self.live_video.isOpened():
                     _, frame = self.live_video.read()
@@ -190,7 +194,7 @@ class FI9803PV3(Camera):
                     self.__connect()
 
             except Exception as e:
-                print("Error downloading image from camera {} on ip {}".format(self.place, self.IP))
+                print("Error downloading image from camera {} on ip {}".format(self._place, self._IP))
                 print(e)
                 self.__connect()
 
@@ -202,14 +206,14 @@ class FI9803PV3(Camera):
                 if self.live_video is None:
                     self.live_video = cv2.VideoCapture(self.live_video_url)
                 else:
-                    print("Reconnecting camera at {} on IP {}".format(self.place, self.IP))
+                    print("Reconnecting camera at {} on IP {}".format(self._place, self._IP))
                     self.live_video.release()
                     del self.live_video
                     self.live_video = cv2.VideoCapture(self.live_video_url)
 
                 connected = True
 
-                print("Connected camera at {} on IP {}".format(self.place, self.IP))
+                print("Connected camera at {} on IP {}".format(self._place, self._IP))
             except Exception as e:
                 if i < 6:
                     i += 1
