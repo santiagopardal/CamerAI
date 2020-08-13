@@ -26,22 +26,22 @@ class YOLO:
         return [names[i[0] - 1] for i in self._yolo.getUnconnectedOutLayers()]
 
     def _postprocess(self, outputs):
-        classesIds = []
+        classes_ids = []
         confidences = []
 
         for out in outputs:
             for detection in out:
                 scores = detection[5:]
 
-                classId = np.argmax(scores)
+                class_id = np.argmax(scores)
 
-                confidence = scores[classId]
+                confidence = scores[class_id]
 
                 if confidence > self._configsThreshold:
-                    classesIds.append(classId)
+                    classes_ids.append(class_id)
                     confidences.append(confidence)
 
-        return classesIds, confidences
+        return classes_ids, confidences
 
     def detect(self, frame) -> tuple:
         blob = cv2.dnn.blobFromImage(frame, 1.0 / 255, (self._resolution, self._resolution),
