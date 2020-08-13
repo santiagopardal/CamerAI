@@ -51,10 +51,10 @@ class YOLO:
 
         outputs = self._yolo.forward(self._get_outputs_names())
 
-        classesIds, confidences = self._postprocess(outputs)
-        clssIds = [self._classes[classesIds[i]] for i in range(len(classesIds))]
+        classes_ids, confidences = self._postprocess(outputs)
+        clss_ids = [self._classes[classes_ids[i]] for i in range(len(classes_ids))]
 
-        return clssIds, confidences
+        return clss_ids, confidences
 
     def there_is(self, clss: str, frame) -> bool:
         classes_ids, _ = self.detect(frame)
