@@ -11,7 +11,7 @@ import numpy as np
 import requests
 from PIL import Image
 from YOLO import YOLOv4Tiny
-from MotionEventHandler import NightMotionEventHandler, MotionEventHandler
+from MotionEventHandler import MotionEventHandler
 
 
 class Camera:
