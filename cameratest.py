@@ -6,12 +6,24 @@ import threading
 import datetime
 from CNNs import create_model
 from Constants import MOVEMENT_SENSITIVITY
+from YOLO import YOLOv4Tiny
 
 model = create_model()
 model.load_weights("Neural Network/v4.8.3/model_weights")
 
 
+def look_for_people(frame):
+    yolo = YOLOv4Tiny()
+
+    if yolo.there_is("person", frame):
+        print("Person")
+    else:
+        print("No person")
+
+    del yolo
+
 def detect_movement(previous_frame, frame):
+    frm = frame
     previous_frame = cv2.resize(previous_frame, (256, 144), interpolation=cv2.INTER_AREA)
     previous_frame = cv2.cvtColor(previous_frame, cv2.COLOR_RGB2GRAY)
 
@@ -27,7 +39,10 @@ def detect_movement(previous_frame, frame):
 
     if movement[0][0] >= MOVEMENT_SENSITIVITY:
         print(movement)
-        cv2.imwrite("./images/{}.jpeg".format(datetime.datetime.now().time()), frame)
+        thread = threading.Thread(target=look_for_people, args=(frm, ))
+        thread.daemon = True
+        thread.start()
+        #cv2.imwrite("./images/{}.jpeg".format(datetime.datetime.now().time()), frame)
 
 
 def show_video():
