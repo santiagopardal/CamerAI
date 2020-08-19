@@ -5,6 +5,7 @@ from Camera import FI9803PV3, FI89182
 import threading
 import time
 from YOLO import YOLOv4Tiny
+import Constants
 import cv2
 
 """
@@ -27,10 +28,10 @@ t4.start()
 sys = System()
 #api = GoogleAPI()
 #system = System()
-sys.add_camera(FI9803PV3("192.168.1.131", 1111, "Front Yard", "admin", "maxi7500"))
-sys.add_camera(FI89182("192.168.1.133", 2222, "Front Yard 2", "admin", "maxi7500"))
-sys.add_camera(FI9803PV3("192.168.1.132", 4444, "Back Yard", "admin", "maxi7500"))
-sys.add_camera(FI9803PV3("192.168.1.130", 3333, "Back Yard 2", "admin", "maxi7500"))
+sys.add_camera(FI9803PV3("192.168.1.131", 1111, "Front Yard", Constants.USER, Constants.PASSWORD))
+sys.add_camera(FI89182("192.168.1.133", 2222, "Front Yard 2", Constants.USER, Constants.PASSWORD))
+sys.add_camera(FI9803PV3("192.168.1.132", 4444, "Back Yard", Constants.USER, Constants.PASSWORD))
+sys.add_camera(FI9803PV3("192.168.1.130", 3333, "Back Yard 2", Constants.USER, Constants.PASSWORD))
 sys.run()
 
 """

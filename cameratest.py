@@ -1,12 +1,10 @@
 import cv2
 import numpy as np
-import datetime
-from time import perf_counter
 import threading
-import datetime
 from CNNs import create_model
 from Constants import MOVEMENT_SENSITIVITY
 from YOLO import YOLOv4Tiny
+import Constants
 
 model = create_model()
 model.load_weights("Neural Network/v4.8.3/model_weights")
@@ -46,7 +44,7 @@ def detect_movement(previous_frame, frame):
 
 
 def show_video():
-    cap = cv2.VideoCapture("rtsp://admin:maxi7500@192.168.1.131:1113/videoMain")
+    cap = cv2.VideoCapture("rtsp://{}:{}@192.168.1.131:1113/videoMain".format(Constants.USER, Constants.PASSWORD))
 
     _, previous_frame = cap.read()
 
