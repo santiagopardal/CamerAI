@@ -12,6 +12,8 @@ import requests
 from PIL import Image
 from YOLO import YOLOv4Tiny
 from MotionEventHandler import MotionEventHandler
+from Frame import Frame
+import gc
 
 
 class Camera:
@@ -45,7 +47,7 @@ class Camera:
         return image
 
     def record(self):
-        thread = threading.Thread(target=self._record_thread_worker, args=())
+        thread = threading.Thread(target=self._record_thread_worker)
         thread.daemon = False
         thread.start()
         self._record_thread = thread
@@ -54,10 +56,14 @@ class Camera:
         self._kill_thread = True
         self._record_thread = None
 
-    def _handle_new_frame(self, previous_frame, frame, tme):
+    def _handle_new_frame(self, previous_frame: Frame, frame: Frame):
         movement = self._movement(previous_frame, frame)
         if movement:
-            self._store_frame(frame, tme)
+            frame.store(self._place + "/")
+        #    self._store_frame(frame, tme)
+
+            if not previous_frame.stored():
+                previous_frame.store(self._place + "/")
 
             self._motion_handler.handle(frame)
             #hour = datetime.datetime.now().hour
@@ -66,14 +72,16 @@ class Camera:
                 print("Person")
                 pass  # TODO send email."""
 
-    def _movement(self, previous_frame, frame) -> bool:
-        previous_frame = cv2.resize(previous_frame, (256, 144), interpolation=cv2.INTER_AREA)
-        previous_frame = cv2.cvtColor(previous_frame, cv2.COLOR_RGB2GRAY)
+    def _movement(self, previous_frame: Frame, frame: Frame) -> bool:
+      #  previous_frame = cv2.resize(previous_frame, (256, 144), interpolation=cv2.INTER_AREA)
+      #  previous_frame = cv2.cvtColor(previous_frame, cv2.COLOR_RGB2GRAY)
 
-        img = cv2.resize(frame, (256, 144), interpolation=cv2.INTER_AREA)
-        img = cv2.cvtColor(img, cv2.COLOR_RGB2GRAY)
+    #    img = cv2.resize(frame, (256, 144), interpolation=cv2.INTER_AREA)
+    #    img = cv2.cvtColor(img, cv2.COLOR_RGB2GRAY)
+        pf = previous_frame.get_resized_and_grayscaled()
+        frm = frame.get_resized_and_grayscaled()
 
-        diff = cv2.absdiff(previous_frame, img)
+        diff = cv2.absdiff(pf, frm)
         diff = np.array(diff / 255, dtype="float32")
 
         images = np.array([diff]).reshape((256, 144, 1))
@@ -115,12 +123,14 @@ class Camera:
                     frame = np.asarray(bytearray(response.read()), dtype="uint8")
                     frame = cv2.imdecode(frame, cv2.IMREAD_COLOR)
 
+                    frame = Frame(frame)
+
                     if previous_frame is not None:
-                        thread = threading.Thread(target=self._handle_new_frame, args=(previous_frame, frame,
-                                                                                       datetime.datetime.now().time(),))
+                        thread = threading.Thread(target=self._handle_new_frame, args=(previous_frame, frame,))
                         thread.daemon = False
                         thread.start()
 
+                    del previous_frame
                     previous_frame = frame
                 except Exception as e:
                     print("Error downloading image from camera {} on ip {}".format(self._place, self._IP))
@@ -160,12 +170,12 @@ class FI9803PV3(Camera):
             self._kill_thread = True
             self._record_thread.join()
             self._kill_thread = False
-            thread = threading.Thread(target=self._record_thread_worker, args=())
+            thread = threading.Thread(target=self._record_thread_worker)
             thread.daemon = False
             thread.start()
             self._record_thread = thread
         else:
-            thread = threading.Thread(target=self._record_thread_worker, args=())
+            thread = threading.Thread(target=self._record_thread_worker)
             thread.daemon = False
             thread.start()
             self._record_thread = thread
@@ -179,23 +189,28 @@ class FI9803PV3(Camera):
                 if self._live_video.isOpened():
                     _, frame = self._live_video.read()
 
-                    if previous_frame is None:
-                        previous_frame = frame
-
                     while frame is None:
                         print("Reconnecting!")
                         self.__connect()
                         _, previous_frame = self._live_video.read()
                         frame = previous_frame
 
+                        if frame is not None:
+                            previous_frame = Frame(previous_frame)
+
+                    if previous_frame is None:
+                        previous_frame = Frame(frame)
+
+                    frame = Frame(frame)
+
                     tme = time.perf_counter()
                     if tme - previous_capture > 1 / Constants.FRAMERATE:
                         previous_capture = tme
-                        thread = threading.Thread(target=self._handle_new_frame, args=(previous_frame, frame,
-                                                                                       datetime.datetime.now().time()))
+                        thread = threading.Thread(target=self._handle_new_frame, args=(previous_frame, frame,))
                         thread.daemon = False
                         thread.start()
 
+                    del previous_frame
                     previous_frame = frame
                 else:
                     self.__connect()
