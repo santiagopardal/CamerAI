@@ -54,7 +54,7 @@ class Camera:
         self._kill_thread = True
         self._record_thread = None
 
-    def _handle_new_frames(self, frames):
+    def _handle_new_frames(self, frames):#previous_frame: Frame, frame: Frame):
         i = 1
         previous_frame = frames[0]
         while i < len(frames):
