@@ -141,12 +141,11 @@ class Camera:
             time.sleep(0.001)
 
 
-class FI9803PV3(Camera):
-    def __init__(self, ip: str, port: int, place: str, user: str, password: str):
-        super().__init__(ip, port, place, "http://{}:{}/cgi-bin/CGIProxy.fcgi?cmd=snapPicture2&usr={}&pwd={}".
-                         format(ip, str(port), user, password))
+class LiveVideoCamera(Camera):
+    def __init__(self, ip: str, port: int, place: str, screenshot_url: str, live_video_url: str):
+        super().__init__(ip, port, place, screenshot_url)
 
-        self._live_video_url = "rtsp://{}:{}@{}:{}/videoMain".format(user, password, ip, str(port + 2))
+        self._live_video_url = live_video_url
         self._live_video = None
         self.__connect()
 
@@ -202,7 +201,7 @@ class FI9803PV3(Camera):
                     if tme - previous_capture > 1 / Constants.FRAMERATE:
                         previous_capture = tme
                         frames.append(frame)
-                        if len(frames) >= 25:
+                        if len(frames) >= 15:
                             thread = threading.Thread(target=self._handle_new_frames, args=(frames.copy(),))
                             thread.daemon = False
                             thread.start()
@@ -240,7 +239,16 @@ class FI9803PV3(Camera):
                 time.sleep(seconds)
 
 
-class FI89182(Camera):
+class FI9803PV3(LiveVideoCamera):
     def __init__(self, ip: str, port: int, place: str, user: str, password: str):
-        super().__init__(ip, port, place,
-                         "http://{}:{}/snapshot.cgi?user={}&pwd={}&count=0".format(ip, str(port), user, password))
+        super().__init__(ip, port, place, "http://{}:{}/cgi-bin/CGIProxy.fcgi?cmd=snapPicture2&usr={}&pwd={}".
+                         format(ip, str(port), user, password),
+                         "rtsp://{}:{}@{}:{}/videoMain".format(user, password, ip, str(port + 2)))
+
+
+class FI89182(LiveVideoCamera):
+    def __init__(self, ip: str, port: int, place: str, user: str, password: str):
+        super().__init__(ip, port, place, "http://{}:{}/cgi-bin/CGIProxy.fcgi?cmd=snapPicture2&usr={}&pwd={}".
+                         format(ip, str(port), user, password),
+                         "http://{}:{}/videostream.cgi?user={}&pwd={}".
+                         format(ip, port, Constants.USER, Constants.PASSWORD))
