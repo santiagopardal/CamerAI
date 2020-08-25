@@ -201,7 +201,7 @@ class LiveVideoCamera(Camera):
                     if tme - previous_capture > 1 / Constants.FRAMERATE:
                         previous_capture = tme
                         frames.append(frame)
-                        if len(frames) >= 15:
+                        if len(frames) >= Constants.DETECTION_BATCH_SIZE:
                             thread = threading.Thread(target=self._handle_new_frames, args=(frames.copy(),))
                             thread.daemon = False
                             thread.start()

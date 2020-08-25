@@ -74,12 +74,12 @@ of objects. See YOLOv4/coco.names to get the full list.
 The program can run on any OS, RAM usage can be quite large
 depending on the quality of the CCTV cameras you are using,
 there is a trade-off between CPU performance and RAM usage,
-since in order to make the program lighter on the CPU in case
-you don't have a GPU to run it modifications have been made
+since in order to make the program lighter on the CPU (in case
+you don't have a GPU). To run it modifications have been made
 so as to not load the CPU too much, these modifications come at
 the expense of a greater RAM usage. If you want to play with the
-performance you can do so by increasing or decrasing the detection batch size
-on Constants.py. Note that the DBS must be greater than 0.
+performance you can do so by increasing or decreasing the detection batch size
+(DBS) on Constants.py. Note that the DBS must be greater than 0.
 
 ## I have a GPU can I use it?
 Yes, of course! Just install the requirements (requirements.txt)
