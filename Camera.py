@@ -54,7 +54,7 @@ class Camera:
         self._kill_thread = True
         self._record_thread = None
 
-    def _handle_new_frames(self, frames):
+    def _handle_new_frames(self, frames: list):
         i = 1
         previous_frame = frames[0]
         while i < len(frames):
@@ -127,7 +127,7 @@ class Camera:
                     if frame is not None:
                         frames.append(frame)
                         if len(frames) >= 50:
-                            thread = threading.Thread(target=self._handle_new_frames, args=(frames,))
+                            thread = threading.Thread(target=self._handle_new_frames, args=(frames.copy(),))
                             thread.daemon = False
                             thread.start()
 
@@ -202,8 +202,8 @@ class FI9803PV3(Camera):
                     if tme - previous_capture > 1 / Constants.FRAMERATE:
                         previous_capture = tme
                         frames.append(frame)
-                        if len(frames) >= 50:
-                            thread = threading.Thread(target=self._handle_new_frames, args=(frames,))
+                        if len(frames) >= 25:
+                            thread = threading.Thread(target=self._handle_new_frames, args=(frames.copy(),))
                             thread.daemon = False
                             thread.start()
 

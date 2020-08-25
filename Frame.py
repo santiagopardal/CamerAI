@@ -19,6 +19,9 @@ class Frame:
     def stored(self) -> bool:
         return self._stored
 
+    def get_frame(self):
+        return self._frame
+
     def get_resized_and_grayscaled(self):
         if not self._resized_and_grayscaled:
             self.__resize_and_grayscale()
