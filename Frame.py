@@ -1,4 +1,3 @@
-import threading
 import cv2
 from PIL import Image
 import datetime
@@ -11,10 +10,6 @@ class Frame:
         self._frame = frame
         self._resized_and_grayscale = None
 
-        thread = threading.Thread(target=self.__resize_and_grayscale)
-        thread.daemon = False
-        thread.start()
-
         self._time = datetime.datetime.now().time()
 
         self._resized_and_grayscaled = False
@@ -25,14 +20,9 @@ class Frame:
         return self._stored
 
     def get_resized_and_grayscaled(self):
-        i = 0
-        while not self._resized_and_grayscaled and i < 100:
-            i = i + 1
-            time.sleep(0.001)
-
-        if self._resized_and_grayscale is None:
+        if not self._resized_and_grayscaled:
             self.__resize_and_grayscale()
-            print("Fuck it,", type(self._resized_and_grayscale))
+
         return self._resized_and_grayscale
 
     def store(self, folder):

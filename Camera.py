@@ -10,7 +10,6 @@ from CNNs import create_model
 import numpy as np
 import requests
 from PIL import Image
-from YOLO import YOLOv4Tiny
 from MotionEventHandler import MotionEventHandler
 from Frame import Frame
 import gc
@@ -26,7 +25,6 @@ class Camera:
         self._kill_thread = False
         self._neural_network = create_model()
         self._neural_network.load_weights("Neural Network/v4.8.3/model_weights")
-        self._YOLO = YOLOv4Tiny()
         self._motion_handler = MotionEventHandler()
 
     def get_place(self):
@@ -60,24 +58,13 @@ class Camera:
         movement = self._movement(previous_frame, frame)
         if movement:
             frame.store(self._place + "/")
-        #    self._store_frame(frame, tme)
 
             if not previous_frame.stored():
                 previous_frame.store(self._place + "/")
 
             self._motion_handler.handle(frame)
-            #hour = datetime.datetime.now().hour
-
-            """if 1 <= hour <= 6 and self._YOLO.there_is("person", frame):
-                print("Person")
-                pass  # TODO send email."""
 
     def _movement(self, previous_frame: Frame, frame: Frame) -> bool:
-      #  previous_frame = cv2.resize(previous_frame, (256, 144), interpolation=cv2.INTER_AREA)
-      #  previous_frame = cv2.cvtColor(previous_frame, cv2.COLOR_RGB2GRAY)
-
-    #    img = cv2.resize(frame, (256, 144), interpolation=cv2.INTER_AREA)
-    #    img = cv2.cvtColor(img, cv2.COLOR_RGB2GRAY)
         pf = previous_frame.get_resized_and_grayscaled()
         frm = frame.get_resized_and_grayscaled()
 
@@ -87,6 +74,7 @@ class Camera:
         images = np.array([diff]).reshape((256, 144, 1))
 
         movement = self._neural_network.predict_on_batch(np.array([images]))
+        gc.collect()
 
         return movement[0][0] >= Constants.MOVEMENT_SENSITIVITY
 
@@ -114,12 +102,15 @@ class Camera:
     def _record_thread_worker(self):
         previous_capture = 0
         previous_frame = None
+
         while not self._kill_thread:
             if time.perf_counter() - previous_capture > 1 / Constants.FRAMERATE:
 
                 try:
                     previous_capture = time.perf_counter()
+
                     response = requests.get(self._screenshot_url, stream=True).raw
+
                     frame = np.asarray(bytearray(response.read()), dtype="uint8")
                     frame = cv2.imdecode(frame, cv2.IMREAD_COLOR)
 
@@ -198,13 +189,10 @@ class FI9803PV3(Camera):
                         if frame is not None:
                             previous_frame = Frame(previous_frame)
 
-                    if previous_frame is None:
-                        previous_frame = Frame(frame)
-
                     frame = Frame(frame)
 
                     tme = time.perf_counter()
-                    if tme - previous_capture > 1 / Constants.FRAMERATE:
+                    if tme - previous_capture > 1 / Constants.FRAMERATE and previous_frame is not None:
                         previous_capture = tme
                         thread = threading.Thread(target=self._handle_new_frame, args=(previous_frame, frame,))
                         thread.daemon = False
