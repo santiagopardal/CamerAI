@@ -49,3 +49,10 @@ class NightMotionEventHandler(MotionEventHandler):
 
     def _send_email(self):
         print("Sending email")
+"""
+class DayTimeMotionEventHandler(MotionEventHandler):
+    def __init__(self):
+        super(DayTimeMotionEventHandler, self).__init__()
+
+    def handle(self, movement):
+        """

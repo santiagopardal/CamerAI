@@ -54,7 +54,7 @@ class Camera:
         self._kill_thread = True
         self._record_thread = None
 
-    def _handle_new_frames(self, frames):#previous_frame: Frame, frame: Frame):
+    def _handle_new_frames(self, frames):
         i = 1
         previous_frame = frames[0]
         while i < len(frames):
@@ -184,7 +184,6 @@ class FI9803PV3(Camera):
 
     def _record_thread_worker(self):
         previous_capture = 0
-       # previous_frame = None
         frames = []
 
         while not self._kill_thread:
@@ -195,15 +194,7 @@ class FI9803PV3(Camera):
                     while not ret:
                         print("Reconnecting!")
                         self.__connect()
-<<<<<<< HEAD
                         ret, frame = self._live_video.read()
-=======
-                        ret, previous_frame = self._live_video.read()
-                        frame = previous_frame
-
-                        if frame is not None:
-                            previous_frame = Frame(previous_frame)
->>>>>>> origin/master
 
                     frame = Frame(frame)
 

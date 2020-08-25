@@ -37,9 +37,9 @@ def detect_movement(previous_frame, frame):
 
     if movement[0][0] >= MOVEMENT_SENSITIVITY:
         print(movement)
-        thread = threading.Thread(target=look_for_people, args=(frm, ))
-        thread.daemon = True
-        thread.start()
+     #   thread = threading.Thread(target=look_for_people, args=(frm, ))
+     #   thread.daemon = True
+     #   thread.start()
         #cv2.imwrite("./images/{}.jpeg".format(datetime.datetime.now().time()), frame)
 
 
