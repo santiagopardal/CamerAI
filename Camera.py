@@ -178,12 +178,12 @@ class FI9803PV3(Camera):
         while not self._kill_thread:
             try:
                 if self._live_video.isOpened():
-                    _, frame = self._live_video.read()
+                    ret, frame = self._live_video.read()
 
-                    while frame is None:
+                    while not ret:
                         print("Reconnecting!")
                         self.__connect()
-                        _, previous_frame = self._live_video.read()
+                        ret, previous_frame = self._live_video.read()
                         frame = previous_frame
 
                         if frame is not None:
