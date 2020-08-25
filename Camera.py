@@ -54,23 +54,15 @@ class Camera:
         self._kill_thread = True
         self._record_thread = None
 
-    def _handle_new_frames(self, frames):#previous_frame: Frame, frame: Frame):
-        i = 1
-        previous_frame = frames[0]
-        while i < len(frames):
-            frame = frames[i]
+    def _handle_new_frame(self, previous_frame: Frame, frame: Frame):
+        movement = self._movement(previous_frame, frame)
+        if movement:
+            frame.store(self._place + "/")
 
-            movement = self._movement(previous_frame, frame)
-            if movement:
-                frame.store(self._place + "/")
+            if not previous_frame.stored():
+                previous_frame.store(self._place + "/")
 
-                if not previous_frame.stored():
-                    previous_frame.store(self._place + "/")
-
-                self._motion_handler.handle(frame)
-
-            previous_frame = frame
-            i = i + 1
+            self._motion_handler.handle(frame)
 
     def _movement(self, previous_frame: Frame, frame: Frame) -> bool:
         pf = previous_frame.get_resized_and_grayscaled()
@@ -109,7 +101,7 @@ class Camera:
 
     def _record_thread_worker(self):
         previous_capture = 0
-        frames = []
+        previous_frame = None
 
         while not self._kill_thread:
             if time.perf_counter() - previous_capture > 1 / Constants.FRAMERATE:
@@ -124,16 +116,13 @@ class Camera:
 
                     frame = Frame(frame)
 
-                    if frame is not None:
-                        frames.append(frame)
-                        if len(frames) >= 50:
-                            thread = threading.Thread(target=self._handle_new_frames, args=(frames,))
-                            thread.daemon = False
-                            thread.start()
+                    if previous_frame is not None:
+                        thread = threading.Thread(target=self._handle_new_frame, args=(previous_frame, frame,))
+                        thread.daemon = False
+                        thread.start()
 
-                            frames.clear()
-                            frames.append(frame)
-
+                    del previous_frame
+                    previous_frame = frame
                 except Exception as e:
                     print("Error downloading image from camera {} on ip {}".format(self._place, self._IP))
                     print(e)
@@ -184,8 +173,7 @@ class FI9803PV3(Camera):
 
     def _record_thread_worker(self):
         previous_capture = 0
-       # previous_frame = None
-        frames = []
+        previous_frame = None
 
         while not self._kill_thread:
             try:
@@ -195,23 +183,26 @@ class FI9803PV3(Camera):
                     while not ret:
                         print("Reconnecting!")
                         self.__connect()
-                        ret, frame = self._live_video.read()
+                        ret, previous_frame = self._live_video.read()
+                        frame = previous_frame
+
+                        if frame is not None:
+                            previous_frame = Frame(previous_frame)
 
                     frame = Frame(frame)
 
                     tme = time.perf_counter()
-                    if tme - previous_capture > 1 / Constants.FRAMERATE:
+                    if tme - previous_capture > 1 / Constants.FRAMERATE and previous_frame is not None:
                         previous_capture = tme
-                        frames.append(frame)
-                        if len(frames) >= 50:
-                            thread = threading.Thread(target=self._handle_new_frames, args=(frames,))
-                            thread.daemon = False
-                            thread.start()
+                        thread = threading.Thread(target=self._handle_new_frame, args=(previous_frame, frame,))
+                        thread.daemon = False
+                        thread.start()
 
-                            frames.clear()
-                            frames.append(frame)
+                    del previous_frame
+                    previous_frame = frame
                 else:
                     self.__connect()
+
             except Exception as e:
                 print("Error downloading image from camera {} on ip {}".format(self._place, self._IP))
                 print(e)
