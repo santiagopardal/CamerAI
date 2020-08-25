@@ -65,12 +65,12 @@ It's composed of:
     - 1 neuron
     - Activation: Sigmoid
 
-## How do we detect objects?
+# How do we detect objects?
 Objects are detected by YOLO v4, it's a pretrained
 Convolutional neural network designed to detect a variety
 of objects. See YOLOv4/coco.names to get the full list.
 
-## What about the requirements?
+# What about the requirements?
 The program can run on any OS, RAM usage can be quite large
 depending on the quality of the CCTV cameras you are using,
 there is a trade-off between CPU performance and RAM usage,
@@ -81,7 +81,7 @@ the expense of a greater RAM usage. If you want to play with the
 performance you can do so by increasing or decrasing the detection batch size
 on Constants.py. Note that the DBS must be greater than 0.
 
-# I have a GPU can I use it?
+## I have a GPU can I use it?
 Yes, of course! Just install the requirements (requirements.txt)
 and you are ready to go, maybe you will benefit from decreasing
 the detection batch size.

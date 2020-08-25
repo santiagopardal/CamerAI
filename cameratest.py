@@ -44,7 +44,7 @@ def detect_movement(previous_frame, frame):
 
 
 def show_video():
-    cap = cv2.VideoCapture("rtsp://{}:{}@192.168.1.131:1113/videoMain".format(Constants.USER, Constants.PASSWORD))
+    cap = cv2.VideoCapture("rtsp://{}:{}@192.168.1.133:2222/videostream.cgi".format(Constants.USER, Constants.PASSWORD))
 
     _, previous_frame = cap.read()
 
