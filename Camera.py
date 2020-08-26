@@ -68,7 +68,6 @@ class Camera:
                     previous_frame.store(self._place + "/")
 
                 self._motion_handler.handle(frame)
-
             previous_frame = frame
             i = i + 1
 
@@ -82,7 +81,7 @@ class Camera:
         images = np.array([diff]).reshape((256, 144, 1))
 
         movement = self._neural_network.predict_on_batch(np.array([images]))
-        gc.collect()
+       # gc.collect()
 
         return movement[0][0] >= Constants.MOVEMENT_SENSITIVITY
 
@@ -126,13 +125,11 @@ class Camera:
 
                     if frame is not None:
                         frames.append(frame)
-                        if len(frames) >= 50:
-                            thread = threading.Thread(target=self._handle_new_frames, args=(frames.copy(),))
-                            thread.daemon = False
+                        if len(frames) >= Constants.DETECTION_BATCH_SIZE:
+                            thread = threading.Thread(target=self._handle_new_frames, args=(frames,))
                             thread.start()
 
-                            frames.clear()
-                            frames.append(frame)
+                            frames = [frame]
 
                 except Exception as e:
                     print("Error downloading image from camera {} on ip {}".format(self._place, self._IP))
@@ -201,13 +198,11 @@ class LiveVideoCamera(Camera):
                     if tme - previous_capture > 1 / Constants.FRAMERATE:
                         previous_capture = tme
                         frames.append(frame)
-                        if len(frames) >= Constants.DETECTION_BATCH_SIZE:
-                            thread = threading.Thread(target=self._handle_new_frames, args=(frames.copy(),))
-                            thread.daemon = False
-                            thread.start()
 
-                            frames.clear()
-                            frames.append(frame)
+                        if len(frames) >= Constants.DETECTION_BATCH_SIZE:
+                            thread = threading.Thread(target=self._handle_new_frames, args=(frames,))
+                            thread.start()
+                            frames = [frame]
                 else:
                     self.__connect()
             except Exception as e:

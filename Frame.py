@@ -1,7 +1,6 @@
 import cv2
 from PIL import Image
 import datetime
-import time
 import os
 
 
@@ -28,7 +27,7 @@ class Frame:
 
         return self._resized_and_grayscale
 
-    def store(self, folder):
+    def store(self, folder: str):
         try:
             filename = str(self._time).replace(":", "-") + ".jpeg"
 
