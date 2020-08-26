@@ -20,8 +20,8 @@ def look_for_people(frame):
 
     del yolo
 
+
 def detect_movement(previous_frame, frame):
-    frm = frame
     previous_frame = cv2.resize(previous_frame, (256, 144), interpolation=cv2.INTER_AREA)
     previous_frame = cv2.cvtColor(previous_frame, cv2.COLOR_RGB2GRAY)
 
@@ -37,14 +37,12 @@ def detect_movement(previous_frame, frame):
 
     if movement[0][0] >= MOVEMENT_SENSITIVITY:
         print(movement)
-     #   thread = threading.Thread(target=look_for_people, args=(frm, ))
-     #   thread.daemon = True
-     #   thread.start()
-        #cv2.imwrite("./images/{}.jpeg".format(datetime.datetime.now().time()), frame)
+
+        look_for_people(frame)
 
 
 def show_video():
-    cap = cv2.VideoCapture("rtsp://{}:{}@192.168.1.133:2222/videostream.cgi".format(Constants.USER, Constants.PASSWORD))
+    cap = cv2.VideoCapture("rtsp://{}:{}@192.168.1.131:1113/videoMain".format(Constants.USER, Constants.PASSWORD))
 
     _, previous_frame = cap.read()
 
