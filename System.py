@@ -123,7 +123,7 @@ class System:
          #       self.last_upload = datetime.datetime.now().hour
          #       self.__upload_time()
 
-            time.sleep(Constants.UPDATE_EVERY_SECCONDS)
+            time.sleep(Constants.UPDATE_EVERY_SECONDS)
 
     def __upload_time(self):
         print("Upload time!")

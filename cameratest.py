@@ -38,7 +38,7 @@ def detect_movement(previous_frame, frame):
     if movement[0][0] >= MOVEMENT_SENSITIVITY:
         print(movement)
 
-        look_for_people(frame)
+        #look_for_people(frame)
 
 
 def show_video():
