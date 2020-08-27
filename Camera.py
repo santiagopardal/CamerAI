@@ -12,7 +12,6 @@ import requests
 from PIL import Image
 from MotionEventHandler import MotionEventHandler
 from Frame import Frame
-import gc
 
 
 class Camera:
@@ -81,7 +80,6 @@ class Camera:
         images = np.array([diff]).reshape((256, 144, 1))
 
         movement = self._neural_network.predict_on_batch(np.array([images]))
-       # gc.collect()
 
         return movement[0][0] >= Constants.MOVEMENT_SENSITIVITY
 
