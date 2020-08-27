@@ -1,6 +1,5 @@
 from GoogleAPI import GoogleAPI
 from System import System
-from System import check_movement_in_batch
 from Camera import FI9803PV3, FI89182
 import threading
 import time

@@ -133,17 +133,24 @@ class LiveVideoCamera(Camera):
         while not self._kill_thread:
             try:
                 if self._live_video.isOpened():
-                    ret, frame = self._live_video.read()
+                    grabbed = self._live_video.grab()
 
-                    while not ret:
+                    while not grabbed:
                         print("Reconnecting!")
                         self.__connect()
-                        ret, frame = self._live_video.read()
-
-                    frame = Frame(frame)
+                        grabbed = self._live_video.grab()
 
                     tme = time.perf_counter()
                     if tme - previous_capture > 1 / Constants.FRAMERATE:
+                        grabbed, frame = self._live_video.read()
+
+                        while not grabbed:
+                            print("Reconnecting")
+                            self.__connect()
+                            grabbed, frame = self._live_video.read()
+
+                        frame = Frame(frame)
+
                         previous_capture = tme
                         frames.append(frame)
 
@@ -163,13 +170,12 @@ class LiveVideoCamera(Camera):
         i = 0
         while not connected:
             try:
-                if self._live_video is None:
-                    self._live_video = cv2.VideoCapture(self._live_video_url)
-                else:
+                if self._live_video is not None:
                     print("Reconnecting camera at {} on IP {}".format(self._place, self._IP))
                     self._live_video.release()
                     del self._live_video
-                    self._live_video = cv2.VideoCapture(self._live_video_url)
+
+                self._live_video = cv2.VideoCapture(self._live_video_url, cv2.CAP_FFMPEG)
 
                 connected = True
 
