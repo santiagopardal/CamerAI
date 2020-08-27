@@ -1,12 +1,9 @@
 import urllib.request
 import io
-import datetime
-import os
 import time
 import cv2
 import threading
 import Constants
-from CNNs import create_model
 import numpy as np
 import requests
 from PIL import Image
