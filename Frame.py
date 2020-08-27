@@ -2,6 +2,7 @@ import cv2
 from PIL import Image
 import datetime
 import os
+import numpy as np
 
 
 class Frame:
@@ -18,8 +19,22 @@ class Frame:
     def stored(self) -> bool:
         return self._stored
 
+    def set_time(self, tme):
+        self._time = tme
+
     def get_frame(self):
         return self._frame
+
+    def denoise(self):
+        self._frame = self.get_denoised_frame()
+
+    def get_denoised_frame(self):
+        kernel = np.ones((3, 3), np.float32) / 9
+        frm = cv2.filter2D(self._frame, -1, kernel)
+        res = Frame(frm)
+        res.set_time(self._time)
+
+        return res
 
     def get_resized_and_grayscaled(self):
         if not self._resized_and_grayscaled:

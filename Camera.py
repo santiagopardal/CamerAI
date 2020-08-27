@@ -12,6 +12,7 @@ import requests
 from PIL import Image
 from MotionEventHandler import MotionEventHandler
 from Frame import Frame
+from Observers import Observer
 
 
 class Camera:
@@ -22,12 +23,17 @@ class Camera:
         self._screenshot_url = screenshot_url
         self._record_thread = None
         self._kill_thread = False
-        self._neural_network = create_model()
-        self._neural_network.load_weights("Neural Network/v4.8.3/model_weights")
         self._motion_handler = MotionEventHandler()
+        self._observer = Observer(self)
 
     def get_place(self):
         return self._place
+
+    def set_observer(self, observer: Observer):
+        self._observer = observer
+
+    def handle_motion(self, frame: Frame):
+        self._motion_handler.handle(frame)
 
     def set_motion_handler(self, motion_handler: MotionEventHandler):
         self._motion_handler = motion_handler
@@ -53,57 +59,6 @@ class Camera:
         self._kill_thread = True
         self._record_thread = None
 
-    def _handle_new_frames(self, frames: list):
-        i = 1
-        previous_frame = frames[0]
-        while i < len(frames):
-            frame = frames[i]
-
-            movement = self._movement(previous_frame, frame)
-            if movement:
-                frame.store(self._place + "/")
-
-                if not previous_frame.stored():
-                    previous_frame.store(self._place + "/")
-
-                self._motion_handler.handle(frame)
-            previous_frame = frame
-            i = i + 1
-
-    def _movement(self, previous_frame: Frame, frame: Frame) -> bool:
-        pf = previous_frame.get_resized_and_grayscaled()
-        frm = frame.get_resized_and_grayscaled()
-
-        diff = cv2.absdiff(pf, frm)
-        diff = np.array(diff / 255, dtype="float32")
-
-        images = np.array([diff]).reshape((256, 144, 1))
-
-        movement = self._neural_network.predict_on_batch(np.array([images]))
-
-        return movement[0][0] >= Constants.MOVEMENT_SENSITIVITY
-
-    def _store_frame(self, frame, tme):
-        try:
-            folder = self._place + "/"
-            filename = str(tme).replace(":", "-") + ".jpeg"
-
-            if not os.path.exists(folder):
-                os.mkdir(folder)
-
-            folder = folder + str(datetime.datetime.now().date()) + "/"
-
-            if not os.path.exists(folder):
-                os.mkdir(folder)
-
-            frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
-            frame = Image.fromarray(frame)
-            frame.save(folder + filename, optimize=True, quality=50)
-            del frame
-        except Exception as e:
-            print("Error storing image from camera on {} and ip {}".format(self._place, self._IP))
-            print(e)
-
     def _record_thread_worker(self):
         previous_capture = 0
         frames = []
@@ -124,7 +79,7 @@ class Camera:
                     if frame is not None:
                         frames.append(frame)
                         if len(frames) >= Constants.DETECTION_BATCH_SIZE:
-                            thread = threading.Thread(target=self._handle_new_frames, args=(frames,))
+                            thread = threading.Thread(target=self._observer.observe, args=(frames,))
                             thread.start()
 
                             frames = [frame]
@@ -196,7 +151,7 @@ class LiveVideoCamera(Camera):
                         frames.append(frame)
 
                         if len(frames) >= Constants.DETECTION_BATCH_SIZE:
-                            thread = threading.Thread(target=self._handle_new_frames, args=(frames,))
+                            thread = threading.Thread(target=self._observer.observe, args=(frames,))
                             thread.start()
                             frames = [frame]
                 else:
