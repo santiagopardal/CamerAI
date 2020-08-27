@@ -133,8 +133,6 @@ class Camera:
                     print("Error downloading image from camera {} on ip {}".format(self._place, self._IP))
                     print(e)
 
-            time.sleep(0.001)
-
 
 class LiveVideoCamera(Camera):
     def __init__(self, ip: str, port: int, place: str, screenshot_url: str, live_video_url: str):
