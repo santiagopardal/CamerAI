@@ -4,6 +4,6 @@ google-auth-httplib2==0.0.4
 google-auth-oauthlib==0.4.1
 imutils==0.5.3
 numpy==1.19.1
-opencv-python=4.4.0.42
+opencv-python==4.4.0.42
 tensorflow-gpu==2.3.0
 urllib3==1.25.10
