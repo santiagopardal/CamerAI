@@ -35,7 +35,7 @@ class Observer:
 
         images = np.array([diff]).reshape((256, 144, 1))
 
-        movement = self._neural_network(np.array([images]))
+        movement = self._neural_network.predict_on_batch(np.array([images]))
 
         return movement[0][0] >= Constants.MOVEMENT_SENSITIVITY
 
