@@ -45,26 +45,27 @@ class Frame:
         return self._resized_and_grayscale
 
     def store(self, folder: str):
-        try:
-            filename = str(self._time).replace(":", "-") + ".jpeg"
+        if not self._stored:
+            try:
+                filename = str(self._time).replace(":", "-") + ".jpeg"
 
-            if not os.path.exists(folder):
-                os.mkdir(folder)
+                if not os.path.exists(folder):
+                    os.mkdir(folder)
 
-            folder = folder + str(datetime.datetime.now().date()) + "/"
+                folder = folder + str(datetime.datetime.now().date()) + "/"
 
-            if not os.path.exists(folder):
-                os.mkdir(folder)
+                if not os.path.exists(folder):
+                    os.mkdir(folder)
 
-            frame = cv2.cvtColor(self._frame, cv2.COLOR_BGR2RGB)
-            frame = Image.fromarray(frame)
-            frame.save(folder + filename, optimize=True, quality=50)
-            del frame
+                frame = cv2.cvtColor(self._frame, cv2.COLOR_BGR2RGB)
+                frame = Image.fromarray(frame)
+                frame.save(folder + filename, optimize=True, quality=50)
+                del frame
 
-            self._stored = True
-        except Exception as e:
-            print("Error storing image from camera on {}".format(folder))
-            print(e)
+                self._stored = True
+            except Exception as e:
+                print("Error storing image from camera on {}".format(folder))
+                print(e)
 
     def __resize_and_grayscale(self):
         self._resized_and_grayscale = cv2.resize(self._frame, (256, 144), interpolation=cv2.INTER_AREA)
