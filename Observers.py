@@ -61,7 +61,7 @@ class Observer:
             previous_frame = frame
             previous_frame_manipulated = frame_manipulated
 
-            i = i + 1
+            i = i + 2
 
 
 class NightObserver(Observer):
