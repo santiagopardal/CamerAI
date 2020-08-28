@@ -4,6 +4,7 @@ from Frame import Frame
 import Constants
 import numpy as np
 import datetime
+import tensorflow as tf
 
 
 class Observer:
@@ -35,7 +36,8 @@ class Observer:
 
         images = np.array([diff]).reshape((256, 144, 1))
 
-        movement = self._neural_network(np.array([images]))
+        with tf.device("/cpu:0"):
+            movement = self._neural_network(np.array([images]))
 
         return movement[0][0] >= Constants.MOVEMENT_SENSITIVITY
 
@@ -44,11 +46,14 @@ class Observer:
 
     def _observe(self, frames: list):
         i = 1
-        previous_frame = frames[0]
-        previous_frame_manipulated = self._frame_manipulation(previous_frame)
+
         while i < len(frames):
             frame = frames[i]
             frame_manipulated = self._frame_manipulation(frame)
+
+            previous_frame = frames[i-1]
+            previous_frame_manipulated = self._frame_manipulation(previous_frame)
+
             movement = self._movement(previous_frame_manipulated, frame_manipulated)
 
             if movement:
@@ -58,8 +63,6 @@ class Observer:
                     previous_frame.store(self._camera.get_place() + "/")
 
                 self._camera.handle_motion(frame)
-            previous_frame = frame
-            previous_frame_manipulated = frame_manipulated
 
             i = i + 2
 
