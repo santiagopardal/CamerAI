@@ -55,7 +55,23 @@ class Observer:
             previous_frame_manipulated = self._frame_manipulation(previous_frame)
 
             if self._movement(previous_frame_manipulated, frame_manipulated):
-                recording = True
+                if not recording:
+                    recording = True
+                    if i-3 >= 0 and i-2 >= 0:
+                        frm3 = frames[i-3]
+                        frm2 = frames[i-2]
+
+                        manipulated3 = self._frame_manipulation(frm3)
+                        manipulated2 = self._frame_manipulation(frm2)
+
+                        if self._movement(manipulated3, manipulated2):
+                            if i - 4 >= 0:
+                                frames[i-4].store(storing_path)
+
+                            frm3.store(storing_path)
+                            frm2.store(storing_path)
+                        else:
+                            frm2.store(storing_path)
 
                 frame.store(storing_path)
                 previous_frame.store(storing_path)
@@ -66,15 +82,21 @@ class Observer:
                 self._camera.handle_motion(frame)
             else:
                 if recording:
-                    manipulated = self._frame_manipulation(frames[i-2])
-                    if self._movement(manipulated, previous_frame_manipulated):
+                    frm3 = frames[i - 3]
+                    frm2 = frames[i - 2]
+
+                    manipulated3 = self._frame_manipulation(frm3)
+                    manipulated2 = self._frame_manipulation(frm2)
+
+                    if self._movement(manipulated3, manipulated2):
+                        frm2.store(storing_path)
                         previous_frame.store(storing_path)
 
-                    frames[i-2].store(storing_path)
+                    frm3.store(storing_path)
 
                     recording = False
 
-            i = i + 3
+            i = i + 4
 
 
 class NightObserver(Observer):
