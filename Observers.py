@@ -45,10 +45,11 @@ class Observer:
     def _observe(self, frames: list):
         i = 1
         previous_frame = frames[0]
+        previous_frame_manipulated = self._frame_manipulation(previous_frame)
         while i < len(frames):
             frame = frames[i]
-
-            movement = self._movement(self._frame_manipulation(previous_frame), self._frame_manipulation(frame))
+            frame_manipulated = self._frame_manipulation(frame)
+            movement = self._movement(previous_frame_manipulated, frame_manipulated)
 
             if movement:
                 frame.store(self._camera.get_place() + "/")
@@ -58,6 +59,8 @@ class Observer:
 
                 self._camera.handle_motion(frame)
             previous_frame = frame
+            previous_frame_manipulated = frame_manipulated
+
             i = i + 1
 
 
