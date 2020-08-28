@@ -7,6 +7,8 @@ import numpy as np
 
 class Frame:
     def __init__(self, frame):
+        assert frame is not None
+
         self._frame = frame
         self._resized_and_grayscale = None
 
