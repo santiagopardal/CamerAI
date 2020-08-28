@@ -57,7 +57,8 @@ class Observer:
             if self._movement(previous_frame_manipulated, frame_manipulated):
                 if not recording:
                     recording = True
-                    if i-3 >= 0 and i-2 >= 0:
+
+                    if i-2 > 0 and i-3 >= 0:
                         frm3 = frames[i-3]
                         frm2 = frames[i-2]
 
@@ -69,15 +70,17 @@ class Observer:
                                 frames[i-4].store(storing_path)
 
                             frm3.store(storing_path)
-                            frm2.store(storing_path)
-                        else:
-                            frm2.store(storing_path)
+
+                        frm2.store(storing_path)
+                else:
+                    frm3 = frames[i-3]
+                    frm2 = frames[i-2]
+
+                    frm3.store(storing_path)
+                    frm2.store(storing_path)
 
                 frame.store(storing_path)
                 previous_frame.store(storing_path)
-
-                if i-2 >= 0:
-                    frames[i-2].store(storing_path)
 
                 self._camera.handle_motion(frame)
             else:
