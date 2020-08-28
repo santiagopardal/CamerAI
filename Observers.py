@@ -39,7 +39,7 @@ class Observer:
 
         return movement[0][0] >= Constants.MOVEMENT_SENSITIVITY
 
-    def _frame_manipulation(self, frame):
+    def _frame_manipulation(self, frame: Frame) -> Frame:
         return frame
 
     def _observe(self, frames: list):
@@ -85,5 +85,5 @@ class NightObserver(Observer):
         else:
             self._observe(frames)
 
-    def _frame_manipulation(self, frame):
+    def _frame_manipulation(self, frame: Frame) -> Frame:
         return frame.get_denoised_frame()
