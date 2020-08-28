@@ -44,6 +44,7 @@ class Observer:
 
     def _observe(self, frames: list):
         i = 1
+        recording = False
 
         while i < len(frames):
             frame = frames[i]
@@ -55,12 +56,17 @@ class Observer:
             movement = self._movement(previous_frame_manipulated, frame_manipulated)
 
             if movement:
-                frame.store(self._camera.get_place() + "/")
+                recording = True
 
-                if not previous_frame.stored():
-                    previous_frame.store(self._camera.get_place() + "/")
+                frame.store(self._camera.get_place() + "/")
+                previous_frame.store(self._camera.get_place() + "/")
 
                 self._camera.handle_motion(frame)
+            else:
+                if recording:
+                    previous_frame.store(self._camera.get_place() + "/")
+
+                recording = False
 
             i = i + 2
 
