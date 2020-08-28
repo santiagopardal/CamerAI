@@ -4,7 +4,6 @@ from Frame import Frame
 import Constants
 import numpy as np
 import datetime
-import tensorflow as tf
 
 
 class Observer:
