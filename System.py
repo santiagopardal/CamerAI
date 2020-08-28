@@ -9,8 +9,8 @@ import Constants
 
 class System:
     def __init__(self):
-        self.last_upload = -4
-        self.last_image = None
+        self._last_upload = -4
+
         if os.path.exists("cameras.pickle"):
             with open("cameras.pickle", "rb") as pck:
                 self.cameras = pickle.load(pck)
@@ -46,8 +46,8 @@ class System:
 
         while True:
             print("Sleeping...")
-         #   if datetime.datetime.now().hour % 2 == 0 and self.last_upload != datetime.datetime.now().hour:
-         #       self.last_upload = datetime.datetime.now().hour
+         #   if datetime.datetime.now().hour % 2 == 0 and self._last_upload != datetime.datetime.now().hour:
+         #       self._last_upload = datetime.datetime.now().hour
          #       self.__upload_time()
 
             time.sleep(Constants.UPDATE_EVERY_SECONDS)

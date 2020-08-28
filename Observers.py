@@ -54,9 +54,7 @@ class Observer:
             previous_frame = frames[i-1]
             previous_frame_manipulated = self._frame_manipulation(previous_frame)
 
-            movement = self._movement(previous_frame_manipulated, frame_manipulated)
-
-            if movement:
+            if self._movement(previous_frame_manipulated, frame_manipulated):
                 recording = True
 
                 frame.store(storing_path)
