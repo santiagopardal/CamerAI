@@ -68,9 +68,11 @@ class Observer:
                 self._camera.handle_motion(frame)
             else:
                 if recording:
-                    previous_frame.store(storing_path)
-                    if i - 2 >= 0:
-                        frames[i-2].store(storing_path)
+                    manipulated = self._frame_manipulation(frames[i-2])
+                    if self._movement(manipulated, previous_frame_manipulated):
+                        previous_frame.store(storing_path)
+
+                    frames[i-2].store(storing_path)
 
                     recording = False
 
