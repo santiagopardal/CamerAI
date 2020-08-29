@@ -84,7 +84,7 @@ performance you can do so by increasing or decreasing the detection batch size
 ## How's the optimization process?
 Instead of checking frame by frame whether there has been movement or not, we look for movement every
 DBS(s) frames, the default value is 100 DBS but you can modify it. Once
-we have all the DBSs frames stored (in memory) we won't be checking frame by frame, we will jump
+we have DBSs frames we won't be checking frame by frame, instead we will jump
 so as not to check all of them. In the worst case scenario we will be looking
 
 ![alt text](https://github.com/santiagopardal/CamerAI/blob/master/Docs%20images/Math%20functions%20for%20CamerAI/Cost%20function.png)
@@ -98,6 +98,20 @@ in which we want the function to be equal to 0 to find the value b for the minim
 As a rule of thumb for any DBS >= 13, b must be 4, for DBS < 13 you must use the function to aproximate b.
 You can clearly see that 4 is the selected number because the derivative of the Cost function is aproximately 0
 when b is 4 (4.11 aproximately), so we find a minimum cost for the number of checks we will have to do in the batch.
+
+Some visual explanations of what's happening:
+
+![alt text](https://github.com/santiagopardal/CamerAI/blob/master/Docs%20images/GIFS/M-M.gif)
+
+![alt text](https://github.com/santiagopardal/CamerAI/blob/master/Docs%20images/GIFS/M-NM-M.gif)
+
+![alt text](https://github.com/santiagopardal/CamerAI/blob/master/Docs%20images/GIFS/M-NM-NM.gif)
+
+![alt text](https://github.com/santiagopardal/CamerAI/blob/master/Docs%20images/GIFS/NM-M-M.gif)
+
+![alt text](https://github.com/santiagopardal/CamerAI/blob/master/Docs%20images/GIFS/NM-M-NM.gif)
+
+![alt text](https://github.com/santiagopardal/CamerAI/blob/master/Docs%20images/GIFS/NM-NM.gif)
 
 The graph of the cost function (red) and it's derivative with respect to b (purple) when n = 100:
 
