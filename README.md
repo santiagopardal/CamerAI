@@ -82,18 +82,35 @@ performance you can do so by increasing or decreasing the detection batch size
 (DBS) on Constants.py. Note that the DBS must be greater than 0.
 
 ## How's the optimization process?
-Instead of checking frame by frame whether there has been movement or not, we check every
-DBS(s) frames movement in those frames, the default value is 100 DBS but you can modify it. Once
+Instead of checking frame by frame whether there has been movement or not, we look for movement every
+DBS(s) frames, the default value is 100 DBS but you can modify it. Once
 we have all the DBSs frames stored (in memory) we won't be checking frame by frame, we will jump
-so as not to check all of them. In the worst case scenario we will be looking at 
+so as not to check all of them. In the worst case scenario we will be looking
+
 ![alt text](https://github.com/santiagopardal/CamerAI/blob/master/Math%20functions%20for%20CamerAI/Cost%20function.png)
-frames, where n is the DBS and b is the number of frames we will be skipping, b will be determined by the
+
+times for movement, where n is the DBS and b is the number of frames we will be skipping, b will be determined by the
 following function:
+
 ![alt text](https://github.com/santiagopardal/CamerAI/blob/master/Math%20functions%20for%20CamerAI/Cost%20function%20derivative%20with%20respect%20to%20b.png)
-in which we want the function to be equal to 0.
+
+in which we want the function to be equal to 0 to find the value b for the minimum cost.
 As a rule of thumb for any DBS >= 13, b must be 4, for DBS < 13 you must use the function to aproximate b.
 You can clearly see that 4 is the selected number because the derivative of the Cost function is aproximately 0
 when b is 4 (4.11 aproximately), so we find a minimum cost for the number of checks we will have to do in the batch.
+
+The graph of the cost function (red) and it's derivative with respect to b (purple) when n = 100:
+
+![alt text](https://github.com/santiagopardal/CamerAI/blob/master/Math%20functions%20for%20CamerAI/n%3D100.png)
+
+The graph of the cost function (red) and it's derivative with respect to b (purple) when n = 50:
+
+![alt text](https://github.com/santiagopardal/CamerAI/blob/master/Math%20functions%20for%20CamerAI/n%3D50.png)
+
+The graph of the cost function in 3 dimentions:
+
+![alt text](https://github.com/santiagopardal/CamerAI/blob/master/Math%20functions%20for%20CamerAI/3d_cost_function.png)
+
 
 ## I have a GPU can I use it?
 Yes, of course! Just install the requirements (requirements.txt)
