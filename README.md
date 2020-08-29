@@ -108,7 +108,7 @@ for b=4 the const function partial derivative with respect to b is aproximately 
 
 The graph of the "worst case" cost function (red) and it's derivative with respect to b (purple) when n = 100:
 
-![alt text](https://github.com/santiagopardal/CamerAI/blob/master/Docs%20images/Math%20functions%20for%20CamerAI/n%3D100%2C%20m%3Dn:2b.png)
+![alt text](https://github.com/santiagopardal/CamerAI/blob/master/Docs%20images/Math%20functions%20for%20CamerAI/n%3D100%2C%20m%3Dn(div)2b.png)
 
 The graph of the "average case" cost function (red) and it's derivative with respect to b (blue) when n = 100 and m = 2:
 
@@ -116,7 +116,7 @@ The graph of the "average case" cost function (red) and it's derivative with res
 
 The graph of the "worst case" cost function in 3 dimentions, where x is b and y is DBS:
 
-![alt text](https://github.com/santiagopardal/CamerAI/blob/master/Docs%20images/Math%20functions%20for%20CamerAI/3d%20graph%2C%20m%3Dn:2b.png)
+![alt text](https://github.com/santiagopardal/CamerAI/blob/master/Docs%20images/Math%20functions%20for%20CamerAI/3d%20graph%2C%20m%3Dn(div)2b.png)
 
 The graph of the "average case" cost function in 3 dimentions, where x is b, y is DBS and m = 2:
 
