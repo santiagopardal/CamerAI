@@ -5,9 +5,7 @@ CameraAI is a program wich can retrieve images from CCTV cameras, display them, 
 
 ## How does it detect movement?
 There is a convolutional neural network wich is fed with the difference between two frames and returns a probability, that probability will be the number that determines whether
-there's been movement or not. The sensitivity can be modified in the Constants.py file, generally with a sensitivity of 0.8 (the CNN will be at least 80% sure that
-there's been movement) there will be no missing frames nor false positives, with a sensitivity of 0.5 (the CNN is 50% sure that there has been movement) there may be false positives
-but no missing frames at all.
+there's been movement or not. The sensitivity can be modified in the Constants.py file, generally with a sensitivity of 0.8 (the CNN will be at least 80% sure that there's been movement) there will be no missing frames nor false positives, with a sensitivity of 0.5 (the CNN is 50% sure that there has been movement) there may be false positives but no missing frames at all.
 
 # What's the architecture of the CNN?
 It's composed of:
@@ -66,36 +64,23 @@ It's composed of:
     - Activation: Sigmoid
 
 # How do we detect objects?
-Objects are detected by YOLO v4, it's a pretrained
-Convolutional neural network designed to detect a variety
-of objects. See YOLOv4/coco.names to get the full list.
+Objects are detected by YOLO v4, it's a pretrained Convolutional neural network designed to detect a variety of objects. See [YOLOv4/coco.names](https://github.com/santiagopardal/CamerAI/blob/master/YOLO%20v4/coco.names) to get the full list.
 
 # What about the requirements?
-The program can run on any OS, RAM usage can be quite large
-depending on the quality of the CCTV cameras you are using,
-there is a trade-off between CPU performance and RAM usage,
-in order to make the program lighter on the CPU (in case
-you don't have a GPU). To run it modifications have been made
-so as to not load the CPU too much, these modifications come at
-the expense of a greater RAM usage. If you want to play with the
-performance you can do so by increasing or decreasing the detection batch size
+The program can run on any OS, RAM usage can be quite large depending on the quality of the CCTV cameras you are using. There is a trade-off between CPU performance and RAM usage, in order to make the program lighter on the CPU (in case you don't have a GPU) modifications have been made so as to not load the CPU too much, these modifications come at the expense of a greater RAM usage. If you want to play with the performance you can do so by increasing or decreasing the detection batch size
 (DBS) on Constants.py. Note that the DBS must be greater than 1.
 
 ## How's the optimization process?
-Instead of checking frame by frame whether there has been movement or not, we look for movement every
-DBS(s) frames, the default value is 100 DBS but you can modify it. Once
-we have DBSs frames we won't be checking frame by frame, instead we will jump
-so as not to check all of them. In the worst case scenario we will be looking
+Instead of checking frame by frame whether there has been movement or not, we look for movement every DBS(s) frames, the default value is 100 DBS but you can modify it. Once
+we have DBSs frames we won't be checking frame by frame, instead we will skip some frames. In the worst case scenario we will be looking
 
 ![alt text](https://github.com/santiagopardal/CamerAI/blob/master/Docs%20images/Math%20functions%20for%20CamerAI/Worst%20case/Cost%20function.png)
 
-times for movement, where n is the DBS and b is the number of frames we will be skipping, b will be determined by the
-following function:
+times for movement, where n is the DBS and b is the number of frames we will be skipping, b will be determined by the following function:
 
 ![alt text](https://github.com/santiagopardal/CamerAI/blob/master/Docs%20images/Math%20functions%20for%20CamerAI/Worst%20case/Cost%20function%20derivative%20with%20respect%20to%20b.png)
 
-in which we want the function to be equal to 0 to find the value b for the minimum cost. The truth is that the worst case scenario is extremely unlikely because movements
-in the real world occur "continuously" and in that case we analyse what would happen if every time we skip frames we find the contrary state to the pair previously
+in which we want the function to be equal to 0 to find the value b for the minimum cost. The truth is that the worst case scenario is extremely unlikely to happen because movements in the real world occur "continuously" and in that case we analyse what would happen if every time we skip frames we find the contrary state to the pair previously
 analysed, for example movement, not movement, movement, not movement, etc. A more reasonable case would be to have a constant "m" which would be the ammount of "bursts" we have
 in the batch, for example for a DBS of 100, I figured out that 2 is a very reasonable number to use. Using m as a constant the functions would be:
 
@@ -104,7 +89,7 @@ in the batch, for example for a DBS of 100, I figured out that 2 is a very reaso
 ![alt text](https://github.com/santiagopardal/CamerAI/blob/master/Docs%20images/Math%20functions%20for%20CamerAI/Average%20case/Cost%20function%20derivative%20with%20respect%20to%20b.png)
 
 As you can see, the worst case scenario function is the same to the "average case scenario", because m=n/2b. For different environments one has to explore what is the best value for m, in my case, as I said before, 2 is a very reasonable number and reduces significantly the number of times we have to look for movement. Using m=2 and DBS=100 or n=100,
-for b=4 the const function partial derivative with respect to b is aproximately cero, more specifically 4.347. If you decide to go for the worst case scenario, b=3 as shown in the graphs below.
+for b=4 the cost function's partial derivative with respect to b is aproximately cero, more specifically 4.347. If you decide to go for the worst case scenario, b=3 as shown in the graphs below.
 
 The graph of the "worst case" cost function (red) and it's derivative with respect to b (purple) when n = 100:
 
@@ -156,6 +141,4 @@ skipping 4 frames.
 
 
 ## I have a GPU can I use it?
-Yes, of course! Just install the requirements (requirements.txt)
-and you are ready to go, maybe you will benefit from decreasing
-the detection batch size.
+Yes, of course! Just install the requirements (requirements.txt) and you are ready to go, maybe you will benefit from decreasing the detection batch size.
