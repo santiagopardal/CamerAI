@@ -85,7 +85,7 @@ performance you can do so by increasing or decreasing the detection batch size
 Instead of checking frame by frame whether there has been movement or not, we look for movement every
 DBS(s) frames, the default value is 100 DBS but you can modify it. Once
 we have DBSs frames we won't be checking frame by frame, instead we will jump
-so as not to check all of them. In the worst case scenario we will be looking
+so as not to check all of them. In the worst case scenario (extremely unlikely) we will be looking
 
 ![alt text](https://github.com/santiagopardal/CamerAI/blob/master/Docs%20images/Math%20functions%20for%20CamerAI/Cost%20function.png)
 
