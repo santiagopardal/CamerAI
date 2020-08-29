@@ -87,12 +87,12 @@ DBS(s) frames, the default value is 100 DBS but you can modify it. Once
 we have all the DBSs frames stored (in memory) we won't be checking frame by frame, we will jump
 so as not to check all of them. In the worst case scenario we will be looking
 
-![alt text](https://github.com/santiagopardal/CamerAI/blob/master/Math%20functions%20for%20CamerAI/Cost%20function.png)
+![alt text](https://github.com/santiagopardal/CamerAI/blob/master/Docs%20images/Math%20functions%20for%20CamerAI/Cost%20function.png)
 
 times for movement, where n is the DBS and b is the number of frames we will be skipping, b will be determined by the
 following function:
 
-![alt text](https://github.com/santiagopardal/CamerAI/blob/master/Math%20functions%20for%20CamerAI/Cost%20function%20derivative%20with%20respect%20to%20b.png)
+![alt text](https://github.com/santiagopardal/CamerAI/blob/master/Docs%20images/Math%20functions%20for%20CamerAI/Cost%20function%20derivative%20with%20respect%20to%20b.png)
 
 in which we want the function to be equal to 0 to find the value b for the minimum cost.
 As a rule of thumb for any DBS >= 13, b must be 4, for DBS < 13 you must use the function to aproximate b.
@@ -101,15 +101,15 @@ when b is 4 (4.11 aproximately), so we find a minimum cost for the number of che
 
 The graph of the cost function (red) and it's derivative with respect to b (purple) when n = 100:
 
-![alt text](https://github.com/santiagopardal/CamerAI/blob/master/Math%20functions%20for%20CamerAI/n%3D100.png)
+![alt text](https://github.com/santiagopardal/CamerAI/blob/master/Docs%20images/Math%20functions%20for%20CamerAI/n%3D100.png)
 
 The graph of the cost function (red) and it's derivative with respect to b (purple) when n = 50:
 
-![alt text](https://github.com/santiagopardal/CamerAI/blob/master/Math%20functions%20for%20CamerAI/n%3D50.png)
+![alt text](https://github.com/santiagopardal/CamerAI/blob/master/Docs%20images/Math%20functions%20for%20CamerAI/n%3D50.png)
 
 The graph of the cost function in 3 dimentions:
 
-![alt text](https://github.com/santiagopardal/CamerAI/blob/master/Math%20functions%20for%20CamerAI/3d_cost_function.png)
+![alt text](https://github.com/santiagopardal/CamerAI/blob/master/Docs%20images/Math%20functions%20for%20CamerAI/3d_cost_function.png)
 
 
 ## I have a GPU can I use it?
