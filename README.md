@@ -111,13 +111,13 @@ there is movement and we store all the images but the last one (6).
 ![alt text](https://github.com/santiagopardal/CamerAI/blob/master/Docs%20images/GIFS/M-NM-M.gif)
 
 - We find movement in the first pair of images but on the next one there is no movement, we look in the middle,
-there is no movement and we store the first two images (0 and 1) and the image next to the last of our first images (2).
+there is no movement, so we store the first two images (0 and 1) and the next one.
 
 ![alt text](https://github.com/santiagopardal/CamerAI/blob/master/Docs%20images/GIFS/M-NM-NM.gif)
 
-- We find no movement in the first pair of images but on the next one there is movement, we look in the middle,
-there is movement, then we look between the two pairs and find out there is movement between the two pairs, so we
-store the images between them and the last pair.
+- We don't find movement in the first pair of images but on the next one we do, we look in the middle,
+there is movement, then we look between the two pairs and find out there is movement between them too, so we
+store all the images but the first pair.
 
 ![alt text](https://github.com/santiagopardal/CamerAI/blob/master/Docs%20images/GIFS/NM-M-M.gif)
 
