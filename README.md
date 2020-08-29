@@ -74,12 +74,26 @@ of objects. See YOLOv4/coco.names to get the full list.
 The program can run on any OS, RAM usage can be quite large
 depending on the quality of the CCTV cameras you are using,
 there is a trade-off between CPU performance and RAM usage,
-since in order to make the program lighter on the CPU (in case
+in order to make the program lighter on the CPU (in case
 you don't have a GPU). To run it modifications have been made
 so as to not load the CPU too much, these modifications come at
 the expense of a greater RAM usage. If you want to play with the
 performance you can do so by increasing or decreasing the detection batch size
 (DBS) on Constants.py. Note that the DBS must be greater than 0.
+
+## How's the optimization process?
+Instead of checking frame by frame whether there has been movement or not, we check every
+DBS(s) frames movement in those frames, the default value is 100 DBS but you can modify it. Once
+we have all the DBSs frames stored (in memory) we won't be checking frame by frame, we will jump
+so as not to check all of them. In the worst case scenario we will be looking at 
+![alt text](https://github.com/santiagopardal/CamerAI/blob/master/Math%20functions%20for%20CamerAI/Cost%20function.png)
+frames, where n is the DBS and b is the number of frames we will be skipping, b will be determined by the
+following function:
+![alt text](https://github.com/santiagopardal/CamerAI/blob/master/Math%20functions%20for%20CamerAI/Cost%20function%20derivative%20with%20respect%20to%20b.png)
+in which we want the function to be equal to 0.
+As a rule of thumb for any DBS >= 13, b must be 4, for DBS < 13 you must use the function to aproximate b.
+You can clearly see that 4 is the selected number because the derivative of the Cost function is aproximately 0
+when b is 4 (4.11 aproximately), so we find a minimum cost for the number of checks we will have to do in the batch.
 
 ## I have a GPU can I use it?
 Yes, of course! Just install the requirements (requirements.txt)
