@@ -139,7 +139,7 @@ The graph of the cost function (red) and it's derivative with respect to b (purp
 
 ![alt text](https://github.com/santiagopardal/CamerAI/blob/master/Docs%20images/Math%20functions%20for%20CamerAI/n%3D50.png)
 
-The graph of the cost function in 3 dimentions:
+The graph of the cost function in 3 dimentions, where x is b and y is DBS:
 
 ![alt text](https://github.com/santiagopardal/CamerAI/blob/master/Docs%20images/Math%20functions%20for%20CamerAI/3d_cost_function.png)
 
