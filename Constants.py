@@ -22,7 +22,7 @@ NIGHT_OBSERVER_SHIFT_HOUR = 6
 MOVEMENT_SENSITIVITY = 0.83
 DETECTION_BATCH_SIZE = 105
 MOVEMENT_BURSTS = 2
-JUMP = 1 if MOVEMENT_BURSTS/DETECTION_BATCH_SIZE > 0.9 else round(fsolve(cost_derivative, 1)[0])
+JUMP = 1 if MOVEMENT_BURSTS/DETECTION_BATCH_SIZE > 0.9 else round(fsolve(cost_derivative, 4)[0])
 
 YOLO_V3_TINY_WEIGHTS = "./YOLO v4/tiny/yolov4.weights"
 YOLO_V3_TINY_CONFIGS = "./YOLO v4/tiny/yolov4.cfg"
