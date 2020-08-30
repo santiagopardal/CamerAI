@@ -15,7 +15,7 @@ class Observer:
             self._neural_network = model
 
         self._camera = camera
-    
+
     def observe(self, frames: list):
         hour = datetime.datetime.now().hour
         if Constants.OBSERVER_SHIFT_HOUR <= hour <= 23 or 0 <= hour < Constants.NIGHT_OBSERVER_SHIFT_HOUR:
@@ -25,7 +25,7 @@ class Observer:
             observer.observe(frames)
         else:
             self._observe(frames)
-    
+
     def _movement(self, previous_frame: Frame, frame: Frame) -> bool:
         pf = previous_frame.get_resized_and_grayscaled()
         frm = frame.get_resized_and_grayscaled()
@@ -46,7 +46,77 @@ class Observer:
         i = 1
         recording = False
         storing_path = self._camera.get_place() + "/"
+        looked = 0
 
+        while i < len(frames):
+            frame = frames[i]
+            frame_manipulated = self._frame_manipulation(frame)
+
+            previous_frame = frames[i - 1]
+            previous_frame_manipulated = self._frame_manipulation(previous_frame)
+
+            looked = looked + 1
+            if self._movement(previous_frame_manipulated, frame_manipulated):
+                if not recording:
+                    recording = True
+
+                    if i - Constants.JUMP >= 0:
+                        last_element = i - Constants.JUMP
+
+                        j = i - 2
+
+                        while j > last_element:
+                            frm = frames[j]
+                            pframe = frames[j - 1]
+
+                            frm_manipulated = self._frame_manipulation(frm)
+                            pframe_manipulated = self._frame_manipulation(pframe)
+                            looked = looked + 1
+                            if self._movement(pframe_manipulated, frm_manipulated):
+                                frm.store(storing_path)
+                                pframe.store(storing_path)
+                            else:
+                                j = last_element
+
+                            j = j - 2
+                else:
+                    j = i - 2
+                    last_element = i - Constants.JUMP
+
+                    while j > last_element:
+                        frames[j].store(storing_path)
+                        j = j - 1
+
+                frame.store(storing_path)
+                previous_frame.store(storing_path)
+            else:
+                if recording:
+                    recording = False
+                    store_all = False
+                    j = i - 2
+                    last_element = i - Constants.JUMP
+                    while j > last_element and not store_all:
+                        frm = frames[j]
+                        pframe = frames[j - 1]
+
+                        frm_manipulated = self._frame_manipulation(frm)
+                        pframe_manipulated = self._frame_manipulation(pframe)
+                        looked = looked + 1
+                        if self._movement(pframe_manipulated, frm_manipulated):
+                            store_all = True
+                        else:
+                            j = j - 2
+
+                    if store_all:
+                        while j > last_element:
+                            frames[j].store(storing_path)
+                            frames[j - 1].store(storing_path)
+                            j = j - 2
+
+            i = i + Constants.JUMP
+        print("Looked {} times".format(looked))
+
+        """
         while i < len(frames):
             frame = frames[i]
             frame_manipulated = self._frame_manipulation(frame)
@@ -99,7 +169,7 @@ class Observer:
 
                     recording = False
 
-            i = i + 4
+            i = i + 4"""
 
 
 class NightObserver(Observer):
