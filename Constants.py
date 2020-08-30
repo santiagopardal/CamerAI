@@ -4,9 +4,9 @@ from numpy import log, power
 
 def cost_derivative(b):
     if b > 3:
-        return log(2) * power(2, b - 3) * MOVEMENT_BURSTS - DETECTION_BATCH_SIZE / power(b, 2)
+        return log(2) * power(2, b - 3) * MOVEMENT_BURSTS - DBS / power(b, 2)
     else:
-        return log(2) * MOVEMENT_BURSTS - DETECTION_BATCH_SIZE / power(b, 2)
+        return log(2) * MOVEMENT_BURSTS - DBS / power(b, 2)
 
 
 FRAMERATE = 24
@@ -24,7 +24,7 @@ DETECTION_BATCH_SIZE = 100
 MOVEMENT_BURSTS = 2
 
 DBS = DETECTION_BATCH_SIZE + 2
-JUMP = 1 if MOVEMENT_BURSTS/DETECTION_BATCH_SIZE > 0.9 else round(fsolve(cost_derivative, 4)[0])
+JUMP = 1 if MOVEMENT_BURSTS/DBS >= 0.9 else round(fsolve(cost_derivative, 4)[0])
 
 YOLO_V3_TINY_WEIGHTS = "./YOLO v4/tiny/yolov4.weights"
 YOLO_V3_TINY_CONFIGS = "./YOLO v4/tiny/yolov4.cfg"
