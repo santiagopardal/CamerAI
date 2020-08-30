@@ -80,16 +80,13 @@ times for movement, where n is the DBS and b is the number of frames we will be 
 
 ![alt text](https://github.com/santiagopardal/CamerAI/blob/master/Documentation/Math%20functions%20for%20CamerAI/Worst%20case/Cost%20function%20derivative%20with%20respect%20to%20b.png)
 
-in which we want the function to be equal to 0 to find the value b for the minimum cost. The truth is that the worst case scenario is extremely unlikely to happen because movements in the real world occur "continuously" and in that case we analyse what would happen if every time we skip frames we find the contrary state to the pair previously
-analysed, for example movement, not movement, movement, not movement, etc. A more reasonable case would be to have a constant "m" which would be the ammount of "bursts" we have
-in the batch, for example for a DBS of 100, I figured out that 2 is a very reasonable number to use. Using m as a constant the functions would be:
+in which we want the function to be equal to 0 to find the value b for the minimum cost. The truth is that the worst case scenario is extremely unlikely to happen because movements in the real world occur "continuously" and in that case we analyse what would happen if every time we skip frames we find the contrary state to the pair previously analysed, for example movement, not movement, movement, not movement, etc. A more reasonable case would be to have a constant "m" which would be the ammount of "bursts" we have in the batch, for example for a DBS of 100, I figured out that 2 is a very reasonable number to use. Using m as another variable the functions would be:
 
 ![alt text](https://github.com/santiagopardal/CamerAI/blob/master/Documentation/Math%20functions%20for%20CamerAI/Average%20case/Cost%20function.png)
 
 ![alt text](https://github.com/santiagopardal/CamerAI/blob/master/Documentation/Math%20functions%20for%20CamerAI/Average%20case/Cost%20function%20derivative%20with%20respect%20to%20b.png)
 
-As you can see, the worst case scenario function is the same to the "average case scenario", because m=n/2b. For different environments one has to explore what is the best value for m, in my case, as I said before, 2 is a very reasonable number and reduces significantly the number of times we have to look for movement. Using m=2 and DBS=100 or n=100,
-for b=4 the cost function's partial derivative with respect to b is aproximately cero, more specifically 4.347. If you decide to go for the worst case scenario, b=3 as shown in the graphs below.
+As you can see, the worst case scenario function is the same to the "average case scenario", because m=n/2b. For different environments one has to explore what is the best value for m, in my case, as I said before, 2 is a very reasonable number and reduces significantly the number of times we have to look for movement. Using m=2 and DBS=100 or n=100, for b=5 the cost function's partial derivative with respect to b is aproximately cero, more specifically 4.705. If you decide to go for the worst case scenario, b=3 as shown in the graphs below.
 
 The graph of the "worst case" cost function (red) and it's derivative with respect to b (purple) when n = 100:
 
