@@ -27,8 +27,11 @@ class Observer:
             self._observe(frames)
 
     def _movement(self, previous_frame: Frame, frame: Frame) -> bool:
-        pf = previous_frame.get_resized_and_grayscaled()
-        frm = frame.get_resized_and_grayscaled()
+        pf = self._frame_manipulation(previous_frame)
+        pf = pf.get_resized_and_grayscaled()
+
+        frm = self._frame_manipulation(frame)
+        frm = frm.get_resized_and_grayscaled()
 
         diff = cv2.absdiff(pf, frm)
         diff = np.array(diff / 255, dtype="float32")
@@ -50,13 +53,11 @@ class Observer:
 
         while i < len(frames):
             frame = frames[i]
-            frame_manipulated = self._frame_manipulation(frame)
 
             previous_frame = frames[i - 1]
-            previous_frame_manipulated = self._frame_manipulation(previous_frame)
 
             looked = looked + 1
-            if self._movement(previous_frame_manipulated, frame_manipulated):
+            if self._movement(previous_frame, frame):
                 if not recording:
                     recording = True
 
@@ -69,10 +70,8 @@ class Observer:
                             frm = frames[j]
                             pframe = frames[j - 1]
 
-                            frm_manipulated = self._frame_manipulation(frm)
-                            pframe_manipulated = self._frame_manipulation(pframe)
                             looked = looked + 1
-                            if self._movement(pframe_manipulated, frm_manipulated):
+                            if self._movement(pframe, frm):
                                 frm.store(storing_path)
                                 pframe.store(storing_path)
                             else:
@@ -90,8 +89,8 @@ class Observer:
 
                 frame.store(storing_path)
                 previous_frame.store(storing_path)
-                if i + 1 < len(frames):
-                    frames[i+1].store(storing_path)
+             #   if i + 1 < len(frames):
+             #       frames[i+1].store(storing_path)
             else:
                 if recording:
                     recording = False
@@ -99,14 +98,12 @@ class Observer:
                     j = i - 2
                     last_element = i - Constants.JUMP
 
-                    while j - 1 > last_element and not store_all:
+                    while j > last_element and not store_all:
                         frm = frames[j]
                         pframe = frames[j - 1]
 
-                        frm_manipulated = self._frame_manipulation(frm)
-                        pframe_manipulated = self._frame_manipulation(pframe)
                         looked = looked + 1
-                        if self._movement(pframe_manipulated, frm_manipulated):
+                        if self._movement(pframe, frm):
                             store_all = True
                         else:
                             j = j - 2
