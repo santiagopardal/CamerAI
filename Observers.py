@@ -76,6 +76,7 @@ class Observer:
                                 frm.store(storing_path)
                                 pframe.store(storing_path)
                             else:
+                                frames[j].store(storing_path)
                                 j = last_element
 
                             j = j - 2
@@ -89,12 +90,15 @@ class Observer:
 
                 frame.store(storing_path)
                 previous_frame.store(storing_path)
+                if i + 1 < len(frames):
+                    frames[i+1].store(storing_path)
             else:
                 if recording:
                     recording = False
                     store_all = False
                     j = i - 2
                     last_element = i - Constants.JUMP
+
                     while j > last_element and not store_all:
                         frm = frames[j]
                         pframe = frames[j - 1]

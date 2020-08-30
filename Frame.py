@@ -17,6 +17,7 @@ class Frame:
         self._resized_and_grayscaled = False
 
         self._stored = False
+        self._stored_in = []
 
     def stored(self) -> bool:
         return self._stored
@@ -46,26 +47,33 @@ class Frame:
 
     def store(self, folder: str):
         if not self._stored:
-            try:
-                filename = str(self._time).replace(":", "-") + ".jpeg"
+            self.__store(folder)
+        else:
+            if folder not in self._stored_in:
+                self.__store(folder)
 
-                if not os.path.exists(folder):
-                    os.mkdir(folder)
+    def __store(self, folder: str):
+        try:
+            filename = str(self._time).replace(":", "-") + ".jpeg"
 
-                folder = folder + str(datetime.datetime.now().date()) + "/"
+            if not os.path.exists(folder):
+                os.mkdir(folder)
 
-                if not os.path.exists(folder):
-                    os.mkdir(folder)
+            folder = folder + str(datetime.datetime.now().date()) + "/"
 
-                frame = cv2.cvtColor(self._frame, cv2.COLOR_BGR2RGB)
-                frame = Image.fromarray(frame)
-                frame.save(folder + filename, optimize=True, quality=50)
-                del frame
+            if not os.path.exists(folder):
+                os.mkdir(folder)
 
-                self._stored = True
-            except Exception as e:
-                print("Error storing image from camera on {}".format(folder))
-                print(e)
+            frame = cv2.cvtColor(self._frame, cv2.COLOR_BGR2RGB)
+            frame = Image.fromarray(frame)
+            frame.save(folder + filename, optimize=True, quality=50)
+            del frame
+
+            self._stored = True
+            self._stored_in.append(folder)
+        except Exception as e:
+            print("Error storing image from camera on {}".format(folder))
+            print(e)
 
     def __resize_and_grayscale(self):
         self._resized_and_grayscale = cv2.resize(self._frame, (256, 144), interpolation=cv2.INTER_AREA)
