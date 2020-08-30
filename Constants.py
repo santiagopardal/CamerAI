@@ -1,6 +1,5 @@
 from scipy.optimize import fsolve
 from numpy import log, power
-import time
 
 
 def cost_derivative(b):
