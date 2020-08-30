@@ -106,7 +106,7 @@ The graph of the "average case" cost function in 3 dimentions, where x is b, y i
 
 Some visual explanations of what's happening when using b=5:
 
-- We find movement in two images in a row, we store all the images, from the first one (0) to the last one (6):
+- We find movement in two pairs in a row, we store all the images, from the first one (0) to the last one (6):
 
 ![alt text](https://github.com/santiagopardal/CamerAI/blob/master/Documentation/GIFS/M-M.gif)
 
