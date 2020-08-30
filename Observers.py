@@ -99,7 +99,7 @@ class Observer:
                     j = i - 2
                     last_element = i - Constants.JUMP
 
-                    while j > last_element and not store_all:
+                    while j - 1 > last_element and not store_all:
                         frm = frames[j]
                         pframe = frames[j - 1]
 
