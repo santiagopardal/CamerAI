@@ -88,11 +88,11 @@ in which we want the function to be equal to 0 to find the value b for the minim
 
 As you can see, the worst case scenario function is the same to the "average case scenario", because m=n/2b. For different environments one has to explore what is the best value for m, in my case, as I said before, 2 is a very reasonable number and reduces significantly the number of times we have to look for movement. Using m=2 and DBS=100 or n=100, for b=5 the cost function's partial derivative with respect to b is aproximately cero, more specifically 4.705. If you decide to go for the worst case scenario, b=3 as shown in the graphs below.
 
-The graph of the "worst case" cost function (red) and it's derivative with respect to b (purple) when n = 100:
+The graph of the "worst case" cost function (red) and it's derivative with respect to b (black) when n = 100:
 
 ![alt text](https://github.com/santiagopardal/CamerAI/blob/master/Documentation/Math%20functions%20for%20CamerAI/n%3D100%2C%20m%3Dn(div)2b.png)
 
-The graph of the "average case" cost function (red) and it's derivative with respect to b (blue) when n = 100 and m = 2:
+The graph of the "average case" cost function (red) and it's derivative with respect to b (black) when n = 100 and m = 2:
 
 ![alt text](https://github.com/santiagopardal/CamerAI/blob/master/Documentation/Math%20functions%20for%20CamerAI/n%3D100%2Cm%3D2.png)
 
