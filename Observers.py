@@ -49,14 +49,12 @@ class Observer:
         i = 1
         recording = False
         storing_path = self._camera.get_place() + "/"
-        looked = 0
 
         while i < len(frames):
             frame = frames[i]
 
             previous_frame = frames[i - 1]
 
-            looked = looked + 1
             if self._movement(previous_frame, frame):
                 if not recording:
                     recording = True
@@ -65,20 +63,22 @@ class Observer:
                         last_element = i - Constants.JUMP
 
                         j = i - 2
-
-                        while j > last_element:
+                        found_no_movement = False
+                        while j > last_element and not found_no_movement:
                             frm = frames[j]
                             pframe = frames[j - 1]
 
-                            looked = looked + 1
                             if self._movement(pframe, frm):
                                 frm.store(storing_path)
                                 pframe.store(storing_path)
                             else:
                                 frames[j].store(storing_path)
-                                j = last_element
+                                found_no_movement = True
 
                             j = j - 2
+
+                        if not found_no_movement and j == last_element - 1:
+                            frames[last_element - 1].store(storing_path)
                 else:
                     j = i - 2
                     last_element = i - Constants.JUMP
@@ -103,7 +103,6 @@ class Observer:
                         frm = frames[j]
                         pframe = frames[j - 1]
 
-                        looked = looked + 1
                         if self._movement(pframe, frm):
                             store_all = True
                         else:
@@ -115,8 +114,9 @@ class Observer:
                             frames[j - 1].store(storing_path)
                             j = j - 2
 
+                        frames[i - 1].store(storing_path)
+
             i = i + Constants.JUMP
-        print("Looked {} times".format(looked))
 
 
 class NightObserver(Observer):
