@@ -49,14 +49,12 @@ class Observer:
         i = 1
         recording = False
         storing_path = self._camera.get_place() + "/"
-        looked = 0
 
         while i < len(frames):
             frame = frames[i]
 
             previous_frame = frames[i - 1]
 
-            looked = looked + 1
             if self._movement(previous_frame, frame):
                 if not recording:
                     recording = True
@@ -65,20 +63,22 @@ class Observer:
                         last_element = i - Constants.JUMP
 
                         j = i - 2
-
-                        while j > last_element:
+                        found_no_movement = False
+                        while j > last_element and not found_no_movement:
                             frm = frames[j]
                             pframe = frames[j - 1]
 
-                            looked = looked + 1
                             if self._movement(pframe, frm):
                                 frm.store(storing_path)
                                 pframe.store(storing_path)
                             else:
                                 frames[j].store(storing_path)
-                                j = last_element
+                                found_no_movement = True
 
                             j = j - 2
+
+                        if not found_no_movement and j == last_element - 1:
+                            frames[last_element - 1].store(storing_path)
                 else:
                     j = i - 2
                     last_element = i - Constants.JUMP
@@ -89,8 +89,9 @@ class Observer:
 
                 frame.store(storing_path)
                 previous_frame.store(storing_path)
-             #   if i + 1 < len(frames):
-             #       frames[i+1].store(storing_path)
+
+                if i + 1 < len(frames):
+                    frames[i+1].store(storing_path)
             else:
                 if recording:
                     recording = False
@@ -98,11 +99,10 @@ class Observer:
                     j = i - 2
                     last_element = i - Constants.JUMP
 
-                    while j > last_element and not store_all:
+                    while j - 1 > last_element and not store_all:
                         frm = frames[j]
                         pframe = frames[j - 1]
 
-                        looked = looked + 1
                         if self._movement(pframe, frm):
                             store_all = True
                         else:
@@ -114,63 +114,9 @@ class Observer:
                             frames[j - 1].store(storing_path)
                             j = j - 2
 
+                        frames[i - 1].store(storing_path)
+
             i = i + Constants.JUMP
-        print("Looked {} times".format(looked))
-
-        """
-        while i < len(frames):
-            frame = frames[i]
-            frame_manipulated = self._frame_manipulation(frame)
-
-            previous_frame = frames[i-1]
-            previous_frame_manipulated = self._frame_manipulation(previous_frame)
-
-            if self._movement(previous_frame_manipulated, frame_manipulated):
-                if not recording:
-                    recording = True
-
-                    if i-2 > 0 and i-3 >= 0:
-                        frm3 = frames[i-3]
-                        frm2 = frames[i-2]
-
-                        manipulated3 = self._frame_manipulation(frm3)
-                        manipulated2 = self._frame_manipulation(frm2)
-
-                        if self._movement(manipulated3, manipulated2):
-                            if i - 4 >= 0:
-                                frames[i-4].store(storing_path)
-
-                            frm3.store(storing_path)
-
-                        frm2.store(storing_path)
-                else:
-                    frm3 = frames[i-3]
-                    frm2 = frames[i-2]
-
-                    frm3.store(storing_path)
-                    frm2.store(storing_path)
-
-                frame.store(storing_path)
-                previous_frame.store(storing_path)
-
-                self._camera.handle_motion(frame)
-            else:
-                if recording:
-                    frm3 = frames[i - 3]
-                    frm2 = frames[i - 2]
-
-                    manipulated3 = self._frame_manipulation(frm3)
-                    manipulated2 = self._frame_manipulation(frm2)
-
-                    if self._movement(manipulated3, manipulated2):
-                        frm2.store(storing_path)
-                        previous_frame.store(storing_path)
-
-                    frm3.store(storing_path)
-
-                    recording = False
-
-            i = i + 4"""
 
 
 class NightObserver(Observer):

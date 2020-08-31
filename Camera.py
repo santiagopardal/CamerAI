@@ -142,7 +142,7 @@ class LiveVideoCamera(Camera):
 
                     tme = time.perf_counter()
                     if tme - previous_capture > 1 / Constants.FRAMERATE:
-                        grabbed, frame = self._live_video.read()
+                        grabbed, frame = self._live_video.retrieve()
 
                         while not grabbed:
                             print("Reconnecting")
