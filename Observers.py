@@ -4,6 +4,7 @@ from Frame import Frame
 import Constants
 import numpy as np
 import datetime
+import tensorflow as tf
 
 
 class Observer:
@@ -38,7 +39,8 @@ class Observer:
 
         images = np.array([diff]).reshape((256, 144, 1))
 
-        movement = self._neural_network.predict_on_batch(np.array([images]))
+        with tf.device("/cpu:0"):
+            movement = self._neural_network.predict_on_batch(np.array([images]))
 
         return movement[0][0] >= Constants.MOVEMENT_SENSITIVITY
 
@@ -49,14 +51,17 @@ class Observer:
         i = 1
         recording = False
         storing_path = self._camera.get_place() + "/"
+        looked = 0
+        bursts = 0
 
         while i < len(frames):
             frame = frames[i]
 
             previous_frame = frames[i - 1]
-
+            looked += 1
             if self._movement(previous_frame, frame):
                 if not recording:
+                    bursts += 1
                     recording = True
 
                     if i - Constants.JUMP >= 0:
@@ -67,7 +72,7 @@ class Observer:
                         while j > last_element and not found_no_movement:
                             frm = frames[j]
                             pframe = frames[j - 1]
-
+                            looked += 1
                             if self._movement(pframe, frm):
                                 frm.store(storing_path)
                                 pframe.store(storing_path)
@@ -102,7 +107,7 @@ class Observer:
                     while j - 1 > last_element and not store_all:
                         frm = frames[j]
                         pframe = frames[j - 1]
-
+                        looked += 1
                         if self._movement(pframe, frm):
                             store_all = True
                         else:
@@ -117,6 +122,8 @@ class Observer:
                         frames[i - 1].store(storing_path)
 
             i = i + Constants.JUMP
+
+        print("Looked {} times with {} bursts".format(looked, bursts))
 
 
 class NightObserver(Observer):
