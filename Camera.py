@@ -206,4 +206,4 @@ class FI89182(LiveVideoCamera):
         super().__init__(ip, port, place, "http://{}:{}/cgi-bin/CGIProxy.fcgi?cmd=snapPicture2&usr={}&pwd={}".
                          format(ip, str(port), user, password),
                          "http://{}:{}/videostream.cgi?user={}&pwd={}".
-                         format(ip, port, Constants.USER, Constants.PASSWORD))
+                         format(ip, port, user, password))
