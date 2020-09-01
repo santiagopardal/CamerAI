@@ -68,11 +68,11 @@ Objects are detected by YOLO v4, it's a pretrained Convolutional neural network 
 
 # What about the requirements?
 The program can run on any OS, RAM usage can be quite large depending on the quality of the CCTV cameras you are using. There is a trade-off between CPU performance and RAM usage, in order to make the program lighter on the CPU (in case you don't have a GPU) modifications have been made so as not to load the CPU too much, these modifications come at the expense of a greater RAM usage. If you want to play with the performance you can do so by increasing or decreasing the detection batch size
-(DBS) on Constants.py. Note that the DBS must be greater than 1.
+(DBS) on [Constants.py](https://github.com/santiagopardal/CamerAI/blob/master/Constants.py). Note that the DBS must be greater than 1.
 
 ## How's the optimization process?
 Instead of checking frame by frame whether there has been movement or not, we look for movement every DBS(s) frames, the default value is 100 DBS but you can modify it. Once
-we have DBSs frames we won't be checking frame by frame, instead we will skip some frames. In the worst case scenario we will be looking
+we have DBSs frames we won't be checking frame by frame, instead we will skip some of them. In the worst case scenario we will be looking
 
 ![alt text](https://github.com/santiagopardal/CamerAI/blob/master/Documentation/Math%20functions%20for%20CamerAI/Worst%20case/Cost%20function.png)
 
@@ -86,7 +86,7 @@ in which we want the function to be equal to 0 to find the value b for the minim
 
 ![alt text](https://github.com/santiagopardal/CamerAI/blob/master/Documentation/Math%20functions%20for%20CamerAI/Average%20case/Cost%20function%20derivative%20with%20respect%20to%20b.png)
 
-As you can see, the worst case scenario function is the same to the "average case scenario", because m=n/2b. For different environments one has to explore what is the best value for m, in my case, as I said before, 2 is a very reasonable number and reduces significantly the number of times we have to look for movement. Using m=2 and DBS=100 or n=100, for b=5 the cost function's partial derivative with respect to b is aproximately cero, more specifically 4.705. If you decide to go for the worst case scenario, b=3 as shown in the graphs below.
+As you can see, the worst case scenario function is the same to the "average case scenario", because m=n/2b. For different environments one has to explore what is the best value for m, in my case, as I said before, 2 is a very reasonable number and reduces significantly the number of times we have to look for movement. In order to figure out the best value for m, an statistical approach would be more suitable, unfortunately I don't have the means to do it. When setting m, you have to consider the final value of b and the framerate you are going to work with, because skipping 9 frames in a camera running at 120 fps is no the same as skipping 9 frames in a comera running at 23 fps, so be careful when setting this number. Ideally we would not skip frames, but skipping aproximately 20% of frames (i.e for 60 fps, skipping 12 frames is ok) won't hurt detection. Using m=2 and DBS=100 or n=100, for b=5 the cost function's partial derivative with respect to b is aproximately cero, more specifically 4.705. If you decide to go for the worst case scenario, b=3 as shown in the graphs below.
 
 The graph of the "worst case" cost function (red) and it's derivative with respect to b (black) when n = 100:
 
