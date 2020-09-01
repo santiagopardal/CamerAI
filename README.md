@@ -68,7 +68,7 @@ Objects are detected by YOLO v4, it's a pretrained Convolutional neural network 
 
 # What about the requirements?
 The program can run on any OS, RAM usage can be quite large depending on the quality of the CCTV cameras you are using. There is a trade-off between CPU performance and RAM usage, in order to make the program lighter on the CPU (in case you don't have a GPU) modifications have been made so as not to load the CPU too much, these modifications come at the expense of a greater RAM usage. If you want to play with the performance you can do so by increasing or decreasing the detection batch size
-(DBS) on Constants.py. Note that the DBS must be greater than 1.
+(DBS) on [Constants.py](https://github.com/santiagopardal/CamerAI/blob/master/Constants.py). Note that the DBS must be greater than 1.
 
 ## How's the optimization process?
 Instead of checking frame by frame whether there has been movement or not, we look for movement every DBS(s) frames, the default value is 100 DBS but you can modify it. Once
