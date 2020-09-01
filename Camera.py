@@ -1,4 +1,4 @@
-import urllib.request
+import urllib
 import io
 import time
 import cv2
@@ -190,6 +190,9 @@ class LiveVideoCamera(Camera):
 
 class FI9803PV3(LiveVideoCamera):
     def __init__(self, ip: str, port: int, place: str, user: str, password: str):
+        user = urllib.parse.quote(user)
+        password = urllib.parse.quote(password)
+
         super().__init__(ip, port, place, "http://{}:{}/cgi-bin/CGIProxy.fcgi?cmd=snapPicture2&usr={}&pwd={}".
                          format(ip, str(port), user, password),
                          "rtsp://{}:{}@{}:{}/videoMain".format(user, password, ip, str(port + 2)))
@@ -197,6 +200,9 @@ class FI9803PV3(LiveVideoCamera):
 
 class FI89182(LiveVideoCamera):
     def __init__(self, ip: str, port: int, place: str, user: str, password: str):
+        user = urllib.parse.quote(user)
+        password = urllib.parse.quote(password)
+
         super().__init__(ip, port, place, "http://{}:{}/cgi-bin/CGIProxy.fcgi?cmd=snapPicture2&usr={}&pwd={}".
                          format(ip, str(port), user, password),
                          "http://{}:{}/videostream.cgi?user={}&pwd={}".

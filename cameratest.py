@@ -5,6 +5,7 @@ from CNNs import create_model
 from Constants import MOVEMENT_SENSITIVITY
 from YOLO import YOLOv4Tiny
 import Constants
+import urllib.parse
 
 model = create_model()
 model.load_weights("Neural Network/v4.8.3/model_weights")
@@ -42,7 +43,7 @@ def detect_movement(previous_frame, frame):
 
 
 def show_video():
-    cap = cv2.VideoCapture("rtsp://{}:{}@192.168.1.131:1113/videoMain".format(Constants.USER, Constants.PASSWORD))
+    cap = cv2.VideoCapture("rtsp://{}:{}@192.168.1.131:1113/videoMain".format(urllib.parse.quote(Constants.USER), urllib.parse.quote(Constants.PASSWORD)))
 
     _, previous_frame = cap.read()
 
