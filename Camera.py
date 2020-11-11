@@ -63,7 +63,7 @@ class Camera:
         previous_capture = 0
         frames = []
 
-        thread = threading.Thread(target=self._observer.observe, args=(frames,))
+        thread = threading.Thread(target=self._check_movement, args=())
         thread.start()
 
         while not self._kill_thread:
@@ -83,7 +83,7 @@ class Camera:
                         frames.append(frame)
                         if len(frames) >= Constants.DBS:
                             self._frames_to_observe.append(frames)
-
+                            self._observe_semaphore.release()
                             frames = [frame]
 
                 except Exception as e:
@@ -143,6 +143,9 @@ class LiveVideoCamera(Camera):
         previous_capture = 0
         frames = []
 
+        thread = threading.Thread(target=self._check_movement, args=())
+        thread.start()
+
         while not self._kill_thread:
             try:
                 if self._live_video.isOpened():
@@ -168,8 +171,8 @@ class LiveVideoCamera(Camera):
                         frames.append(frame)
 
                         if len(frames) >= Constants.DBS:
-                            thread = threading.Thread(target=self._observer.observe, args=(frames,))
-                            thread.start()
+                            self._frames_to_observe.append(frames)
+                            self._observe_semaphore.release()
                             frames = [frame]
                 else:
                     self.__connect()
