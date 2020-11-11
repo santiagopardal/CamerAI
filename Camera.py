@@ -10,6 +10,7 @@ from PIL import Image
 from MotionEventHandler import MotionEventHandler
 from Frame import Frame
 from Observers import Observer
+from threading import Semaphore
 
 
 class Camera:
@@ -22,6 +23,8 @@ class Camera:
         self._kill_thread = False
         self._motion_handler = MotionEventHandler()
         self._observer = Observer(self)
+        self._observe_semaphore = Semaphore(0)
+        self._frames_to_observe = []
 
     def get_place(self) -> str:
         return self._place
@@ -60,6 +63,9 @@ class Camera:
         previous_capture = 0
         frames = []
 
+        thread = threading.Thread(target=self._observer.observe, args=(frames,))
+        thread.start()
+
         while not self._kill_thread:
             if time.perf_counter() - previous_capture > 1 / Constants.FRAMERATE:
 
@@ -76,14 +82,18 @@ class Camera:
                     if frame is not None:
                         frames.append(frame)
                         if len(frames) >= Constants.DBS:
-                            thread = threading.Thread(target=self._observer.observe, args=(frames,))
-                            thread.start()
+                            self._frames_to_observe.append(frames)
 
                             frames = [frame]
 
                 except Exception as e:
                     print("Error downloading image from camera {} on ip {}".format(self._place, self._IP))
                     print(e)
+
+    def _check_movement(self):
+        while not self._kill_thread:
+            self._observe_semaphore.acquire()
+            self._observer.observe(frames=self._frames_to_observe.pop())
 
 
 class LiveVideoCamera(Camera):
