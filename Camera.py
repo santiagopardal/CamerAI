@@ -10,7 +10,7 @@ from PIL import Image
 from MotionEventHandler import MotionEventHandler
 from Frame import Frame
 from Observers import Observer
-from Observers import TrainerObserver#Observer
+from Observers import Observer
 from threading import Semaphore
 
 
@@ -23,7 +23,7 @@ class Camera:
         self._record_thread = None
         self._kill_thread = False
         self._motion_handler = MotionEventHandler()
-        self._observer = TrainerObserver(self)#Observer(self)
+        self._observer = Observer(self)
         self._observe_semaphore = Semaphore(0)
         self._frames_to_observe = []
 
