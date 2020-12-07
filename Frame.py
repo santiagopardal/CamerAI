@@ -28,6 +28,9 @@ class Frame:
     def get_frame(self):
         return self._frame
 
+    def get_time(self):
+        return self._time
+
     def denoise(self):
         self._frame = self.get_denoised_frame()
 
@@ -56,8 +59,11 @@ class Frame:
         try:
             filename = str(self._time).replace(":", "-") + ".jpeg"
 
-            if not os.path.exists(folder):
-                os.mkdir(folder)
+            pth = ""
+            for fold in folder.split("/"):
+                pth = os.path.join(pth, fold)
+                if not os.path.exists(pth):
+                    os.mkdir(pth)
 
             folder = folder + str(datetime.datetime.now().date()) + "/"
 

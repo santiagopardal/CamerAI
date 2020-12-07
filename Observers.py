@@ -38,7 +38,7 @@ class Observer:
 
         images = np.array([diff]).reshape((256, 144, 1))
 
-        movement = self._neural_network.predict_on_batch(np.array([images]))
+        movement = self._neural_network.predict(np.array([images]))
 
         return movement[0][0] >= Constants.MOVEMENT_SENSITIVITY
 
@@ -140,3 +140,25 @@ class NightObserver(Observer):
 
     def _frame_manipulation(self, frame: Frame) -> Frame:
         return frame.get_denoised_frame()
+
+
+class TrainerObserver(Observer):
+    def __init__(self, camera, model=None):
+        super().__init__(camera, model)
+
+    def observe(self, frames: list):
+
+        i = 1
+        cant = 0
+        store = False
+
+        while i < len(frames) and not store:
+            if self._movement(frames[i], frames[i-1]):
+                cant += 1
+
+        if cant > 3:
+            for frame in frames:
+                frame.store(self._camera.get_place() + "/Movement/" + str(frames[0].get_time()).replace(":", "-") + "/")
+        else:
+            for frame in frames:
+                frame.store(self._camera.get_place() + "/No movement/" + str(frames[0].get_time()).replace(":", "-") + "/")
