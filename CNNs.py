@@ -4,7 +4,7 @@ import tensorflow as tf
 def create_model():
     model = tf.keras.models.Sequential([
 
-        tf.keras.layers.Conv2D(64, kernel_size=(5, 5), activation="relu", input_shape=(256, 144, 30)),
+        tf.keras.layers.Conv2D(64, kernel_size=(5, 5), activation="relu", input_shape=(256, 144, 150)),
         tf.keras.layers.MaxPooling2D(pool_size=3, strides=2),
         tf.keras.layers.BatchNormalization(),
 
