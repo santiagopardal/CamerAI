@@ -31,7 +31,7 @@ def calculate_jump():
             if cost_function(b) > cost_function(b - 1):
                 b = b - 1
 
-    return b
+    return int(b)
 
 
 FRAMERATE = 24
