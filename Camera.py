@@ -9,7 +9,7 @@ import requests
 from PIL import Image
 from MotionEventHandler import MotionEventHandler
 from Frame import Frame
-from Observers import Observer
+from Observers import Observer, DatasetObserver
 from Observers import Observer
 from threading import Semaphore
 

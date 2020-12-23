@@ -23,16 +23,16 @@ def look_for_people(frame):
 
 
 def detect_movement(previous_frame, frame):
-    previous_frame = cv2.resize(previous_frame, (256, 144), interpolation=cv2.INTER_AREA)
+    previous_frame = cv2.resize(previous_frame, Constants.RESOLUTION, interpolation=cv2.INTER_AREA)
     previous_frame = cv2.cvtColor(previous_frame, cv2.COLOR_RGB2GRAY)
 
-    img = cv2.resize(frame, (256, 144), interpolation=cv2.INTER_AREA)
+    img = cv2.resize(frame, Constants.RESOLUTION, interpolation=cv2.INTER_AREA)
     img = cv2.cvtColor(img, cv2.COLOR_RGB2GRAY)
 
     diff = cv2.absdiff(previous_frame, img)
     diff = np.array(diff / 255, dtype="float32")
 
-    images = np.array([diff]).reshape((256, 144, 1))
+    images = np.array([diff]).reshape((180, 180, 1))
 
     movement = model.predict(np.array([images]))
 

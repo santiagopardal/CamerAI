@@ -3,6 +3,7 @@ from PIL import Image
 import datetime
 import os
 import numpy as np
+import Constants
 
 
 class Frame:
@@ -48,14 +49,14 @@ class Frame:
 
         return self._resized_and_grayscale
 
-    def store(self, folder: str):
+    def store(self, folder: str) -> str:
         if not self._stored:
-            self.__store(folder)
+            return self.__store(folder)
         else:
             if folder not in self._stored_in:
-                self.__store(folder)
+                return self.__store(folder)
 
-    def __store(self, folder: str):
+    def __store(self, folder: str) -> str:
         try:
             filename = str(self._time).replace(":", "-") + ".jpeg"
 
@@ -77,11 +78,13 @@ class Frame:
 
             self._stored = True
             self._stored_in.append(folder)
+
+            return os.path.join(folder, filename)
         except Exception as e:
             print("Error storing image from camera on {}".format(folder))
             print(e)
 
     def __resize_and_grayscale(self):
-        self._resized_and_grayscale = cv2.resize(self._frame, (256, 144), interpolation=cv2.INTER_AREA)
+        self._resized_and_grayscale = cv2.resize(self._frame, Constants.RESOLUTION, interpolation=cv2.INTER_AREA)
         self._resized_and_grayscale = cv2.cvtColor(self._resized_and_grayscale, cv2.COLOR_RGB2GRAY)
         self._resized_and_grayscaled = True
