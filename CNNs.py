@@ -66,6 +66,5 @@ def create_main_model():
     loss = tf.keras.losses.BinaryCrossentropy()
 
     model.compile(loss=loss, optimizer=optimizer, metrics=["accuracy"])
-    model.summary()
 
     return model
