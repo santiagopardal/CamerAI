@@ -135,7 +135,7 @@ class NightObserver(Observer):
 
     def observe(self, frames: list):
         hour = datetime.datetime.now().hour
-Im        if Constants.NIGHT_OBSERVER_SHIFT_HOUR < hour and hour >= Constants.OBSERVER_SHIFT_HOUR:#Constants.NIGHT_OBSERVER_SHIFT_HOUR >= hour < Constants.OBSERVER_SHIFT_HOUR:
+        if Constants.NIGHT_OBSERVER_SHIFT_HOUR < hour and hour >= Constants.OBSERVER_SHIFT_HOUR:
             print("Observer shift")
             observer = Observer(self._camera, self._neural_network)
             self._camera.set_observer(observer)
