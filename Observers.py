@@ -126,7 +126,7 @@ class Observer:
 
             i = i + Constants.JUMP
 
-        print("Looked {} times with {} bursts".format(looked, bursts))
+        print("Looked {} times with {} bursts on {}".format(looked, bursts, self._camera.get_place()))
 
 
 class NightObserver(Observer):

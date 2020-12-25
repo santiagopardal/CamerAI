@@ -199,6 +199,7 @@ class LiveVideoCamera(Camera):
                 self._live_video.set(cv2.CAP_PROP_FPS, Constants.FRAMERATE)
                 self._live_video.set(cv2.CAP_PROP_FRAME_WIDTH, self._frame_width)
                 self._live_video.set(cv2.CAP_PROP_FRAME_HEIGHT, self._frame_height)
+                self._live_video.set(cv2.CAP_PROP_BUFFERSIZE, 3)
 
                 connected = True
 
