@@ -34,7 +34,7 @@ def calculate_jump():
     return int(b)
 
 
-FRAMERATE = 24
+FRAMERATE = 23
 
 UPDATE_EVERY_SECONDS = 300
 

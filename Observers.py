@@ -135,7 +135,7 @@ class NightObserver(Observer):
 
     def observe(self, frames: list):
         hour = datetime.datetime.now().hour
-        if Constants.NIGHT_OBSERVER_SHIFT_HOUR >= hour < Constants.OBSERVER_SHIFT_HOUR:
+Im        if Constants.NIGHT_OBSERVER_SHIFT_HOUR < hour and hour >= Constants.OBSERVER_SHIFT_HOUR:#Constants.NIGHT_OBSERVER_SHIFT_HOUR >= hour < Constants.OBSERVER_SHIFT_HOUR:
             print("Observer shift")
             observer = Observer(self._camera, self._neural_network)
             self._camera.set_observer(observer)
@@ -159,19 +159,19 @@ class DatasetObserver(Observer):
         if not os.path.exists("No Movement"):
             os.mkdir("No Movement")
 
-        if not os.path.exists("Movement\\list\\"):
-            os.mkdir("Movement\\list\\")
+        if not os.path.exists("Movement/list/"):
+            os.mkdir("Movement/list/")
 
-        if not os.path.exists("No Movement\\list\\"):
-            os.mkdir("No Movement\\list\\")
+        if not os.path.exists("No Movement/list/"):
+            os.mkdir("No Movement/list/")
 
-        if not os.path.exists("Movement\\list\\{}\\".format(self._camera.get_place())):
-            os.mkdir("Movement\\list\\{}\\".format(self._camera.get_place()))
+        if not os.path.exists("Movement/list/{}/".format(self._camera.get_place())):
+            os.mkdir("Movement/list/{}/".format(self._camera.get_place()))
 
-        if not os.path.exists("No Movement\\list\\{}\\".format(self._camera.get_place())):
-            os.mkdir("No Movement\\list\\{}\\".format(self._camera.get_place()))
+        if not os.path.exists("No Movement/list/{}/".format(self._camera.get_place())):
+            os.mkdir("No Movement/list/{}/".format(self._camera.get_place()))
 
-        for file in os.listdir("Movement\\list\\{}\\".format(self._camera.get_place())):
+        for file in os.listdir("Movement/list/{}/".format(self._camera.get_place())):
             try:
                 int(file.replace(".pck", ""))
                 is_int = True
@@ -181,7 +181,7 @@ class DatasetObserver(Observer):
             if is_int and int(file.replace(".pck", "")) > move:
                 move = int(file.replace(".pck", ""))
 
-        for file in os.listdir("No Movement\\list\\{}\\".format(self._camera.get_place())):
+        for file in os.listdir("No Movement/list/{}/".format(self._camera.get_place())):
             try:
                 int(file.replace(".pck", ""))
                 is_int = True
@@ -197,25 +197,34 @@ class DatasetObserver(Observer):
             if self._movement(pf, frame):
                 pf: Frame
                 frame: Frame
-                a = pf.store("Movement\\{}\\".format(self._camera.get_place()))
-                b = frame.store("Movement\\{}\\".format(self._camera.get_place()))
+                a = pf.store("Movement/{}/".format(self._camera.get_place()))
+                b = frame.store("Movement/{}/".format(self._camera.get_place()))
 
                 mov = [a, b]
 
-                with open("Movement\\list\\{}\\{}.pck".format(self._camera.get_place(), move), "wb") as handle:
+                with open("Movement/list/{}/{}.pck".format(self._camera.get_place(), move), "wb") as handle:
                     pickle.dump(mov, handle)
+                    handle.close()
+                    del handle
+                    del mov
 
                 move += 1
             else:
-                a = pf.store("No Movement\\{}\\".format(self._camera.get_place()))
-                b = frame.store("No Movement\\{}\\".format(self._camera.get_place()))
+                a = pf.store("No Movement/{}/".format(self._camera.get_place()))
+                b = frame.store("No Movement/{}/".format(self._camera.get_place()))
 
                 mov = [a, b]
 
-                with open("No Movement\\list\\{}\\{}.pck".format(self._camera.get_place(), no_mov), "wb") as handle:
+                with open("No Movement/list/{}/{}.pck".format(self._camera.get_place(), no_mov), "wb") as handle:
                     pickle.dump(mov, handle)
+                    handle.close()
+                    del handle
+                    del mov
 
                 no_mov += 1
 
+            del pf
             pf = frame
             i += 1
+
+        del frames

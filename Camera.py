@@ -98,7 +98,8 @@ class Camera:
 
 
 class LiveVideoCamera(Camera):
-    def __init__(self, ip: str, port: int, place: str, user: str, password: str, screenshot_url: str, live_video_url: str):
+    def __init__(self, ip: str, port: int, place: str, user: str, password: str,
+                 screenshot_url: str, live_video_url: str, width: int, height: int):
         user = urllib.parse.quote(user)
         password = urllib.parse.quote(password)
         
@@ -106,6 +107,8 @@ class LiveVideoCamera(Camera):
 
         self._live_video_url = live_video_url.format(user, password)
         self._live_video = None
+        self._frame_width = width
+        self._frame_height = height
         self.__connect()
 
     def record(self):
@@ -193,6 +196,9 @@ class LiveVideoCamera(Camera):
                     del self._live_video
 
                 self._live_video = cv2.VideoCapture(self._live_video_url, cv2.CAP_FFMPEG)
+                self._live_video.set(cv2.CAP_PROP_FPS, Constants.FRAMERATE)
+                self._live_video.set(cv2.CAP_PROP_FRAME_WIDTH, self._frame_width)
+                self._live_video.set(cv2.CAP_PROP_FRAME_HEIGHT, self._frame_height)
 
                 connected = True
 
@@ -209,7 +215,8 @@ class FI9803PV3(LiveVideoCamera):
     def __init__(self, ip: str, port: int, place: str, user: str, password: str):
         super().__init__(ip, port, place, user, password, "http://{}:{}/{}".
                          format(ip, str(port), "cgi-bin/CGIProxy.fcgi?cmd=snapPicture2&usr={}&pwd={}"),
-                         "{}@{}:{}/videoMain".format("rtsp://{}:{}", ip, str(port + 2)))
+                         "{}@{}:{}/videoMain".format("rtsp://{}:{}", ip, str(port + 2)),
+                         1280, 720)
 
 
 class FI89182(LiveVideoCamera):
@@ -218,4 +225,5 @@ class FI89182(LiveVideoCamera):
                          "http://{}:{}/{}".
                          format(ip, str(port), "cgi-bin/CGIProxy.fcgi?cmd=snapPicture2&usr={}&pwd={}"),
                          "http://{}:{}/{}".
-                         format(ip, port, "videostream.cgi?user={}&pwd={}"))
+                         format(ip, port, "videostream.cgi?user={}&pwd={}"),
+                         640, 480)
