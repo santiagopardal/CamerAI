@@ -23,13 +23,13 @@ class Observer:
 
     def observe(self, frames: list):
         hour = datetime.datetime.now().hour
-        if Constants.OBSERVER_SHIFT_HOUR <= hour <= 23 or 0 <= hour < Constants.NIGHT_OBSERVER_SHIFT_HOUR:
+        if Constants.OBSERVER_SHIFT_HOUR <= hour < Constants.NIGHT_OBSERVER_SHIFT_HOUR:
+            self._observe(frames)
+        else:
             print("Observer shift, now it's night observer time!")
             observer = NightObserver(self._camera, self._neural_network)
             self._camera.set_observer(observer)
             observer.observe(frames)
-        else:
-            self._observe(frames)
 
     def _movement(self, previous_frame: Frame, frame: Frame) -> bool:
         pf = self._frame_manipulation(previous_frame)
@@ -135,13 +135,13 @@ class NightObserver(Observer):
 
     def observe(self, frames: list):
         hour = datetime.datetime.now().hour
-        if Constants.NIGHT_OBSERVER_SHIFT_HOUR < hour and hour >= Constants.OBSERVER_SHIFT_HOUR:
+        if Constants.NIGHT_OBSERVER_SHIFT_HOUR <= hour or hour < Constants.OBSERVER_SHIFT_HOUR:
+            self._observe(frames)
+        else:
             print("Observer shift")
             observer = Observer(self._camera, self._neural_network)
             self._camera.set_observer(observer)
             observer.observe(frames)
-        else:
-            self._observe(frames)
 
     def _frame_manipulation(self, frame: Frame) -> Frame:
         return frame.get_denoised_frame()
