@@ -5,7 +5,8 @@ CameraAI is a program wich can retrieve images from CCTV cameras, display them, 
 
 ## How does it detect movement?
 There is a convolutional neural network which is fed with the difference between two frames and returns a probability, that probability will be the number that determines whether
-there's been movement or not. The sensitivity can be modified in the Constants.py file, generally with a sensitivity of 0.6 (the CNN will be at least 90% sure that there's been movement) there will be no missing frames nor false positives, with a sensitivity of 0.5 (the CNN is 50% sure that there has been movement) there may be false positives but no missing frames at all.
+there's been movement or not. The sensitivity can be modified in the Constants.py file. The tests suggest that network's accuracy is about 97.64%, but it may be a bit higher around 98% or even 99%
+this may be because in the dataset there are a few mislabeled images and in practice, the network shows better performance than 97%. More testing must be done in order to ensure this.
 
 # What's the architecture of the CNN?
 ![alt text](https://github.com/santiagopardal/CamerAI/blob/master/Documentation/CNN%20architecture.png)
