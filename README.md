@@ -1,7 +1,7 @@
 # CamerAI
 
 ## What is CameraAI?
-CameraAI is a program wich can retrieve images from CCTV cameras, display them, recognize movement, detect faces and objects.
+CameraAI is a program wich can retrieve images from CCTV cameras, display them, recognize movement, and detect objects.
 
 ## How does it detect movement?
 There is a convolutional neural network which is fed with the difference between two frames and returns a probability, that probability will be the number that determines whether
