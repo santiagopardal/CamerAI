@@ -13,7 +13,7 @@ class Observer:
         if model is None:
             self._neural_network = CNNs.create_main_model()
             weights_path = os.path.join("Neural Network", "Second network")
-            weights_path = os.path.join(weights_path, "v2")
+            weights_path = os.path.join(weights_path, "v3")
             weights_path = os.path.join(weights_path, "model")
             self._neural_network.load_weights(weights_path)
         else:
