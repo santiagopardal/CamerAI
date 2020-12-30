@@ -23,7 +23,7 @@ class Observer:
 
     def observe(self, frames: list):
         hour = datetime.datetime.now().hour
-        if Constants.OBSERVER_SHIFT_HOUR <= hour < Constants.NIGHT_OBSERVER_SHIFT_HOUR:
+        if Constants.NIGHT_OBSERVER_SHIFT_HOUR <= hour < Constants.OBSERVER_SHIFT_HOUR:
             self._observe(frames)
         else:
             print("Observer shift, now it's night observer time!")
@@ -135,7 +135,7 @@ class NightObserver(Observer):
 
     def observe(self, frames: list):
         hour = datetime.datetime.now().hour
-        if Constants.NIGHT_OBSERVER_SHIFT_HOUR <= hour or hour < Constants.OBSERVER_SHIFT_HOUR:
+        if Constants.OBSERVER_SHIFT_HOUR <= hour or hour < Constants.NIGHT_OBSERVER_SHIFT_HOUR:
             self._observe(frames)
         else:
             print("Observer shift")
