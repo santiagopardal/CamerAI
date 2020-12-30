@@ -1,8 +1,6 @@
 import pickle
 import os
 import cv2
-import CNNs
-import numpy as np
 
 movement_seen = []
 no_movement_seen = []

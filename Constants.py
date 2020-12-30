@@ -1,5 +1,6 @@
 from scipy.optimize import fsolve
 from numpy import log, power
+import os
 
 
 def cost_function(b):
@@ -54,18 +55,34 @@ JUMP = calculate_jump()
 RESOLUTION = (180, 180)
 CNN_INPUT_SHAPE = (180, 180, 1)
 
-YOLO_V3_TINY_WEIGHTS = "./YOLO v4/tiny/yolov4.weights"
-YOLO_V3_TINY_CONFIGS = "./YOLO v4/tiny/yolov4.cfg"
+ABSOLUTE_PATH = os.path.abspath(os.path.curdir)
+
+STORING_PATH = os.path.join(ABSOLUTE_PATH, "Images")
+
+V3_MODEL_WEIGHTS = os.path.join(ABSOLUTE_PATH, "Neural Network")
+V3_MODEL_WEIGHTS = os.path.join(V3_MODEL_WEIGHTS, "Second network")
+V3_MODEL_WEIGHTS = os.path.join(V3_MODEL_WEIGHTS, "v3")
+V3_MODEL_WEIGHTS = os.path.join(V3_MODEL_WEIGHTS, "model")
+
+YOLO_V3_PATH = os.path.join(ABSOLUTE_PATH, "YOLO v3")
+YOLO_V4_PATH = os.path.join(ABSOLUTE_PATH, "YOLO v4")
+
+YOLO_V3_TINY_PATH = os.path.join(YOLO_V3_PATH, "tiny")
+YOLO_V3_TINY_WEIGHTS = os.path.join(YOLO_V3_TINY_PATH, "yolov3.weights")
+YOLO_V3_TINY_CONFIGS = os.path.join(YOLO_V3_TINY_PATH, "yolov3.cfg")
 YOLO_V3_TINY_RESOLUTION = 448
 
-YOLO_V3_WEIGHTS = "./YOLO v4/320/yolov4.weights"
-YOLO_V3_CONFIGS = "./YOLO v4/320/yolov4.cfg"
+
+YOLO_V3_WEIGHTS = os.path.join(YOLO_V3_PATH, os.path.join("320", "yolov3.weights"))
+YOLO_V3_CONFIGS = os.path.join(YOLO_V3_PATH, os.path.join("320", "yolov3.cfg"))
 YOLO_V3_RESOLUTION = 320
 
-YOLO_V4_TINY_WEIGHTS = "./YOLO v4/tiny/yolov4.weights"
-YOLO_V4_TINY_CONFIGS = "./YOLO v4/tiny/yolov4.cfg"
-YOLO_V4_TINY_RESOLUTION = 416
+YOLO_V4_TINY_PATH = os.path.join(YOLO_V4_PATH, "tiny")
 
-YOLO_V4_WEIGHTS = "./YOLO v4/320/yolov4.weights"
-YOLO_V4_CONFIGS = "./YOLO v4/320/yolov4.cfg"
+YOLO_V4_TINY_WEIGHTS = os.path.join(YOLO_V4_TINY_PATH, "yolov4.weights")
+YOLO_V4_TINY_CONFIGS = os.path.join(YOLO_V4_TINY_PATH, "yolov4.cfg")
+YOLO_V4_TINY_RESOLUTION = 448
+
+YOLO_V4_WEIGHTS = os.path.join(YOLO_V3_PATH, os.path.join("320", "yolov4.weights"))
+YOLO_V4_CONFIGS = os.path.join(YOLO_V3_PATH, os.path.join("320", "yolov4.cfg"))
 YOLO_V4_RESOLUTION = 320

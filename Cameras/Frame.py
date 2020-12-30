@@ -60,20 +60,21 @@ class Frame:
         try:
             filename = str(self._time).replace(":", "-") + ".jpeg"
 
-            pth = ""
+            pth = Constants.STORING_PATH
             for fold in folder.split("/"):
                 pth = os.path.join(pth, fold)
                 if not os.path.exists(pth):
                     os.mkdir(pth)
 
-            folder = folder + str(datetime.datetime.now().date()) + "/"
+            folder = os.path.join(pth, str(datetime.datetime.now().date()))
+            file_path = os.path.join(folder, filename)
 
             if not os.path.exists(folder):
                 os.mkdir(folder)
 
             frame = cv2.cvtColor(self._frame, cv2.COLOR_BGR2RGB)
             frame = Image.fromarray(frame)
-            frame.save(folder + filename, optimize=True, quality=50)
+            frame.save(file_path, optimize=True, quality=50)
             del frame
 
             self._stored = True

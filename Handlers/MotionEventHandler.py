@@ -1,5 +1,5 @@
 import time
-from YOLO import YOLOv4Tiny
+from Observations.YOLO import YOLOv4Tiny
 
 
 class MotionEventHandler:

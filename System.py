@@ -2,14 +2,16 @@ import pickle
 import os
 import time
 import threading
-import GoogleAPI
-from Camera import Camera
+from Cameras.Camera import Camera
 import Constants
 
 
 class System:
     def __init__(self):
         self._last_upload = -4
+
+        if not os.path.exists(Constants.STORING_PATH):
+            os.mkdir(Constants.STORING_PATH)
 
         if os.path.exists("cameras.pickle"):
             with open("cameras.pickle", "rb") as pck:

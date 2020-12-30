@@ -1,6 +1,6 @@
 import cv2
-import CNNs
-from Frame import Frame
+from Detectors import CNNs
+from Cameras.Frame import Frame
 import Constants
 import numpy as np
 import datetime
@@ -12,10 +12,7 @@ class Observer:
     def __init__(self, camera, model=None):
         if model is None:
             self._neural_network = CNNs.create_main_model()
-            weights_path = os.path.join("Neural Network", "Second network")
-            weights_path = os.path.join(weights_path, "v3")
-            weights_path = os.path.join(weights_path, "model")
-            self._neural_network.load_weights(weights_path)
+            self._neural_network.load_weights(Constants.V3_MODEL_WEIGHTS)
         else:
             self._neural_network = model
 
@@ -53,7 +50,7 @@ class Observer:
     def _observe(self, frames: list):
         i = 1
         recording = False
-        storing_path = self._camera.get_place() + "/"
+        storing_path = self._camera.get_place()
         looked = 0
         bursts = 0
 
