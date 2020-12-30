@@ -8,7 +8,7 @@ There is a convolutional neural network which is fed with the difference between
 there's been movement or not. The sensitivity can be modified in the Constants.py file, generally with a sensitivity of 0.6 (the CNN will be at least 90% sure that there's been movement) there will be no missing frames nor false positives, with a sensitivity of 0.5 (the CNN is 50% sure that there has been movement) there may be false positives but no missing frames at all.
 
 # What's the architecture of the CNN?
-![alt text](https://github.com/santiagopardal/CamerAI/blob/master/Documentation/CNN%20diagram.png)
+![alt text](https://github.com/santiagopardal/CamerAI/blob/master/Documentation/CNN%20architecture.png)
 
 # How do we detect objects?
 Objects are detected by YOLO v4, it's a pretrained Convolutional neural network designed to detect a variety of objects. See [YOLOv4/coco.names](https://github.com/santiagopardal/CamerAI/blob/master/YOLO%20v4/coco.names) to get the full list.
