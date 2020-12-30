@@ -1,14 +1,14 @@
 import cv2
 import numpy as np
 import threading
-from CNNs import create_model
+from CNNs import create_main_model
 from Constants import MOVEMENT_SENSITIVITY
 from YOLO import YOLOv4Tiny
 import Constants
 import urllib.parse
 
-model = create_model()
-model.load_weights("Neural Network/v4.8.3/model_weights")
+model = create_main_model()
+model.load_weights("Neural Network/Second network/v3/model")
 
 
 def look_for_people(frame):
