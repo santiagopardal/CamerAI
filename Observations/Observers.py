@@ -9,26 +9,41 @@ import pickle
 
 
 class Observer:
-    def __init__(self, camera, model=None):
-        if model is None:
+    def __init__(self, camera, nn=None):
+        """
+        :param camera: Camera to observe.
+        :param nn: Neural network to detect movement, if not specified will use default.
+        """
+        if nn is None:
             self._neural_network = CNNs.create_main_model()
             self._neural_network.load_weights(Constants.V3_MODEL_WEIGHTS)
         else:
-            self._neural_network = model
+            self._neural_network = nn
 
         self._camera = camera
 
     def observe(self, frames: list):
+        """
+        Receives a list of frames and stores those in which there has been movement. Also checks whether
+        it is time to switch observers and does so if needed.
+        :param frames: Frames to analyse.
+        """
         hour = datetime.datetime.now().hour
-        if Constants.NIGHT_OBSERVER_SHIFT_HOUR <= hour < Constants.OBSERVER_SHIFT_HOUR:
-            self._observe(frames)
-        else:
+        if Constants.NIGHT_OBSERVER_SHIFT_HOUR <= hour < Constants.OBSERVER_SHIFT_HOUR:    # If it is my time to observe
+            self._observe(frames)                                                          # do so.
+        else:                                                                              # If it's not, then
             print("Observer shift, now it's night observer time!")
             observer = NightObserver(self._camera, self._neural_network)
-            self._camera.set_observer(observer)
-            observer.observe(frames)
+            self._camera.set_observer(observer)                                            # switch observer and
+            observer.observe(frames)                                                       # observe.
 
     def _movement(self, previous_frame: Frame, frame: Frame) -> bool:
+        """
+        Determines whether there has been movement between two frames.
+        :param previous_frame: Frame more distant in time.
+        :param frame: Frame nearest in time.
+        :return: True if there is movement, False if there is not movement.
+        """
         pf = self._frame_manipulation(previous_frame)
         pf = pf.get_resized_and_grayscaled()
 
@@ -45,9 +60,18 @@ class Observer:
         return movement[0][0] >= Constants.MOVEMENT_SENSITIVITY
 
     def _frame_manipulation(self, frame: Frame) -> Frame:
+        """
+        Manipulates the frame, in other words, performs some operation to the frame.
+        :param frame: Frame to manipulate.
+        :return: Frame manipulated.
+        """
         return frame
 
     def _observe(self, frames: list):
+        """
+        Receives a list of frames and stores those in which there has been movement.
+        :param frames: Frames to check movement for.
+        """
         i = 1
         recording = False
         storing_path = self._camera.get_place()
@@ -59,34 +83,36 @@ class Observer:
 
             previous_frame = frames[i - 1]
             looked += 1
-            if self._movement(previous_frame, frame):
-                if not recording:
+            if self._movement(previous_frame, frame):                      # If there is movement between the two frames
+                if not recording:                                          # If we weren't recording then...
                     bursts += 1
                     recording = True
 
-                    if i - Constants.JUMP >= 0:
-                        last_element = i - Constants.JUMP
-
+                    if i - Constants.JUMP >= 0:                            # If there are frames before these two, look
+                        last_element = i - Constants.JUMP                  # for movement on them to see where the
+                                                                           # movement started.
                         j = i - 2
                         found_no_movement = False
-                        while j > last_element and not found_no_movement:
-                            frm = frames[j]
+                        while j > last_element and not found_no_movement:  # Looking for frames in which there has not
+                            frm = frames[j]                                # been movement or we have already analysed.
                             pframe = frames[j - 1]
                             looked += 1
-                            if self._movement(pframe, frm):
-                                frm.store(storing_path)
-                                pframe.store(storing_path)
-                            else:
-                                frames[j].store(storing_path)
-                                found_no_movement = True
+                            if self._movement(pframe, frm):                # If there is movement store them and keep
+                                frm.store(storing_path)                    # looking until we reach the last checked or
+                                pframe.store(storing_path)                 # we don't find movement anymore.
+                            else:                                          # If there is not movement, stop the search
+                                frames[j].store(storing_path)              # because we've found the "start of
+                                found_no_movement = True                   # movement".
 
                             j = j - 2
 
-                        if not found_no_movement and j == last_element - 1:
-                            frames[last_element - 1].store(storing_path)
-                else:
-                    j = i - 2
-                    last_element = i - Constants.JUMP
+                        if not found_no_movement and j == last_element - 1:  # If we found movement in all the frames
+                            frames[last_element - 1].store(storing_path)     # between the "jump", store the frame
+                                                                             # prior to the last element.
+
+                else:                                                       # If we were recording then store all the
+                    j = i - 2                                               # frames between the jump, included the ones
+                    last_element = i - Constants.JUMP                       # analyzed (frame and previous_frame).
 
                     while j > last_element:
                         frames[j].store(storing_path)
@@ -97,23 +123,23 @@ class Observer:
 
                 if i + 1 < len(frames):
                     frames[i+1].store(storing_path)
-            else:
-                if recording:
+            else:                                                      # If there is no movement between the two frames.
+                if recording:                                          # And we were recording (end of movement)
                     recording = False
                     store_all = False
                     j = i - 2
                     last_element = i - Constants.JUMP
 
-                    while j - 1 > last_element and not store_all:
-                        frm = frames[j]
+                    while j - 1 > last_element and not store_all:      # Find the end of the movement and store all the
+                        frm = frames[j]                                # frames up to the "end of movement".
                         pframe = frames[j - 1]
                         looked += 1
-                        if self._movement(pframe, frm):
-                            store_all = True
+                        if self._movement(pframe, frm):                # If there is movement, store all of the frames
+                            store_all = True                           # up to the one in position j (included).
                         else:
                             j = j - 2
 
-                    if store_all:
+                    if store_all:                                      # If we have to store all the frames, then do so.
                         while j > last_element:
                             frames[j].store(storing_path)
                             frames[j - 1].store(storing_path)
@@ -127,24 +153,32 @@ class Observer:
 
 
 class NightObserver(Observer):
-    def __init__(self, camera, model=None):
-        super().__init__(camera, model)
+    """
+    Observer for when the night comes, it does the same as Observer but denoises the frames
+    before analysing.
+    This observer is more useful for cameras with low image quality.
+    """
+    def __init__(self, camera, nn=None):
+        super().__init__(camera, nn)
 
     def observe(self, frames: list):
         hour = datetime.datetime.now().hour
-        if Constants.OBSERVER_SHIFT_HOUR <= hour or hour < Constants.NIGHT_OBSERVER_SHIFT_HOUR:
-            self._observe(frames)
-        else:
+        if Constants.OBSERVER_SHIFT_HOUR <= hour or hour < Constants.NIGHT_OBSERVER_SHIFT_HOUR: # If it is my time to observe
+            self._observe(frames)                                                               # do so.
+        else:                                                                                   # If it's not, then,
             print("Observer shift")
             observer = Observer(self._camera, self._neural_network)
-            self._camera.set_observer(observer)
-            observer.observe(frames)
+            self._camera.set_observer(observer)                                                 # switch observer and
+            observer.observe(frames)                                                            # observe.
 
     def _frame_manipulation(self, frame: Frame) -> Frame:
         return frame.get_denoised_frame()
 
 
 class DatasetObserver(Observer):
+    """
+    Hardcoded observer for dataset creation don't pay attention to this.
+    """
     def observe(self, frames: list):
         i = 0
         pf = frames[0]
@@ -174,7 +208,7 @@ class DatasetObserver(Observer):
                 is_int = True
             except Exception:
                 is_int = False
-            
+
             if is_int and int(file.replace(".pck", "")) > move:
                 move = int(file.replace(".pck", ""))
 

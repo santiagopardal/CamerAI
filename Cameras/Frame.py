@@ -36,6 +36,10 @@ class Frame:
         self._frame = self.get_denoised_frame()
 
     def get_denoised_frame(self):
+        """
+        Denoises the frame and returns it.
+        :return: Frame denoised.
+        """
         kernel = np.ones((3, 3), np.float32) / 9
         frm = cv2.filter2D(self._frame, -1, kernel)
         res = Frame(frm)
@@ -44,12 +48,22 @@ class Frame:
         return res
 
     def get_resized_and_grayscaled(self):
+        """
+        Resizes and grayscales the frame if it has not been already and returns it.
+        :return: Frame grayscaled and resized.
+        """
         if not self._resized_and_grayscaled:
             self.__resize_and_grayscale()
 
         return self._resized_and_grayscale
 
     def store(self, folder: str) -> str:
+        """
+        Stores the frame in the folder if it has not been stored in that folder already, otherwise it will
+        not store it.
+        :param folder: Folder to store frame in.
+        :return: Path where the frame has been stored.
+        """
         if not self._stored:
             return self.__store(folder)
         else:
@@ -57,6 +71,11 @@ class Frame:
                 return self.__store(folder)
 
     def __store(self, folder: str) -> str:
+        """
+        Stores the frame in the folder.
+        :param folder: Folder to store the frame in.
+        :return: Path where the frame has been stored.
+        """
         try:
             filename = str(self._time).replace(":", "-") + ".jpeg"
 
@@ -80,12 +99,15 @@ class Frame:
             self._stored = True
             self._stored_in.append(folder)
 
-            return os.path.join(folder, filename)
+            return file_path
         except Exception as e:
             print("Error storing image from camera on {}".format(folder))
             print(e)
 
     def __resize_and_grayscale(self):
+        """
+        Resizes and grayscales the frame.
+        """
         self._resized_and_grayscale = cv2.resize(self._frame, Constants.RESOLUTION, interpolation=cv2.INTER_AREA)
         self._resized_and_grayscale = cv2.cvtColor(self._resized_and_grayscale, cv2.COLOR_RGB2GRAY)
         self._resized_and_grayscaled = True

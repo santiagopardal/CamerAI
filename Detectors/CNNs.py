@@ -33,7 +33,12 @@ def create_first_model():
 
     return model
 
+
 def create_main_model():
+    """
+    Generates the main model.
+    :return: Model created.
+    """
     model = tf.keras.models.Sequential([
 
         tf.keras.layers.Conv2D(64, kernel_size=(5, 5), padding="same", activation="relu", input_shape=(180, 180, 1)),

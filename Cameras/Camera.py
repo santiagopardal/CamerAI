@@ -15,6 +15,13 @@ from threading import Semaphore
 
 class Camera:
     def __init__(self, ip: str, port: int, place: str, screenshot_url: str):
+        """
+        :param ip: IP of the camera.
+        :param port: Port for the camera live stream.
+        :param place: Place where the camera is located, this will be the name of the folder where the frames will
+        be stored.
+        :param screenshot_url: URL to obtain screenshot from the CCTV camera.
+        """
         self._IP = ip
         self._port = port
         self._place = place
@@ -42,6 +49,9 @@ class Camera:
         return cam.getIP() == self._IP and cam.getPort() == self._port
 
     def screenshot(self):
+        """
+        :return: A screenshot from the camera.
+        """
         with urllib.request.urlopen(self._screenshot_url) as url:
             f = io.BytesIO(url.read())
 
@@ -50,16 +60,26 @@ class Camera:
         return image
 
     def record(self):
+        """
+        Starts the recording thread.
+        """
         thread = threading.Thread(target=self._record_thread_worker)
         thread.daemon = False
         thread.start()
         self._record_thread = thread
 
     def stop_recording(self):
+        """
+        Stops recording.
+        """
         self._kill_thread = True
         self._record_thread = None
 
     def _record_thread_worker(self):
+        """
+        Obtains live images from the camera and stores them on self._frames_to_observe so as
+        to check whether there has been movement or not in the frames gathered.
+        """
         previous_capture = 0
         frames = []
 
@@ -91,6 +111,9 @@ class Camera:
                     print(e)
 
     def _check_movement(self):
+        """
+        Waits for images to be ready and tells the observer to take a look at them.
+        """
         while not self._kill_thread:
             self._observe_semaphore.acquire()
             self._observer.observe(frames=self._frames_to_observe.pop())
@@ -99,6 +122,17 @@ class Camera:
 class LiveVideoCamera(Camera):
     def __init__(self, ip: str, port: int, place: str, user: str, password: str,
                  screenshot_url: str, live_video_url: str, width: int, height: int):
+        """
+        :param ip: IP where the camera is located.
+        :param port: Port to connect to camera.
+        :param place: Place where the camera is located, this will be the folder's name where the frames will be stored.
+        :param user: Username to connect to camera.
+        :param password: Password for username.
+        :param screenshot_url: Screenshot URL for camera.
+        :param live_video_url: Live video URL for camera.
+        :param width: Width of frame.
+        :param height: Height of frame.
+        """
         user = urllib.parse.quote(user)
         password = urllib.parse.quote(password)
         
@@ -128,6 +162,9 @@ class LiveVideoCamera(Camera):
                 self.__connect()
 
     def __initialize_record_thread(self):
+        """
+        Initializes the recording thread.
+        """
         if self._record_thread is not None:
             self._kill_thread = True
             self._record_thread.join()
@@ -185,6 +222,9 @@ class LiveVideoCamera(Camera):
                 self.__connect()
 
     def __connect(self):
+        """
+        Connects to the camera.
+        """
         connected = False
         i = 0
         while not connected:
@@ -213,6 +253,13 @@ class LiveVideoCamera(Camera):
 
 class FI9803PV3(LiveVideoCamera):
     def __init__(self, ip: str, port: int, place: str, user: str, password: str):
+        """
+        :param ip: IP where the camera is located.
+        :param port: Port to connect to camera.
+        :param place: Place where the camera is located.
+        :param user: Username to connect.
+        :param password: Password.
+        """
         super().__init__(ip, port, place, user, password, "http://{}:{}/{}".
                          format(ip, str(port), "cgi-bin/CGIProxy.fcgi?cmd=snapPicture2&usr={}&pwd={}"),
                          "{}@{}:{}/videoMain".format("rtsp://{}:{}", ip, str(port + 2)),
@@ -221,6 +268,13 @@ class FI9803PV3(LiveVideoCamera):
 
 class FI89182(LiveVideoCamera):
     def __init__(self, ip: str, port: int, place: str, user: str, password: str):
+        """
+        :param ip: IP where the camera is located.
+        :param port: Port to connect to camera.
+        :param place: Place where the camera is located.
+        :param user: Username to connect.
+        :param password: Password.
+        """
         super().__init__(ip, port, place, user, password,
                          "http://{}:{}/{}".
                          format(ip, str(port), "cgi-bin/CGIProxy.fcgi?cmd=snapPicture2&usr={}&pwd={}"),
