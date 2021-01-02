@@ -187,8 +187,8 @@ class LiveVideoCamera(Camera):
             thread.start()
             self._record_thread = thread
 
+    @profile
     def _record_thread_worker(self):
-        previous_capture = 0
         frames = []
 
         thread = threading.Thread(target=self._check_movement, args=())
@@ -197,32 +197,20 @@ class LiveVideoCamera(Camera):
         while not self._kill_thread:
             try:
                 if self._live_video.isOpened():
-                    grabbed = self._live_video.grab()
+                    grabbed, frame = self._live_video.read()                # Read frame
 
-                    while not grabbed:
+                    while not grabbed:                                      # If could not read frame
                         print("Reconnecting!")
-                        self.__connect()
-                        grabbed = self._live_video.grab()
+                        self.__connect()                                    # Reconnect
+                        grabbed, frame = self._live_video.read()            # Read again, if could not read again retry!
 
-                    tme = time.perf_counter()
+                    frame = Frame(frame)                                    # Create frame
+                    frames.append(frame)                                    # Add to list
 
-                    if tme - previous_capture >= 1 / Constants.FRAMERATE:
-                        grabbed, frame = self._live_video.retrieve()
-
-                        while not grabbed:
-                            print("Reconnecting")
-                            self.__connect()
-                            grabbed, frame = self._live_video.read()
-
-                        frame = Frame(frame)
-
-                        previous_capture = tme
-                        frames.append(frame)
-
-                        if len(frames) >= Constants.DBS:
-                            self._frames_to_observe.append(frames)
-                            self._observe_semaphore.release()
-                            frames = [frame]
+                    if len(frames) >= Constants.DBS:                        # If we have enough frames to analyse
+                        self._frames_to_observe.append(frames)              # Add them to the queue and wakeup observer.
+                        self._observe_semaphore.release()
+                        frames = [frame]
                 else:
                     self.__connect()
             except Exception as e:
