@@ -14,10 +14,8 @@ class Frame:
         self._frame = frame
 
         self._resized_and_grayscale = None
+        self._denoised = None
 
-        self._resized_and_grayscaled = False
-
-        self._stored = False
         self._stored_in = []
 
     def stored(self) -> bool:
@@ -32,27 +30,25 @@ class Frame:
     def get_time(self):
         return self._time
 
-    def denoise(self):
-        self._frame = self.get_denoised_frame()
-
     def get_denoised_frame(self):
         """
         Denoises the frame and returns it.
         :return: Frame denoised.
         """
-        kernel = np.ones((3, 3), np.float32) / 9
-        frm = cv2.filter2D(self._frame, -1, kernel)
-        res = Frame(frm)
-        res.set_time(self._time)
+        if self._denoised is None:
+            kernel = np.ones((3, 3), np.float32) / 9
+            frm = cv2.filter2D(self._frame, -1, kernel)
+            self._denoised = Frame(frm)
+            self._denoised.set_time(self._time)
 
-        return res
+        return self._denoised
 
     def get_resized_and_grayscaled(self):
         """
         Resizes and grayscales the frame if it has not been already and returns it.
         :return: Frame grayscaled and resized.
         """
-        if not self._resized_and_grayscaled:
+        if self._resized_and_grayscale is None:
             self.__resize_and_grayscale()
 
         return self._resized_and_grayscale
@@ -64,11 +60,8 @@ class Frame:
         :param folder: Folder to store frame in.
         :return: Path where the frame has been stored.
         """
-        if not self._stored:
+        if folder not in self._stored_in:
             return self.__store(folder)
-        else:
-            if folder not in self._stored_in:
-                return self.__store(folder)
 
     def __store(self, folder: str) -> str:
         """
@@ -96,7 +89,6 @@ class Frame:
             frame.save(file_path, optimize=True, quality=50)
             del frame
 
-            self._stored = True
             self._stored_in.append(folder)
 
             return file_path
@@ -110,4 +102,3 @@ class Frame:
         """
         self._resized_and_grayscale = cv2.resize(self._frame, Constants.RESOLUTION, interpolation=cv2.INTER_AREA)
         self._resized_and_grayscale = cv2.cvtColor(self._resized_and_grayscale, cv2.COLOR_RGB2GRAY)
-        self._resized_and_grayscaled = True

@@ -12,6 +12,8 @@ from Cameras.Frame import Frame
 from Observations.Observers import Observer
 from threading import Semaphore
 
+from profilehooks import profile
+
 
 class Camera:
     def __init__(self, ip: str, port: int, place: str, screenshot_url: str):
@@ -87,7 +89,7 @@ class Camera:
         thread.start()
 
         while not self._kill_thread:
-            if time.perf_counter() - previous_capture > 1 / Constants.FRAMERATE:
+            if time.perf_counter() - previous_capture >= 1 / Constants.FRAMERATE:
 
                 try:
                     previous_capture = time.perf_counter()
@@ -110,13 +112,19 @@ class Camera:
                     print("Error downloading image from camera {} on ip {}".format(self._place, self._IP))
                     print(e)
 
+        self._frames_to_observe = []
+        self._observe_semaphore.release()
+
+    #@profile(immediate=True)
     def _check_movement(self):
         """
         Waits for images to be ready and tells the observer to take a look at them.
         """
         while not self._kill_thread:
             self._observe_semaphore.acquire()
-            self._observer.observe(frames=self._frames_to_observe.pop())
+
+            if len(self._frames_to_observe) > 0:
+                self._observer.observe(frames=self._frames_to_observe.pop(0))
 
 
 class LiveVideoCamera(Camera):
@@ -197,7 +205,8 @@ class LiveVideoCamera(Camera):
                         grabbed = self._live_video.grab()
 
                     tme = time.perf_counter()
-                    if tme - previous_capture > 1 / Constants.FRAMERATE:
+
+                    if tme - previous_capture >= 1 / Constants.FRAMERATE:
                         grabbed, frame = self._live_video.retrieve()
 
                         while not grabbed:
@@ -220,6 +229,9 @@ class LiveVideoCamera(Camera):
                 print("Error downloading image from camera {} on ip {}".format(self._place, self._IP))
                 print(e)
                 self.__connect()
+
+        self._frames_to_observe = []
+        self._observe_semaphore.release()
 
     def __connect(self):
         """

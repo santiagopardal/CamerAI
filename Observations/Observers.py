@@ -53,9 +53,9 @@ class Observer:
         diff = cv2.absdiff(pf, frm)
         diff = np.array(diff / 255, dtype="float32")
 
-        images = np.array([diff]).reshape(Constants.CNN_INPUT_SHAPE)
+        images = np.array([diff.reshape(Constants.CNN_INPUT_SHAPE)])
 
-        movement = self._neural_network.predict_on_batch(np.array([images]))
+        movement = self._neural_network.predict_on_batch(images)
 
         return movement[0][0] >= Constants.MOVEMENT_SENSITIVITY
 

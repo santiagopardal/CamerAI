@@ -46,13 +46,17 @@ class System:
         for camera in self.cameras:
             camera.record()
 
-        while True:
+        tm = time.time()
+        while time.time() - tm < 60:#True:
             print("Sleeping...")
          #   if datetime.datetime.now().hour % 2 == 0 and self._last_upload != datetime.datetime.now().hour:
          #       self._last_upload = datetime.datetime.now().hour
          #       self.__upload_time()
 
-            time.sleep(Constants.UPDATE_EVERY_SECONDS)
+            time.sleep(10)#Constants.UPDATE_EVERY_SECONDS)
+
+        for camera in self.cameras:
+            camera.stop_recording()
 
     def __upload_time(self):
         print("Upload time!")
