@@ -113,7 +113,6 @@ class Camera:
         self._frames_to_observe = []
         self._observe_semaphore.release()
 
-    #@profile(immediate=True)
     def _check_movement(self):
         """
         Waits for images to be ready and tells the observer to take a look at them.
