@@ -12,8 +12,6 @@ from Cameras.Frame import Frame
 from Observations.Observers import Observer
 from threading import Semaphore
 
-from profilehooks import profile
-
 
 class Camera:
     def __init__(self, ip: str, port: int, place: str, screenshot_url: str):
@@ -187,7 +185,6 @@ class LiveVideoCamera(Camera):
             thread.start()
             self._record_thread = thread
 
-    @profile
     def _record_thread_worker(self):
         frames = []
 
