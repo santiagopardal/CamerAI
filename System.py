@@ -49,9 +49,9 @@ class System:
 
         while True:
             print("Sleeping...")
-            if datetime.datetime.now().hour % 2 == 0 and self._last_upload != datetime.datetime.now().hour:
-                self._last_upload = datetime.datetime.now().hour
-                self.__upload_time()
+            #if datetime.datetime.now().hour % 2 == 0 and self._last_upload != datetime.datetime.now().hour:
+                #self._last_upload = datetime.datetime.now().hour
+                #self.__upload_time()
 
             time.sleep(Constants.UPDATE_EVERY_SECONDS)
 
