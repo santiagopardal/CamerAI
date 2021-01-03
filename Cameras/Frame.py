@@ -7,8 +7,11 @@ import Constants
 
 
 class Frame:
-    def __init__(self, frame):
-        self._time = datetime.datetime.now().time()
+    def __init__(self, frame, time=None):
+        if time:
+            self._time = time
+        else:
+            self._time = datetime.datetime.now().time()
 
         self._frame = frame
 

@@ -11,6 +11,7 @@ from Handlers.MotionEventHandler import MotionEventHandler
 from Cameras.Frame import Frame
 from Observations.Observers import Observer
 from threading import Semaphore
+import datetime
 
 
 class Camera:
@@ -102,7 +103,7 @@ class Camera:
                         if len(frames) >= Constants.DBS:
                             self._frames_to_observe.append(frames)
                             self._observe_semaphore.release()
-                            frames = [frame]
+                            frames = []
 
                 except Exception as e:
                     print("Error downloading image from camera {} on ip {}".format(self._place, self._IP))
@@ -111,16 +112,51 @@ class Camera:
         self._frames_to_observe = []
         self._observe_semaphore.release()
 
+    @staticmethod
+    def _calculate_time_taken(tme, i, size):
+        """
+        Approximates the time a frame was taken using the number of the frame in the list, the size of the list, the time
+        the list was received and the framerate.
+        :param tme: Time the list was received.
+        :param i: Number of frame in the list.
+        :param size: Size of the list
+        :return: Time the frame was taken approximately.
+        """
+        time_elapsed = (size - i) * (1 / Constants.FRAMERATE)
+        time_elapsed = datetime.timedelta(seconds=time_elapsed)
+        return (tme - time_elapsed).time()
+
     def _check_movement(self):
         """
         Waits for images to be ready and tells the observer to take a look at them.
         """
+        last_frame = None
+
         while not self._kill_thread:
             self._observe_semaphore.acquire()
+            tme = datetime.datetime.now()
 
             if len(self._frames_to_observe) > 0:
-                frames = [Frame(frame) for frame in self._frames_to_observe.pop(0)]
-                self._observer.observe(frames=frames)
+                """
+                Create frames and calculate the time they were taken, this is done here because obtaining the time
+                takes a lot of CPU time and it's not worth doing while receiving the frames from the camera. Note that
+                the first frame will be the same as the last of the previous batch, so we add the previous frame so as
+                to not calculate everything again, including everything needed by the observer, so the last frame
+                won't be analysed by the observer until the next batch arrives and will be the first frame of that
+                batch. This does not occur on the first run, in which all the frames will be analysed and the last one
+                will be analysed twice, on the first run and on the second one, but will be stored only once if needed.
+                """
+                frames = self._frames_to_observe.pop(0)
+                frames = [Frame(frame, self._calculate_time_taken(tme, i, Constants.DBS))
+                          for i, frame in enumerate(frames)]
+
+                lf = frames[len(frames) - 1]
+
+                if last_frame:
+                    frames = [last_frame] + frames[:len(frames)-1]
+
+                self._observer.observe(frames=frames)                                  # Pass the frames to the observer
+                last_frame = lf                                                        # update last frame.
 
 
 class LiveVideoCamera(Camera):
@@ -204,7 +240,7 @@ class LiveVideoCamera(Camera):
                     if len(frames) >= Constants.DBS:                        # If we have enough frames to analyse
                         self._frames_to_observe.append(frames)              # Add them to the queue and wakeup observer.
                         self._observe_semaphore.release()
-                        frames = [frame]
+                        frames = []
                 else:
                     self.__connect()
             except Exception as e:
