@@ -87,6 +87,8 @@ class Camera:
         thread = threading.Thread(target=self._check_movement, args=())
         thread.start()
 
+        start = time.time()
+
         while not self._kill_thread:
             if time.perf_counter() - previous_capture >= 1 / Constants.FRAMERATE:
 
@@ -101,7 +103,9 @@ class Camera:
                     if frame is not None:
                         frames.append(frame)
                         if len(frames) >= Constants.DBS:
-                            self._frames_to_observe.append(frames)
+                            end = time.time()
+                            true_framerate = Constants.DBS / (end - start)
+                            self._frames_to_observe.append((frames, true_framerate))
                             self._observe_semaphore.release()
                             frames = []
 
@@ -112,29 +116,25 @@ class Camera:
         self._frames_to_observe = []
         self._observe_semaphore.release()
 
-    @staticmethod
-    def _calculate_time_taken(tme, i, size):
+    #  @staticmethod
+    def _calculate_time_taken(self, tme, frame_rate, i):
         """
-        Approximates the time a frame was taken using the number of the frame in the list, the size of the list, the time
-        the list was received and the framerate.
-        :param tme: Time the list was received.
-        :param i: Number of frame in the list.
-        :param size: Size of the list
+        Approximates the time a frame was taken using the last time an image was received and the framerate.
+        :param tme: Last time an image was received.
+        :param frame_rate: Frame rate.
         :return: Time the frame was taken approximately.
         """
-        time_elapsed = (size - i) * (1 / Constants.FRAMERATE)
-        time_elapsed = datetime.timedelta(seconds=time_elapsed)
-        return (tme - time_elapsed).time()
+        return tme + datetime.timedelta(seconds=(1 / frame_rate)*i)
 
     def _check_movement(self):
         """
         Waits for images to be ready and tells the observer to take a look at them.
         """
         last_frame = None
+        last_time_stored = None
 
         while not self._kill_thread:
             self._observe_semaphore.acquire()
-            tme = datetime.datetime.now()
 
             if len(self._frames_to_observe) > 0:
                 """
@@ -146,14 +146,21 @@ class Camera:
                 batch. This does not occur on the first run, in which all the frames will be analysed and the last one
                 will be analysed twice, on the first run and on the second one, but will be stored only once if needed.
                 """
-                frames = self._frames_to_observe.pop(0)
-                frames = [Frame(frame, self._calculate_time_taken(tme, i, Constants.DBS))
+                frames, frame_rate = self._frames_to_observe.pop(0)
+
+                if last_time_stored is None:
+                    last_time_stored = datetime.datetime.now() - datetime.timedelta(
+                        seconds=(Constants.DBS + 1) * (1 / frame_rate))
+
+                frames = [Frame(frame, self._calculate_time_taken(last_time_stored, frame_rate, i+1).time())
                           for i, frame in enumerate(frames)]
+
+                last_time_stored = self._calculate_time_taken(last_time_stored, frame_rate, len(frames))
 
                 lf = frames[len(frames) - 1]
 
                 if last_frame:
-                    frames = [last_frame] + frames[:len(frames)-1]
+                    frames = [last_frame] + frames[:len(frames) - 1]
 
                 self._observer.observe(frames=frames)                                  # Pass the frames to the observer
                 last_frame = lf                                                        # update last frame.
@@ -175,7 +182,7 @@ class LiveVideoCamera(Camera):
         """
         user = urllib.parse.quote(user)
         password = urllib.parse.quote(password)
-        
+
         super().__init__(ip, port, place, screenshot_url.format(user, password))
 
         self._live_video_url = live_video_url.format(user, password)
@@ -225,6 +232,8 @@ class LiveVideoCamera(Camera):
         thread = threading.Thread(target=self._check_movement, args=())
         thread.start()
 
+        start = time.time()
+
         while not self._kill_thread:
             try:
                 if self._live_video.isOpened():
@@ -238,9 +247,12 @@ class LiveVideoCamera(Camera):
                     frames.append(frame)                                    # Add to list
 
                     if len(frames) >= Constants.DBS:                        # If we have enough frames to analyse
-                        self._frames_to_observe.append(frames)              # Add them to the queue and wakeup observer.
+                        end = time.time()
+                        true_framerate = Constants.DBS / (end - start)
+                        self._frames_to_observe.append((frames, true_framerate))  # Add them to the queue and wakeup observer.
                         self._observe_semaphore.release()
                         frames = []
+                        start = end
                 else:
                     self.__connect()
             except Exception as e:
