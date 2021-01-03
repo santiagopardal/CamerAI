@@ -54,7 +54,7 @@ class System:
                 #self._last_upload = datetime.datetime.now().hour
                 #self.__upload_time()
 
-            time.sleep(10)#Constants.UPDATE_EVERY_SECONDS)
+            time.sleep(Constants.UPDATE_EVERY_SECONDS)
 
         for camera in self.cameras:
             camera.stop_recording()
