@@ -10,6 +10,7 @@ import datetime
 class System:
     def __init__(self):
         self._last_upload = -4
+        self._done = False
 
         if not os.path.exists(Constants.STORING_PATH):
             os.mkdir(Constants.STORING_PATH)
@@ -47,16 +48,23 @@ class System:
         for camera in self.cameras:
             camera.record()
 
-        while True:
+        while not self._done:
             print("Sleeping...")
             #if datetime.datetime.now().hour % 2 == 0 and self._last_upload != datetime.datetime.now().hour:
                 #self._last_upload = datetime.datetime.now().hour
                 #self.__upload_time()
 
-            time.sleep(Constants.UPDATE_EVERY_SECONDS)
+            time.sleep(10)#Constants.UPDATE_EVERY_SECONDS)
 
         for camera in self.cameras:
             camera.stop_recording()
+
+    def run_n_seconds(self, n):
+        thread = threading.Thread(target=self.run, args=())
+        thread.start()
+
+        time.sleep(n)
+        self._done = True
 
     def __upload_time(self):
         print("Upload time!")

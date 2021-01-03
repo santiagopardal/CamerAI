@@ -97,8 +97,6 @@ class Camera:
                     frame = np.asarray(bytearray(response.read()), dtype="uint8")
                     frame = cv2.imdecode(frame, cv2.IMREAD_COLOR)
 
-                    frame = Frame(frame)
-
                     if frame is not None:
                         frames.append(frame)
                         if len(frames) >= Constants.DBS:
@@ -121,7 +119,8 @@ class Camera:
             self._observe_semaphore.acquire()
 
             if len(self._frames_to_observe) > 0:
-                self._observer.observe(frames=self._frames_to_observe.pop(0))
+                frames = [Frame(frame) for frame in self._frames_to_observe.pop(0)]
+                self._observer.observe(frames=frames)
 
 
 class LiveVideoCamera(Camera):
@@ -200,7 +199,6 @@ class LiveVideoCamera(Camera):
                         self.__connect()                                    # Reconnect
                         grabbed, frame = self._live_video.read()            # Read again, if could not read again retry!
 
-                    frame = Frame(frame)                                    # Create frame
                     frames.append(frame)                                    # Add to list
 
                     if len(frames) >= Constants.DBS:                        # If we have enough frames to analyse

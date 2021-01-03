@@ -8,7 +8,6 @@ import Constants
 
 class Frame:
     def __init__(self, frame):
-        assert frame is not None
         self._time = datetime.datetime.now().time()
 
         self._frame = frame
@@ -18,8 +17,8 @@ class Frame:
 
         self._stored_in = []
 
-    def stored(self) -> bool:
-        return self._stored
+    def set_frame(self, frm):
+        self._frame = frm
 
     def set_time(self, tme):
         self._time = tme
