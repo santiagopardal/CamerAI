@@ -148,6 +148,7 @@ class Observer:
                             j = j - 2
 
                     if store_all:
+                        frames[j + 1].store(storing_path)
                         while j > last_element:
                             frames[j].store(storing_path)
                             frames[j - 1].store(storing_path)
