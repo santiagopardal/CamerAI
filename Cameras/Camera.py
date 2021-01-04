@@ -34,8 +34,17 @@ class Camera:
         self._observe_semaphore = Semaphore(0)
         self._frames_to_observe = []
 
-    def get_place(self) -> str:
+    @property
+    def place(self) -> str:
         return self._place
+
+    @property
+    def ip(self) -> str:
+        return self._IP
+
+    @property
+    def port(self) -> int:
+        return self._port
 
     def set_observer(self, observer: Observer):
         self._observer = observer
@@ -46,8 +55,11 @@ class Camera:
     def set_motion_handler(self, motion_handler: MotionEventHandler):
         self._motion_handler = motion_handler
 
-    def equals(self, cam) -> bool:
-        return cam.getIP() == self._IP and cam.getPort() == self._port
+    def __eq__(self, other):
+        if isinstance(other, Camera):
+            return other.ip == self._IP and other.port == self._port
+
+        return False
 
     def screenshot(self):
         """
@@ -116,8 +128,8 @@ class Camera:
         self._frames_to_observe = []
         self._observe_semaphore.release()
 
-    #  @staticmethod
-    def _calculate_time_taken(self, tme, frame_rate, i):
+    @staticmethod
+    def _calculate_time_taken(tme, frame_rate, i):
         """
         Approximates the time a frame was taken using the last time an image was received and the framerate.
         :param tme: Last time an image was received.
@@ -136,7 +148,7 @@ class Camera:
         while not self._kill_thread:
             self._observe_semaphore.acquire()
 
-            if len(self._frames_to_observe) > 0:
+            if self._frames_to_observe:
                 """
                 Create frames and calculate the time they were taken, this is done here because obtaining the time
                 takes a lot of CPU time and it's not worth doing while receiving the frames from the camera. Note that
@@ -148,7 +160,7 @@ class Camera:
                 """
                 frames, frame_rate = self._frames_to_observe.pop(0)
 
-                if last_time_stored is None:
+                if not last_time_stored:
                     last_time_stored = datetime.datetime.now() - datetime.timedelta(
                         seconds=(Constants.DBS + 1) * (1 / frame_rate))
 

@@ -44,11 +44,7 @@ class Observer:
         :param frame: Frame nearest in time.
         :return: True if there is movement, False if there is not movement.
         """
-        images = np.array([self._prepare_for_cnn(previous_frame, frame)])
-
-        movement = self._neural_network.predict_on_batch(images)
-
-        return movement[0][0] >= Constants.MOVEMENT_SENSITIVITY
+        return self._batch_movement_check([(previous_frame, frame)])[0]
 
     def _frame_manipulation(self, frame: Frame) -> Frame:
         """
@@ -75,7 +71,7 @@ class Observer:
 
         images = np.array(images)
 
-        movements = self._neural_network.predict_on_batch(images)
+        movements = self._neural_network.predict(images)
 
         return [movement[0] >= Constants.MOVEMENT_SENSITIVITY for movement in movements]
 
@@ -92,7 +88,7 @@ class Observer:
         recording = False
         bursts = 0
         looked = len(results)
-        storing_path = self._camera.get_place()
+        storing_path = self._camera.place
 
         for i, result in enumerate(results):
             if result:
@@ -159,7 +155,7 @@ class Observer:
 
                         frames[i*Constants.JUMP - 1].store(storing_path)
 
-        print("Looked {} times with {} bursts on {}".format(looked, bursts, self._camera.get_place()))
+        print("Looked {} times with {} bursts on {}".format(looked, bursts, self._camera.place))
 
 
 class NightObserver(Observer):
@@ -206,13 +202,13 @@ class DatasetObserver(Observer):
         if not os.path.exists("No Movement/list/"):
             os.mkdir("No Movement/list/")
 
-        if not os.path.exists("Movement/list/{}/".format(self._camera.get_place())):
-            os.mkdir("Movement/list/{}/".format(self._camera.get_place()))
+        if not os.path.exists("Movement/list/{}/".format(self._camera.place)):
+            os.mkdir("Movement/list/{}/".format(self._camera.place))
 
-        if not os.path.exists("No Movement/list/{}/".format(self._camera.get_place())):
-            os.mkdir("No Movement/list/{}/".format(self._camera.get_place()))
+        if not os.path.exists("No Movement/list/{}/".format(self._camera.place)):
+            os.mkdir("No Movement/list/{}/".format(self._camera.place))
 
-        for file in os.listdir("Movement/list/{}/".format(self._camera.get_place())):
+        for file in os.listdir("Movement/list/{}/".format(self._camera.place)):
             try:
                 int(file.replace(".pck", ""))
                 is_int = True
@@ -222,7 +218,7 @@ class DatasetObserver(Observer):
             if is_int and int(file.replace(".pck", "")) > move:
                 move = int(file.replace(".pck", ""))
 
-        for file in os.listdir("No Movement/list/{}/".format(self._camera.get_place())):
+        for file in os.listdir("No Movement/list/{}/".format(self._camera.place)):
             try:
                 int(file.replace(".pck", ""))
                 is_int = True
@@ -238,12 +234,12 @@ class DatasetObserver(Observer):
             if self._movement(pf, frame):
                 pf: Frame
                 frame: Frame
-                a = pf.store("Movement/{}/".format(self._camera.get_place()))
-                b = frame.store("Movement/{}/".format(self._camera.get_place()))
+                a = pf.store("Movement/{}/".format(self._camera.place))
+                b = frame.store("Movement/{}/".format(self._camera.place))
 
                 mov = [a, b]
 
-                with open("Movement/list/{}/{}.pck".format(self._camera.get_place(), move), "wb") as handle:
+                with open("Movement/list/{}/{}.pck".format(self._camera.place, move), "wb") as handle:
                     pickle.dump(mov, handle)
                     handle.close()
                     del handle
@@ -251,12 +247,12 @@ class DatasetObserver(Observer):
 
                 move += 1
             else:
-                a = pf.store("No Movement/{}/".format(self._camera.get_place()))
-                b = frame.store("No Movement/{}/".format(self._camera.get_place()))
+                a = pf.store("No Movement/{}/".format(self._camera.place))
+                b = frame.store("No Movement/{}/".format(self._camera.place))
 
                 mov = [a, b]
 
-                with open("No Movement/list/{}/{}.pck".format(self._camera.get_place(), no_mov), "wb") as handle:
+                with open("No Movement/list/{}/{}.pck".format(self._camera.place, no_mov), "wb") as handle:
                     pickle.dump(mov, handle)
                     handle.close()
                     del handle
