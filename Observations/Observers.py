@@ -67,87 +67,106 @@ class Observer:
         """
         return frame
 
+    def _prepare_for_cnn(self, pf, frm):
+        pf = self._frame_manipulation(pf)
+        pf = pf.get_resized_and_grayscaled()
+
+        frm = self._frame_manipulation(frm)
+        frm = frm.get_resized_and_grayscaled()
+
+        diff = cv2.absdiff(pf, frm)
+        diff = np.array(diff / 255, dtype="float32").reshape(Constants.CNN_INPUT_SHAPE)
+
+        return diff
+
+    def _batch_movement_check(self, frames) -> list:
+        images = [self._prepare_for_cnn(pf, frm) for pf, frm in frames]
+
+        images = np.array(images)
+
+        movements = self._neural_network.predict_on_batch(images)
+
+        return [movement[0] >= Constants.MOVEMENT_SENSITIVITY for movement in movements]
+
     def _observe(self, frames: list):
         """
         Receives a list of frames and stores those in which there has been movement.
         :param frames: Frames to check movement for.
         """
-        i = 1
+
+        to_observe = [(frame, frames[i+1]) for i, frame in enumerate(frames) if i % Constants.JUMP == 0]
+
+        results = self._batch_movement_check(to_observe)
+
         recording = False
-        storing_path = self._camera.get_place()
-        looked = 0
         bursts = 0
+        looked = len(results)
+        storing_path = self._camera.get_place()
 
-        while i < len(frames):
-            frame = frames[i]
-
-            previous_frame = frames[i - 1]
-            looked += 1
-            if self._movement(previous_frame, frame):                      # If there is movement between the two frames
-                if not recording:                                          # If we weren't recording then...
+        for i, result in enumerate(results):
+            if result:
+                if not recording:
                     bursts += 1
                     recording = True
 
-                    if i - Constants.JUMP >= 0:                            # If there are frames before these two, look
-                        last_element = i - Constants.JUMP                  # for movement on them to see where the
-                                                                           # movement started.
-                        j = i - 2
+                    if i != 0:
+                        last_element = (i - 1)*Constants.JUMP
+                        j = i*Constants.JUMP - 2
+
                         found_no_movement = False
-                        while j > last_element and not found_no_movement:  # Looking for frames in which there has not
-                            frm = frames[j]                                # been movement or we have already analysed.
+
+                        while j > last_element and not found_no_movement:
+                            frm = frames[j]
                             pframe = frames[j - 1]
                             looked += 1
-                            if self._movement(pframe, frm):                # If there is movement store them and keep
-                                frm.store(storing_path)                    # looking until we reach the last checked or
-                                pframe.store(storing_path)                 # we don't find movement anymore.
-                            else:                                          # If there is not movement, stop the search
-                                frames[j].store(storing_path)              # because we've found the "start of
-                                found_no_movement = True                   # movement".
+
+                            if self._movement(pframe, frm):
+                                frm.store(storing_path)
+                                pframe.store(storing_path)
+                            else:
+                                frames[j].store(storing_path)
+                                found_no_movement = True
 
                             j = j - 2
 
-                        if not found_no_movement and j == last_element - 1:  # If we found movement in all the frames
-                            frames[last_element - 1].store(storing_path)     # between the "jump", store the frame
-                                                                             # prior to the last element.
-
-                else:                                                       # If we were recording then store all the
-                    j = i - 2                                               # frames between the jump, included the ones
-                    last_element = i - Constants.JUMP                       # analyzed (frame and previous_frame).
+                        if not found_no_movement and j == last_element - 1:
+                            frames[last_element - 1].store(storing_path)
+                else:
+                    j = i*Constants.JUMP - 2
+                    last_element = (i - 1)*Constants.JUMP
 
                     while j > last_element:
                         frames[j].store(storing_path)
                         j = j - 1
 
-                frame.store(storing_path)
-                previous_frame.store(storing_path)
+                frames[(i * Constants.JUMP) + 1].store(storing_path)
+                frames[i * Constants.JUMP].store(storing_path)
 
                 if i + 1 < len(frames):
-                    frames[i+1].store(storing_path)
-            else:                                                      # If there is no movement between the two frames.
-                if recording:                                          # And we were recording (end of movement)
+                    frames[i + 1].store(storing_path)
+            else:
+                if recording:
                     recording = False
                     store_all = False
-                    j = i - 2
-                    last_element = i - Constants.JUMP
+                    j = i*Constants.JUMP - 2
+                    last_element = (i - 1) * Constants.JUMP
 
-                    while j - 1 > last_element and not store_all:      # Find the end of the movement and store all the
-                        frm = frames[j]                                # frames up to the "end of movement".
+                    while j - 1 > last_element and not store_all:
+                        frm = frames[j]
                         pframe = frames[j - 1]
                         looked += 1
-                        if self._movement(pframe, frm):                # If there is movement, store all of the frames
-                            store_all = True                           # up to the one in position j (included).
+                        if self._movement(pframe, frm):
+                            store_all = True
                         else:
                             j = j - 2
 
-                    if store_all:                                      # If we have to store all the frames, then do so.
+                    if store_all:
                         while j > last_element:
                             frames[j].store(storing_path)
                             frames[j - 1].store(storing_path)
                             j = j - 2
 
-                        frames[i - 1].store(storing_path)
-
-            i = i + Constants.JUMP
+                        frames[i*Constants.JUMP - 1].store(storing_path)
 
         print("Looked {} times with {} bursts on {}".format(looked, bursts, self._camera.get_place()))
 
