@@ -6,6 +6,7 @@ import numpy as np
 import datetime
 import os
 import pickle
+import time
 
 
 class Observer:
@@ -28,14 +29,15 @@ class Observer:
         it is time to switch observers and does so if needed.
         :param frames: Frames to analyse.
         """
-        hour = datetime.datetime.now().hour
+        self._observe(frames)
+        """hour = datetime.datetime.now().hour
         if Constants.NIGHT_OBSERVER_SHIFT_HOUR <= hour < Constants.OBSERVER_SHIFT_HOUR:    # If it is my time to observe
             self._observe(frames)                                                          # do so.
         else:                                                                              # If it's not, then
             print("Observer shift, now it's night observer time!")
             observer = NightObserver(self._camera, self._neural_network)
             self._camera.set_observer(observer)                                            # switch observer and
-            observer.observe(frames)                                                       # observe.
+            observer.observe(frames)                                                       # observe."""
 
     def _movement(self, previous_frame: Frame, frame: Frame) -> bool:
         """
@@ -81,6 +83,7 @@ class Observer:
         :param frames: Frames to check movement for.
         """
 
+        start = time.time()
         to_observe = [(frame, frames[i+1]) for i, frame in enumerate(frames) if i % Constants.JUMP == 0]
 
         results = self._batch_movement_check(to_observe)
@@ -88,7 +91,8 @@ class Observer:
         recording = False
         bursts = 0
         looked = len(results)
-        storing_path = self._camera.place
+
+        to_store = []
 
         for i, result in enumerate(results):
             if result:
@@ -108,29 +112,29 @@ class Observer:
                             looked += 1
 
                             if self._movement(pframe, frm):
-                                frm.store(storing_path)
-                                pframe.store(storing_path)
+                                to_store.append(frm)
+                                to_store.append(pframe)
                             else:
-                                frames[j].store(storing_path)
+                                to_store.append(frames[j])
                                 found_no_movement = True
 
                             j = j - 2
 
                         if not found_no_movement and j == last_element - 1:
-                            frames[last_element - 1].store(storing_path)
+                            to_store.append(frames[last_element - 1])
                 else:
                     j = i*Constants.JUMP - 1
                     last_element = (i - 1)*Constants.JUMP + 2
 
                     while j > last_element:
-                        frames[j].store(storing_path)
+                        to_store.append(frames[j])
                         j = j - 1
 
-                frames[(i * Constants.JUMP) + 1].store(storing_path)
-                frames[i * Constants.JUMP].store(storing_path)
+                to_store.append(frames[i*Constants.JUMP + 1])
+                to_store.append(frames[i*Constants.JUMP])
 
                 if i*Constants.JUMP + 2 < len(frames):
-                    frames[i*Constants.JUMP + 2].store(storing_path)
+                    to_store.append(frames[i*Constants.JUMP + 2])
             else:
                 if recording:
                     recording = False
@@ -148,13 +152,17 @@ class Observer:
                             j = j - 2
 
                     if store_all:
-                        frames[j + 1].store(storing_path)
+                        to_store.append(frames[j + 1])
                         while j > last_element:
-                            frames[j].store(storing_path)
-                            frames[j - 1].store(storing_path)
+                            to_store.append(frames[j])
+                            to_store.append(frames[j - 1])
                             j = j - 2
 
-        print("Looked {} times with {} bursts on {}".format(looked, bursts, self._camera.place))
+        print("Looked at {} FPS, {} times with {} bursts on {}"
+              .format(looked / (time.time() - start), looked, bursts, self._camera.place))
+
+        for frame in to_store:
+            frame.store(self._camera.place)
 
 
 class NightObserver(Observer):
