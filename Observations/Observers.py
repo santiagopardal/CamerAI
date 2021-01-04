@@ -44,16 +44,7 @@ class Observer:
         :param frame: Frame nearest in time.
         :return: True if there is movement, False if there is not movement.
         """
-        pf = self._frame_manipulation(previous_frame)
-        pf = pf.get_resized_and_grayscaled()
-
-        frm = self._frame_manipulation(frame)
-        frm = frm.get_resized_and_grayscaled()
-
-        diff = cv2.absdiff(pf, frm)
-        diff = np.array(diff / 255, dtype="float32")
-
-        images = np.array([diff.reshape(Constants.CNN_INPUT_SHAPE)])
+        images = np.array([self._prepare_for_cnn(previous_frame, frame)])
 
         movement = self._neural_network.predict_on_batch(images)
 
