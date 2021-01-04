@@ -97,8 +97,8 @@ class Observer:
                     recording = True
 
                     if i != 0:
-                        last_element = (i - 1)*Constants.JUMP
-                        j = i*Constants.JUMP - 2
+                        last_element = (i - 1)*Constants.JUMP + 1
+                        j = i*Constants.JUMP - 1
 
                         found_no_movement = False
 
@@ -119,8 +119,8 @@ class Observer:
                         if not found_no_movement and j == last_element - 1:
                             frames[last_element - 1].store(storing_path)
                 else:
-                    j = i*Constants.JUMP - 2
-                    last_element = (i - 1)*Constants.JUMP
+                    j = i*Constants.JUMP - 1
+                    last_element = (i - 1)*Constants.JUMP + 1
 
                     while j > last_element:
                         frames[j].store(storing_path)
@@ -129,14 +129,14 @@ class Observer:
                 frames[(i * Constants.JUMP) + 1].store(storing_path)
                 frames[i * Constants.JUMP].store(storing_path)
 
-                if i + 1 < len(frames):
-                    frames[i + 1].store(storing_path)
+                if i*Constants.JUMP + 2 < len(frames):
+                    frames[i*Constants.JUMP + 2].store(storing_path)
             else:
                 if recording:
                     recording = False
                     store_all = False
-                    j = i*Constants.JUMP - 2
-                    last_element = (i - 1) * Constants.JUMP
+                    j = i*Constants.JUMP - 1
+                    last_element = (i - 1) * Constants.JUMP + 1
 
                     while j - 1 > last_element and not store_all:
                         frm = frames[j]
@@ -148,12 +148,11 @@ class Observer:
                             j = j - 2
 
                     if store_all:
+                        frames[j + 1].store(storing_path)
                         while j > last_element:
                             frames[j].store(storing_path)
                             frames[j - 1].store(storing_path)
                             j = j - 2
-
-                        frames[i*Constants.JUMP - 1].store(storing_path)
 
         print("Looked {} times with {} bursts on {}".format(looked, bursts, self._camera.place))
 
