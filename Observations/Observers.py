@@ -120,7 +120,7 @@ class Observer:
                             frames[last_element - 1].store(storing_path)
                 else:
                     j = i*Constants.JUMP - 1
-                    last_element = (i - 1)*Constants.JUMP + 1
+                    last_element = (i - 1)*Constants.JUMP + 2
 
                     while j > last_element:
                         frames[j].store(storing_path)
