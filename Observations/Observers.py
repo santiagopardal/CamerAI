@@ -71,7 +71,7 @@ class Observer:
 
         images = np.array(images)
 
-        movements = self._neural_network.predict(images)
+        movements = self._neural_network.predict_on_batch(images)
 
         return [movement[0] >= Constants.MOVEMENT_SENSITIVITY for movement in movements]
 
