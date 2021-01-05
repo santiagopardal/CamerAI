@@ -29,15 +29,14 @@ class Observer:
         it is time to switch observers and does so if needed.
         :param frames: Frames to analyse.
         """
-        self._observe(frames)
-        """hour = datetime.datetime.now().hour
+        hour = datetime.datetime.now().hour
         if Constants.NIGHT_OBSERVER_SHIFT_HOUR <= hour < Constants.OBSERVER_SHIFT_HOUR:    # If it is my time to observe
             self._observe(frames)                                                          # do so.
         else:                                                                              # If it's not, then
             print("Observer shift, now it's night observer time!")
             observer = NightObserver(self._camera, self._neural_network)
             self._camera.set_observer(observer)                                            # switch observer and
-            observer.observe(frames)                                                       # observe."""
+            observer.observe(frames)                                                       # observe.
 
     def _movement(self, previous_frame: Frame, frame: Frame) -> bool:
         """
