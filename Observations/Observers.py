@@ -7,6 +7,7 @@ import datetime
 import os
 import pickle
 import time
+from Handlers.MotionEventHandler import HDDStoreMotionHandler
 
 
 class Observer:
@@ -22,6 +23,7 @@ class Observer:
             self._neural_network = nn
 
         self._camera = camera
+        self._motion_event_handler = HDDStoreMotionHandler(self._camera.place)
 
     def observe(self, frames: list):
         """
@@ -157,11 +159,10 @@ class Observer:
                             to_store.append(frames[j - 1])
                             j = j - 2
 
+        self._motion_event_handler.handle(to_store)
+
         print("Looked at {} FPS, {} times with {} bursts on {}"
               .format(looked / (time.time() - start), looked, bursts, self._camera.place))
-
-        for frame in to_store:
-            frame.store(self._camera.place)
 
 
 class NightObserver(Observer):

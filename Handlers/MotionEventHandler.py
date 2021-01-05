@@ -1,51 +1,63 @@
 import time
 from Observations.YOLO import YOLOv4Tiny
+from threading import Thread, Semaphore
 
 
 class MotionEventHandler:
-    def __init__(self):
+    def handle(self, event: list):
+        """
+        Handles movement.
+        :param event: List of frames in which there has been movement.
+        """
         pass
-    
-    def handle(self, event):
-        pass
 
 
-class NightMotionEventHandler(MotionEventHandler):
-    def __init__(self):
-        super(NightMotionEventHandler, self).__init__()
+class HDDStoreMotionHandler(MotionEventHandler):
+    """
+    Handles motion storing the frames on disk.
+    """
+    def __init__(self, storing_path, buffer_size=None):
+        """
+        Initializes the handler.
+        :param storing_path: Folder name to which store the frames.
+        :param buffer_size: If set, the frames will be stored as soon as the buffer reaches this number of frames,
+        if not set, the frames will be stored as soon as they arrive to the handler.
+        """
+        self._frames = [[]]
+        self._frames_ready = Semaphore(0)
+        self._done = False
+        self._storing_path = storing_path
+        self._buffer_size = buffer_size
 
-        self._motion_frames = {}
+        thread = Thread(target=self._store, args=())
+        thread.start()
 
-    def handle(self, event):
-        yolo = YOLOv4Tiny()
+        super().__init__()
 
-        if yolo.there_is("person", event):
-            if len(self._motion_frames) >= 1:
-                times = list(self._motion_frames.values())
-                motion_start = times[0]
+    def handle(self, event: list):
+        """
+        Receives the frames and once the handler is ready stores them.
+        :param event:
+        :return:
+        """
+        if self._buffer_size:
+            self._frames[0] = self._frames[0] + event
 
-                if time.perf_counter() - motion_start <= 10:
-                    self._send_email()
-                else:
-                    tme = time.perf_counter()
-                    i = 0
-                    should_send = False
-                    while i < len(times) and not should_send:
-                        motion_start = times[i]
+            if len(self._frames[0]) >= self._buffer_size:
+                self._frames.append([])
+                self._frames_ready.release()
+        else:
+            self._frames.append(event)
+            self._frames_ready.release()
 
-                        if tme - motion_start <= 10:
-                            should_send = True
-                        else:
-                            self._motion_frames.pop(list(self._motion_frames.keys())[i])
+    def _store(self):
+        """
+        Waits for frames to be ready and stores them on disk.
+        """
+        while not self._done:
+            self._frames_ready.acquire()
 
-                        i = i + 1
+            frames = self._frames.pop(0)
 
-                    if should_send:
-                        self._send_email()
-                    else:
-                        self._motion_frames[event] = time.perf_counter()
-            else:
-                self._motion_frames[event] = time.perf_counter()
-
-    def _send_email(self):
-        print("Sending email")
+            for frame in frames:
+                frame.store(self._storing_path)
