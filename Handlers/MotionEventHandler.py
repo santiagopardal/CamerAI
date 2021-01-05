@@ -1,5 +1,3 @@
-import time
-from Observations.YOLO import YOLOv4Tiny
 from threading import Thread, Semaphore
 
 
