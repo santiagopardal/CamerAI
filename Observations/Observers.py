@@ -84,9 +84,7 @@ class Observer:
         """
         images = [self._prepare_for_cnn(pf, frm) for pf, frm in frames]
 
-        images = np.array(images)
-
-        movements = self._neural_network.predict_on_batch(images)
+        movements = self._neural_network.predict_on_batch(np.array(images))
 
         return [movement[0] >= Constants.MOVEMENT_SENSITIVITY for movement in movements]
 

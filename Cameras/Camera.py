@@ -73,16 +73,15 @@ class Camera:
         """
         Starts the recording thread.
         """
-        thread = threading.Thread(target=self._record_thread_worker)
-        thread.daemon = False
-        thread.start()
-        self._record_thread = thread
+        self._record_thread = threading.Thread(target=self._record_thread_worker)
+        self._record_thread.start()
 
     def stop_recording(self):
         """
         Stops recording.
         """
         self._kill_thread = True
+        self._record_thread.join()
         self._record_thread = None
 
     def _record_thread_worker(self):
@@ -124,6 +123,8 @@ class Camera:
 
         self._frames_to_observe = []
         self._observe_semaphore.release()
+
+        thread.join()
 
     @staticmethod
     def _calculate_time_taken(tme, frame_rate, i):
@@ -176,6 +177,8 @@ class Camera:
 
                 last_frame = lf                                                        # update last frame.
 
+        self._motion_handler.free()
+
 
 class LiveVideoCamera(Camera):
     def __init__(self, ip: str, port: int, place: str, user: str, password: str,
@@ -227,15 +230,9 @@ class LiveVideoCamera(Camera):
             self._kill_thread = True
             self._record_thread.join()
             self._kill_thread = False
-            thread = threading.Thread(target=self._record_thread_worker)
-            thread.daemon = False
-            thread.start()
-            self._record_thread = thread
-        else:
-            thread = threading.Thread(target=self._record_thread_worker)
-            thread.daemon = False
-            thread.start()
-            self._record_thread = thread
+
+        self._record_thread = threading.Thread(target=self._record_thread_worker)
+        self._record_thread.start()
 
     def _record_thread_worker(self):
         frames = []
@@ -260,8 +257,8 @@ class LiveVideoCamera(Camera):
                     if len(frames) >= Constants.DBS:                        # If we have enough frames to analyse
                         end = time.time()
                         true_framerate = Constants.DBS / (end - start)
-                        self._frames_to_observe.append((frames, true_framerate))  # Add them to the queue and wakeup observer.
-                        self._observe_semaphore.release()
+                        self._frames_to_observe.append((frames, true_framerate))  # Add them to the queue and
+                        self._observe_semaphore.release()                         # wake up observer.
                         frames = []
                         start = end
                 else:
@@ -273,6 +270,8 @@ class LiveVideoCamera(Camera):
 
         self._frames_to_observe = []
         self._observe_semaphore.release()
+
+        thread.join()
 
     def __connect(self):
         """

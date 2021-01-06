@@ -89,7 +89,7 @@ class Frame:
             frame = cv2.cvtColor(self._frame, cv2.COLOR_BGR2RGB)
             frame = Image.fromarray(frame)
             frame.save(file_path, optimize=True, quality=50)
-            del frame
+            frame.close()
 
             self._stored_in.append(folder)
 
