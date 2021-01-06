@@ -7,7 +7,7 @@ import Constants
 import numpy as np
 import requests
 from PIL import Image
-from Handlers.MotionEventHandler import MotionEventHandler
+from Handlers.MotionEventHandler import MotionEventHandler, DiskStoreMotionHandler
 from Cameras.Frame import Frame
 from Observations.Observers import Observer
 from threading import Semaphore
@@ -29,7 +29,7 @@ class Camera:
         self._screenshot_url = screenshot_url
         self._record_thread = None
         self._kill_thread = False
-        self._motion_handler = MotionEventHandler()
+        self._motion_handler = DiskStoreMotionHandler(self._place)
         self._observer = Observer(self)
         self._observe_semaphore = Semaphore(0)
         self._frames_to_observe = []
@@ -48,9 +48,6 @@ class Camera:
 
     def set_observer(self, observer: Observer):
         self._observer = observer
-
-    def handle_motion(self, frame: Frame):
-        self._motion_handler.handle(frame)
 
     def set_motion_handler(self, motion_handler: MotionEventHandler):
         self._motion_handler = motion_handler
@@ -174,7 +171,9 @@ class Camera:
                 if last_frame:
                     frames = [last_frame] + frames[:len(frames) - 1]
 
-                self._observer.observe(frames=frames)                                  # Pass the frames to the observer
+                movement = self._observer.observe(frames=frames)                       # Pass the frames to the observer
+                self._motion_handler.handle(movement)                                  # Handler, manage movement
+
                 last_frame = lf                                                        # update last frame.
 
 

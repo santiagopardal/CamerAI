@@ -10,7 +10,7 @@ class MotionEventHandler:
         pass
 
 
-class HDDStoreMotionHandler(MotionEventHandler):
+class DiskStoreMotionHandler(MotionEventHandler):
     """
     Handles motion storing the frames on disk.
     """
@@ -35,18 +35,18 @@ class HDDStoreMotionHandler(MotionEventHandler):
     def handle(self, event: list):
         """
         Receives the frames and once the handler is ready stores them.
-        :param event:
-        :return:
+        :param event: List of frames in which there has been movement.
         """
-        if self._buffer_size:
-            self._frames[0] = self._frames[0] + event
+        if event:
+            if self._buffer_size:
+                self._frames[0] = self._frames[0] + event
 
-            if len(self._frames[0]) >= self._buffer_size:
-                self._frames.append([])
+                if len(self._frames[0]) >= self._buffer_size:
+                    self._frames.append([])
+                    self._frames_ready.release()
+            else:
+                self._frames.append(event)
                 self._frames_ready.release()
-        else:
-            self._frames.append(event)
-            self._frames_ready.release()
 
     def _store(self):
         """

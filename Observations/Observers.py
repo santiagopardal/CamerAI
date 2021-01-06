@@ -7,7 +7,6 @@ import datetime
 import os
 import pickle
 import time
-from Handlers.MotionEventHandler import HDDStoreMotionHandler
 
 
 class Observer:
@@ -23,9 +22,8 @@ class Observer:
             self._neural_network = nn
 
         self._camera = camera
-        self._motion_event_handler = HDDStoreMotionHandler(self._camera.place)
 
-    def observe(self, frames: list):
+    def observe(self, frames: list) -> list:
         """
         Receives a list of frames and stores those in which there has been movement. Also checks whether
         it is time to switch observers and does so if needed.
@@ -33,12 +31,14 @@ class Observer:
         """
         hour = datetime.datetime.now().hour
         if Constants.NIGHT_OBSERVER_SHIFT_HOUR <= hour < Constants.OBSERVER_SHIFT_HOUR:    # If it is my time to observe
-            self._observe(frames)                                                          # do so.
+            res = self._observe(frames)                                                    # do so.
         else:                                                                              # If it's not, then
             print("Observer shift, now it's night observer time!")
             observer = NightObserver(self._camera, self._neural_network)
             self._camera.set_observer(observer)                                            # switch observer and
-            observer.observe(frames)                                                       # observe.
+            res = observer.observe(frames)                                                 # observe.
+
+        return res
 
     def _movement(self, previous_frame: Frame, frame: Frame) -> bool:
         """
@@ -57,7 +57,13 @@ class Observer:
         """
         return frame
 
-    def _prepare_for_cnn(self, pf, frm):
+    def _prepare_for_cnn(self, pf: Frame, frm: Frame):
+        """
+        Creates and returns an NumPy array with the difference between pf and frm resized, grayscaled and normalized.
+        :param pf: Frame more distant in time.
+        :param frm: Frame nearest in time.
+        :return: NumPy array with the difference between pf and frm resized, grayscaled and normalized.
+        """
         pf = self._frame_manipulation(pf)
         pf = pf.get_resized_and_grayscaled()
 
@@ -69,7 +75,13 @@ class Observer:
 
         return diff
 
-    def _batch_movement_check(self, frames) -> list:
+    def _batch_movement_check(self, frames: list) -> list:
+        """
+        Returns a list with the results of checking for all difference in frames if there has been movement or not. By
+        difference I mean what _prepare_for_cnn returns.
+        :param frames: Frames to analyse.
+        :return: List with boolean values representing whether there has been movement or not.
+        """
         images = [self._prepare_for_cnn(pf, frm) for pf, frm in frames]
 
         images = np.array(images)
@@ -78,7 +90,7 @@ class Observer:
 
         return [movement[0] >= Constants.MOVEMENT_SENSITIVITY for movement in movements]
 
-    def _observe(self, frames: list):
+    def _observe(self, frames: list) -> list:
         """
         Receives a list of frames and stores those in which there has been movement.
         :param frames: Frames to check movement for.
@@ -93,7 +105,7 @@ class Observer:
         bursts = 0
         looked = len(results)
 
-        to_store = []
+        frames_with_movement = []
 
         for i, result in enumerate(results):
             if result:
@@ -113,29 +125,29 @@ class Observer:
                             looked += 1
 
                             if self._movement(pframe, frm):
-                                to_store.append(frm)
-                                to_store.append(pframe)
+                                frames_with_movement.append(frm)
+                                frames_with_movement.append(pframe)
                             else:
-                                to_store.append(frames[j])
+                                frames_with_movement.append(frames[j])
                                 found_no_movement = True
 
                             j = j - 2
 
                         if not found_no_movement and j == last_element - 1:
-                            to_store.append(frames[last_element - 1])
+                            frames_with_movement.append(frames[last_element - 1])
                 else:
                     j = i*Constants.JUMP - 1
                     last_element = (i - 1)*Constants.JUMP + 2
 
                     while j > last_element:
-                        to_store.append(frames[j])
+                        frames_with_movement.append(frames[j])
                         j = j - 1
 
-                to_store.append(frames[i*Constants.JUMP + 1])
-                to_store.append(frames[i*Constants.JUMP])
+                frames_with_movement.append(frames[i*Constants.JUMP + 1])
+                frames_with_movement.append(frames[i*Constants.JUMP])
 
                 if i*Constants.JUMP + 2 < len(frames):
-                    to_store.append(frames[i*Constants.JUMP + 2])
+                    frames_with_movement.append(frames[i*Constants.JUMP + 2])
             else:
                 if recording:
                     recording = False
@@ -153,16 +165,16 @@ class Observer:
                             j = j - 2
 
                     if store_all:
-                        to_store.append(frames[j + 1])
+                        frames_with_movement.append(frames[j + 1])
                         while j > last_element:
-                            to_store.append(frames[j])
-                            to_store.append(frames[j - 1])
+                            frames_with_movement.append(frames[j])
+                            frames_with_movement.append(frames[j - 1])
                             j = j - 2
-
-        self._motion_event_handler.handle(to_store)
 
         print("Looked at {} FPS, {} times with {} bursts on {}"
               .format(looked / (time.time() - start), looked, bursts, self._camera.place))
+
+        return frames_with_movement
 
 
 class NightObserver(Observer):
@@ -174,15 +186,18 @@ class NightObserver(Observer):
     def __init__(self, camera, nn=None):
         super().__init__(camera, nn)
 
-    def observe(self, frames: list):
+    def observe(self, frames: list) -> list:
         hour = datetime.datetime.now().hour
+
         if Constants.OBSERVER_SHIFT_HOUR <= hour or hour < Constants.NIGHT_OBSERVER_SHIFT_HOUR: # If it is my time to observe
-            self._observe(frames)                                                               # do so.
+            res = self._observe(frames)                                                         # do so.
         else:                                                                                   # If it's not, then,
             print("Observer shift")
             observer = Observer(self._camera, self._neural_network)
             self._camera.set_observer(observer)                                                 # switch observer and
-            observer.observe(frames)                                                            # observe.
+            res = observer.observe(frames)                                                      # observe.
+
+        return res
 
     def _frame_manipulation(self, frame: Frame) -> Frame:
         return frame.get_denoised_frame()
