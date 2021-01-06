@@ -1,5 +1,5 @@
 import cv2
-from Detectors import CNNs
+from Detectors.CNNs import ModelGenerator
 from Cameras.Frame import Frame
 import Constants
 import numpy as np
@@ -16,7 +16,8 @@ class Observer:
         :param nn: Neural network to detect movement, if not specified will use default.
         """
         if nn is None:
-            self._neural_network = CNNs.create_main_model()
+            generator = ModelGenerator()
+            self._neural_network = generator.create_main_model()
             self._neural_network.load_weights(Constants.V3_MODEL_WEIGHTS)
         else:
             self._neural_network = nn

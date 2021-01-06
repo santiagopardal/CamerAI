@@ -73,10 +73,11 @@ class DiskStoreMotionHandler(MotionEventHandler):
         while not self._done:
             self._frames_ready.acquire()
 
-            frames = self._frames.pop(0)
+            if self._frames:
+                frames = self._frames.pop(0)
 
-            for frame in frames:
-                frame.store(self._storing_path)
+                for frame in frames:
+                    frame.store(self._storing_path)
 
         while self._frames:
             frames = self._frames.pop(0)

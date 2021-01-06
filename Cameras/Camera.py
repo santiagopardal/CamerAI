@@ -177,6 +177,9 @@ class Camera:
 
                 last_frame = lf                                                        # update last frame.
 
+                del frames
+                del movement
+
         self._motion_handler.free()
 
 
