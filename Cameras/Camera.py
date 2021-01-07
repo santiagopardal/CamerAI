@@ -33,6 +33,7 @@ class Camera:
         self._observer = Observer(self)
         self._observe_semaphore = Semaphore(0)
         self._frames_to_observe = []
+        self._last_frame = None
 
     @property
     def place(self) -> str:
@@ -45,6 +46,10 @@ class Camera:
     @property
     def port(self) -> int:
         return self._port
+
+    @property
+    def last_frame(self) -> np.ndarray:
+        return self._last_frame
 
     def set_observer(self, observer: Observer):
         self._observer = observer
@@ -109,6 +114,7 @@ class Camera:
                     frame = cv2.imdecode(frame, cv2.IMREAD_COLOR)
 
                     if frame is not None:
+                        self._last_frame = frame
                         frames.append(frame)
                         if len(frames) >= Constants.DBS:
                             end = time.time()
@@ -256,6 +262,7 @@ class LiveVideoCamera(Camera):
                         grabbed, frame = self._live_video.read()            # Read again, if could not read again retry!
 
                     frames.append(frame)                                    # Add to list
+                    self._last_frame = frame
 
                     if len(frames) >= Constants.DBS:                        # If we have enough frames to analyse
                         end = time.time()
