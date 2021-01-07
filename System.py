@@ -4,17 +4,13 @@ import time
 import threading
 from Cameras.Camera import Camera
 import Constants
-import datetime
-from kivy.clock import Clock
-from GUI.kivy_test import MyApp
+#import datetime
 
 
 class System:
     def __init__(self):
         self._last_upload = -4
         self._done = False
-        self.cameras = []
-        self._gui = MyApp(self)
 
         if not os.path.exists(Constants.STORING_PATH):
             os.mkdir(Constants.STORING_PATH)
@@ -28,13 +24,6 @@ class System:
             with open("cameras.pickle", "wb") as pck:
                 pickle.dump(self.cameras, pck)
                 pck.close()
-
-    def update_gui(self):
-        print(self.cameras)
-        for camera in self.cameras:
-            lf = camera.last_frame
-            if lf is not None:
-                self._gui.update(lf)
 
     def add_camera(self, camera: Camera):
         can_insert = True

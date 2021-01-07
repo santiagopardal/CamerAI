@@ -305,7 +305,7 @@ class LiveVideoCamera(Camera):
                 connected = True
 
                 print("Connected camera at {} on IP {}".format(self._place, self._IP))
-            except Exception:
+            except:
                 if i < 6:
                     i += 1
                 seconds = 2 ** i
