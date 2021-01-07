@@ -15,7 +15,7 @@ import datetime
 
 
 class Camera:
-    def __init__(self, ip: str, port: int, place: str, screenshot_url: str):
+    def __init__(self, ip: str, port: int, place: str, screenshot_url: str, framerate: int):
         """
         :param ip: IP of the camera.
         :param port: Port for the camera live stream.
@@ -27,6 +27,7 @@ class Camera:
         self._port = port
         self._place = place
         self._screenshot_url = screenshot_url
+        self._framerate = framerate
         self._record_thread = None
         self._kill_thread = False
         self._motion_handler = DiskStoreMotionHandler(self._place)
@@ -50,6 +51,10 @@ class Camera:
     @property
     def last_frame(self) -> np.ndarray:
         return self._last_frame
+
+    @property
+    def framerate(self) -> int:
+        return self._framerate
 
     def set_observer(self, observer: Observer):
         self._observer = observer
@@ -206,7 +211,7 @@ class LiveVideoCamera(Camera):
         user = urllib.parse.quote(user)
         password = urllib.parse.quote(password)
 
-        super().__init__(ip, port, place, screenshot_url.format(user, password))
+        super().__init__(ip, port, place, screenshot_url.format(user, password), Constants.FRAMERATE)
 
         self._live_video_url = live_video_url.format(user, password)
         self._live_video = None

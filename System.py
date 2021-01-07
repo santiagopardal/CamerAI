@@ -4,13 +4,17 @@ import time
 import threading
 from Cameras.Camera import Camera
 import Constants
-#import datetime
+import datetime
+from GUI.KivyGUI import CamerAI
+from threading import Thread
 
 
 class System:
     def __init__(self):
         self._last_upload = -4
         self._done = False
+        self.cameras = []
+        self._gui = None
 
         if not os.path.exists(Constants.STORING_PATH):
             os.mkdir(Constants.STORING_PATH)
@@ -24,6 +28,10 @@ class System:
             with open("cameras.pickle", "wb") as pck:
                 pickle.dump(self.cameras, pck)
                 pck.close()
+
+    def update_gui(self):
+        for camera in self.cameras:
+            self._gui.update(camera.last_frame)
 
     def add_camera(self, camera: Camera):
         can_insert = True
@@ -44,17 +52,28 @@ class System:
             pickle.dump(self.cameras, pck)
             pck.close()
 
+    def init_gui(self):
+        self._gui = CamerAI(system=self, cameras=self.cameras)
+        self._gui.run()
+
+    def terminate(self):
+        self._done = True
+
+    def run_with_gui(self):
+        t = Thread(target=self.run, args=())
+        t.start()
+        self.init_gui()
+
     def run(self):
         for camera in self.cameras:
             camera.record()
 
         while not self._done:
-            print("Sleeping...")
             #if datetime.datetime.now().hour % 2 == 0 and self._last_upload != datetime.datetime.now().hour:
                 #self._last_upload = datetime.datetime.now().hour
                 #self.__upload_time()
 
-            time.sleep(Constants.UPDATE_EVERY_SECONDS)
+            time.sleep(10)
 
         for camera in self.cameras:
             camera.stop_recording()

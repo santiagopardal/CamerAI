@@ -1,18 +1,23 @@
 from kivy.uix.image import Image
 from kivy.graphics.texture import Texture
 import cv2
+from kivy.clock import Clock
 
 
 class KivyCV(Image):
-    def __init__(self, frame=None, **kwargs):
+    def __init__(self, camera, **kwargs):
         super().__init__(**kwargs)
+        self.nocache = True
+        self._camera = camera
+        Clock.schedule_interval(self.update, 0.1)
+
+    def update(self, dt):
+        frame = self._camera.last_frame
 
         if frame is not None:
-            self.update(frame)
+            frm = cv2.flip(frame, 0)
+            buf = frm.tostring()
+            image_texture = Texture.create(size=(frame.shape[1], frame.shape[0]), colorfmt='bgr')
+            image_texture.blit_buffer(buf, colorfmt='bgr', bufferfmt='ubyte')
 
-    def update(self, frame):
-        buf1 = cv2.flip(frame, 0)
-        buf = buf1.tostring()
-        self.texture = Texture.create(size=(frame.shape[1], frame.shape[0]), colorfmt='bgr')
-        self.texture.blit_buffer(buf, colorfmt='bgr', bufferfmt='ubyte')
-        print("Updated texture")
+            self.texture = image_texture
