@@ -10,11 +10,21 @@ import time
 
 
 class Observer:
+    def __init__(self):
+        pass
+
+    def observe(self, frames: list) -> list:
+        return []
+
+
+class MovementDetectionObserver(Observer):
     def __init__(self, camera, nn=None):
         """
         :param camera: Camera to observe.
         :param nn: Neural network to detect movement, if not specified will use default.
         """
+        super().__init__()
+
         if nn is None:
             generator = ModelGenerator()
             self._neural_network = generator.create_main_model()
@@ -34,7 +44,7 @@ class Observer:
         if Constants.NIGHT_OBSERVER_SHIFT_HOUR <= hour < Constants.OBSERVER_SHIFT_HOUR:    # If it is my time to observe
             res = self._observe(frames)                                                    # do so.
         else:                                                                              # If it's not, then
-            print("Observer shift, now it's night observer time!")
+            print("MovementDetectionObserver shift, now it's night observer time!")
             observer = NightObserver(self._camera, self._neural_network)
             self._camera.set_observer(observer)                                            # switch observer and
             res = observer.observe(frames)                                                 # observe.
@@ -176,9 +186,9 @@ class Observer:
         return frames_with_movement
 
 
-class NightObserver(Observer):
+class NightObserver(MovementDetectionObserver):
     """
-    Observer for when the night comes, it does the same as Observer but denoises the frames
+    MovementDetectionObserver for when the night comes, it does the same as MovementDetectionObserver but denoises the frames
     before analysing.
     This observer is more useful for cameras with low image quality.
     """
@@ -191,8 +201,8 @@ class NightObserver(Observer):
         if Constants.OBSERVER_SHIFT_HOUR <= hour or hour < Constants.NIGHT_OBSERVER_SHIFT_HOUR: # If it is my time to observe
             res = self._observe(frames)                                                         # do so.
         else:                                                                                   # If it's not, then,
-            print("Observer shift")
-            observer = Observer(self._camera, self._neural_network)
+            print("MovementDetectionObserver shift")
+            observer = MovementDetectionObserver(self._camera, self._neural_network)
             self._camera.set_observer(observer)                                                 # switch observer and
             res = observer.observe(frames)                                                      # observe.
 
@@ -202,7 +212,7 @@ class NightObserver(Observer):
         return frame.get_denoised_frame()
 
 
-class DatasetObserver(Observer):
+class DatasetObserver(MovementDetectionObserver):
     """
     Hardcoded observer for dataset creation don't pay attention to this.
     """

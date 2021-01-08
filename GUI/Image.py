@@ -9,7 +9,7 @@ class KivyCV(Image):
         super().__init__(**kwargs)
         self.nocache = True
         self._camera = camera
-        Clock.schedule_interval(self.update, 0.1)
+        Clock.schedule_interval(self.update, 1/self._camera.framerate)
 
     def update(self, dt):
         frame = self._camera.last_frame

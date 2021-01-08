@@ -9,20 +9,31 @@ import requests
 from PIL import Image
 from Handlers.MotionEventHandler import MotionEventHandler, DiskStoreMotionHandler
 from Cameras.Frame import Frame
-from Observations.Observers import Observer
+from Observations.Observers import Observer, MovementDetectionObserver
 from threading import Semaphore
 import datetime
 
 
 class Camera:
-    def __init__(self, ip: str, port: int, place: str, screenshot_url: str, framerate: int):
+    def __init__(self, ip: str, port: int, place: str,
+                 screenshot_url: str, framerate: int,
+                 motion_handlers=None, observer=None):
         """
         :param ip: IP of the camera.
         :param port: Port for the camera live stream.
         :param place: Place where the camera is located, this will be the name of the folder where the frames will
         be stored.
+        :param motion_handlers: List with motion handlers to handle movement, if set to [] no action will be taken, if
+        set to None, the default will be DiskStoreMotionHandler.
+        :param: observer: Is the observer that will analyse the frames, if set to None the default will be MovementDetectionObserver.
         :param screenshot_url: URL to obtain screenshot from the CCTV camera.
         """
+        if motion_handlers is None:
+            motion_handlers = [DiskStoreMotionHandler(place)]
+
+        if not observer:
+            observer = MovementDetectionObserver(self)
+
         self._IP = ip
         self._port = port
         self._place = place
@@ -30,8 +41,8 @@ class Camera:
         self._framerate = framerate
         self._record_thread = None
         self._kill_thread = False
-        self._motion_handler = DiskStoreMotionHandler(self._place)
-        self._observer = Observer(self)
+        self._motion_handlers = motion_handlers
+        self._observer = observer
         self._observe_semaphore = Semaphore(0)
         self._frames_to_observe = []
         self._last_frame = None
@@ -57,10 +68,20 @@ class Camera:
         return self._framerate
 
     def set_observer(self, observer: Observer):
-        self._observer = observer
+        if observer:
+            self._observer = observer
 
-    def set_motion_handler(self, motion_handler: MotionEventHandler):
-        self._motion_handler = motion_handler
+    def add_motion_handler(self, motion_handler: MotionEventHandler):
+        self._motion_handlers.append(motion_handler)
+
+    def remove_all_handlers(self):
+        del self._motion_handlers
+
+        self._motion_handlers = []
+
+    def remove_motion_handler(self, motion_handler: MotionEventHandler):
+        if motion_handler in self._motion_handlers:
+            self._motion_handlers.remove(motion_handler)
 
     def __eq__(self, other):
         if isinstance(other, Camera):
@@ -184,19 +205,23 @@ class Camera:
                     frames = [last_frame] + frames[:len(frames) - 1]
 
                 movement = self._observer.observe(frames=frames)                       # Pass the frames to the observer
-                self._motion_handler.handle(movement)                                  # Handler, manage movement
+
+                for handler in self._motion_handlers:                                  # Handler, manage movement
+                    handler.handle(movement)
 
                 last_frame = lf                                                        # update last frame.
 
                 del frames
                 del movement
 
-        self._motion_handler.free()
+        for handler in self._motion_handlers:
+            handler.free()
 
 
 class LiveVideoCamera(Camera):
     def __init__(self, ip: str, port: int, place: str, user: str, password: str,
-                 screenshot_url: str, live_video_url: str, width: int, height: int):
+                 screenshot_url: str, live_video_url: str, width: int, height: int,
+                 motion_handlers: list, observer: Observer):
         """
         :param ip: IP where the camera is located.
         :param port: Port to connect to camera.
@@ -211,7 +236,8 @@ class LiveVideoCamera(Camera):
         user = urllib.parse.quote(user)
         password = urllib.parse.quote(password)
 
-        super().__init__(ip, port, place, screenshot_url.format(user, password), Constants.FRAMERATE)
+        super().__init__(ip, port, place, screenshot_url.format(user, password),
+                         Constants.FRAMERATE, motion_handlers, observer)
 
         self._live_video_url = live_video_url.format(user, password)
         self._live_video = None
@@ -319,7 +345,9 @@ class LiveVideoCamera(Camera):
 
 
 class FI9803PV3(LiveVideoCamera):
-    def __init__(self, ip: str, port: int, place: str, user: str, password: str):
+    def __init__(self, ip: str, port: int, place: str,
+                 user: str, password: str,
+                 motion_handlers=None, observer=None):
         """
         :param ip: IP where the camera is located.
         :param port: Port to connect to camera.
@@ -330,11 +358,13 @@ class FI9803PV3(LiveVideoCamera):
         super().__init__(ip, port, place, user, password, "http://{}:{}/{}".
                          format(ip, str(port), "cgi-bin/CGIProxy.fcgi?cmd=snapPicture2&usr={}&pwd={}"),
                          "{}@{}:{}/videoMain".format("rtsp://{}:{}", ip, str(port + 2)),
-                         1280, 720)
+                         1280, 720, motion_handlers, observer)
 
 
 class FI89182(LiveVideoCamera):
-    def __init__(self, ip: str, port: int, place: str, user: str, password: str):
+    def __init__(self, ip: str, port: int, place: str,
+                 user: str, password: str,
+                 motion_handlers=None, observer=None):
         """
         :param ip: IP where the camera is located.
         :param port: Port to connect to camera.
@@ -347,4 +377,4 @@ class FI89182(LiveVideoCamera):
                          format(ip, str(port), "cgi-bin/CGIProxy.fcgi?cmd=snapPicture2&usr={}&pwd={}"),
                          "http://{}:{}/{}".
                          format(ip, port, "videostream.cgi?user={}&pwd={}"),
-                         640, 480)
+                         640, 480, motion_handlers, observer)
