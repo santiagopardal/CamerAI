@@ -6,15 +6,16 @@ from Cameras.Camera import Camera
 import Constants
 import datetime
 from GUI.KivyGUI import CamerAI
-from threading import Thread
+from threading import Thread, Semaphore
 
 
 class System:
     def __init__(self):
         self._last_upload = -4
-        self._done = False
         self.cameras = []
         self._gui = None
+
+        self._done_semaphore = Semaphore(0)
 
         if not os.path.exists(Constants.STORING_PATH):
             os.mkdir(Constants.STORING_PATH)
@@ -57,23 +58,21 @@ class System:
         self._gui.run()
 
     def terminate(self):
-        self._done = True
+        self._done_semaphore.release()
 
     def run_with_gui(self):
         t = Thread(target=self.run, args=())
         t.start()
+
         self.init_gui()
+
+        t.join()
 
     def run(self):
         for camera in self.cameras:
             camera.record()
 
-        while not self._done:
-            #if datetime.datetime.now().hour % 2 == 0 and self._last_upload != datetime.datetime.now().hour:
-                #self._last_upload = datetime.datetime.now().hour
-                #self.__upload_time()
-
-            time.sleep(10)
+        self._done_semaphore.acquire()
 
         for camera in self.cameras:
             camera.stop_recording()
@@ -83,7 +82,8 @@ class System:
         thread.start()
 
         time.sleep(n)
-        self._done = True
+        self._done_semaphore.release()
+        thread.join()
 
     def __upload_time(self):
         print("Upload time!")
