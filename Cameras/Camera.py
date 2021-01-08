@@ -67,6 +67,14 @@ class Camera:
     def framerate(self) -> int:
         return self._framerate
 
+    @ip.setter
+    def ip(self, ip: str):
+        self._IP = ip
+
+    @port.setter
+    def port(self, port: int):
+        self._port = port
+
     def set_observer(self, observer: Observer):
         if observer:
             self._observer = observer
