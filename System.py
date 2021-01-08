@@ -24,28 +24,17 @@ class System:
             with open("cameras.pickle", "rb") as pck:
                 self.cameras = pickle.load(pck)
                 pck.close()
-        else:
-            self.cameras = []
-            with open("cameras.pickle", "wb") as pck:
-                pickle.dump(self.cameras, pck)
-                pck.close()
 
     def update_gui(self):
         for camera in self.cameras:
             self._gui.update(camera.last_frame)
 
     def add_camera(self, camera: Camera):
-        can_insert = True
-        i = 0
-        while can_insert and i < len(self.cameras):
-            can_insert = self.cameras[i].place != camera.place
-            i += 1
-
-        if can_insert:
+        if camera not in self.cameras:
             self.cameras.append(camera)
-#            with open("cameras.pickle", "wb") as pck:
-#                pickle.dump(self.cameras, pck)
-#                pck.close()
+            # with open("cameras.pickle", "wb") as pck:
+            #     pickle.dump(self.cameras, pck)
+            #     pck.close()
 
     def remove_camera(self, camera: Camera):
         self.cameras.remove(camera)
@@ -86,18 +75,7 @@ class System:
         thread.join()
 
     def __upload_time(self):
-        print("Upload time!")
-
-        if not os.path.exists("to upload"):
-            os.mkdir("to upload")
-
-        for camera in self.cameras:
-            if not os.path.exists("to upload/" + camera.place):
-                os.mkdir("to upload/" + camera.place)
-
-            thread = threading.Thread(target=self.__upload, args=(camera.place,))
-            thread.daemon = True
-            thread.start()
+        pass
 
     def __upload(self, path: str):
         pass
