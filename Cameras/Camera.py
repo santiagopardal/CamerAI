@@ -61,7 +61,9 @@ class Camera:
 
     @property
     def last_frame(self) -> np.ndarray:
-        return self._last_frame
+        lf = self._last_frame
+        self._last_frame = None
+        return lf
 
     @property
     def framerate(self) -> int:
