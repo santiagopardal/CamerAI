@@ -28,7 +28,6 @@ class MovementDetectionObserver(Observer):
         if nn is None:
             generator = ModelGenerator()
             self._neural_network = generator.create_main_model()
-            self._neural_network.load_weights(Constants.V3_MODEL_WEIGHTS)
         else:
             self._neural_network = nn
 
