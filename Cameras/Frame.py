@@ -13,7 +13,7 @@ class Frame:
         else:
             self._time = datetime.datetime.now().time()
 
-        self._frame = frame
+        self._frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
 
         self._resized_and_grayscale = None
         self._denoised = None
@@ -86,8 +86,7 @@ class Frame:
             if not os.path.exists(folder):
                 os.mkdir(folder)
 
-            frame = cv2.cvtColor(self._frame, cv2.COLOR_BGR2RGB)
-            frame = Image.fromarray(frame)
+            frame = Image.fromarray(self._frame)
             frame.save(file_path, optimize=True, quality=50)
             frame.close()
 

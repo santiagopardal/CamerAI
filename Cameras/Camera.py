@@ -225,6 +225,9 @@ class Camera:
         for handler in self._motion_handlers:
             handler.free()
 
+    def __hash__(self):
+        return self._place.__hash__()
+
 
 class LiveVideoCamera(Camera):
     def __init__(self, ip: str, port: int, place: str, user: str, password: str,

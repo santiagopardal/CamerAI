@@ -1,25 +1,45 @@
 from kivy.app import App
-from kivy.uix.gridlayout import GridLayout
 from GUI.Image import KivyCV
+from kivy.uix.screenmanager import ScreenManager
+from GUI.Screens import CameraScreen, MainScreen
 
 
 class CamerAI(App):
     def __init__(self, system, cameras: list, **kwargs):
         super().__init__(**kwargs)
 
-        self.images = [KivyCV(camera=camera) for camera in cameras]
+        self._sm = ScreenManager()
         self._system = system
 
+        images = [KivyCV(camera=camera, gui=self) for camera in cameras]
+
+        self._main_screen = MainScreen(images)
+        self._sm.add_widget(self._main_screen)
+        self._current_screen = self._main_screen
+
+        self._single_camera_screen = CameraScreen(images[0])
+        self._sm.add_widget(self._single_camera_screen)
+
     def build(self):
-        grid = GridLayout()
-        grid.cols = 2
-
-        for image in self.images:
-            grid.add_widget(image)
-
-        return grid
+        return self._sm
 
     def on_stop(self):
         self._system.terminate()
 
         super().on_stop()
+
+    def open_camera(self, camera: KivyCV):
+        self._current_screen.hide()
+
+        self._single_camera_screen.image = camera
+        self._single_camera_screen.display()
+        self._sm.switch_to(self._single_camera_screen, direction="left")
+        self._current_screen = self._single_camera_screen
+
+    def go_to_main(self):
+        self._current_screen.hide()
+
+        screen = self._main_screen
+        screen.display()
+        self._sm.switch_to(screen, direction="right")
+        self._current_screen = screen
