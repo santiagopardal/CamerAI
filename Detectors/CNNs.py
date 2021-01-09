@@ -1,5 +1,6 @@
 import tensorflow as tf
 from threading import Lock
+import Constants
 
 
 physical_devices = tf.config.experimental.list_physical_devices('GPU')
@@ -91,6 +92,7 @@ class ModelGenerator:
             loss = tf.keras.losses.BinaryCrossentropy()
 
             self._model.compile(loss=loss, optimizer=optimizer, metrics=["accuracy"])
+            self._model.load_weights(Constants.V3_MODEL_WEIGHTS)
 
         self._mutex.release()
 
