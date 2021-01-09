@@ -11,13 +11,14 @@ class CamerAI(App):
         self._sm = ScreenManager()
         self._system = system
 
-        images = [KivyCV(camera=camera, gui=self) for camera in cameras]
+        self._images = [KivyCV(camera=camera, gui=self) for camera in cameras]
 
-        self._main_screen = MainScreen(images)
+        self._main_screen = MainScreen(self._images)
         self._sm.add_widget(self._main_screen)
+        self._main_screen.schedule_update()
         self._current_screen = self._main_screen
 
-        self._single_camera_screen = CameraScreen(images[0])
+        self._single_camera_screen = CameraScreen(self._images[0])
         self._sm.add_widget(self._single_camera_screen)
 
     def build(self):

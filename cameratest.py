@@ -1,13 +1,14 @@
 import cv2
 import numpy as np
 import threading
-from Detectors.CNNs import create_main_model
+from Detectors.CNNs import ModelGenerator
 from Constants import MOVEMENT_SENSITIVITY
 from Observations.YOLO import YOLOv4Tiny
 import Constants
 import urllib.parse
 
-model = create_main_model()
+mg = ModelGenerator()
+model = mg.create_main_model()
 model.load_weights(Constants.V3_MODEL_WEIGHTS)
 
 
@@ -36,7 +37,7 @@ def detect_movement(previous_frame, frame):
 
     movement = model.predict(np.array([images]))
 
-    if movement[0][0] >= MOVEMENT_SENSITIVITY:
+    if movement[0][0] >= 0.85:
         print(movement)
 
 
