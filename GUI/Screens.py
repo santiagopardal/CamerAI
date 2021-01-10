@@ -22,14 +22,15 @@ class ScreenWithCameras(Screen):
 
         self._images = images
         self._scheduled_update = False
+        self._update_event = None
 
     def schedule_update(self):
         self._scheduled_update = True
-        Clock.schedule_interval(self._update_images, 1.0 / FRAMERATE)
+        self._update_event = Clock.schedule_interval(self._update_images, 1.0 / FRAMERATE)
 
     def unschedule_update(self):
         self._scheduled_update = False
-        Clock.unschedule(self._update_images)
+        self._update_event.cancel()
 
     def display(self):
         self.schedule_update()
