@@ -4,8 +4,6 @@ from Cameras.Frame import Frame
 import Constants
 import numpy as np
 import datetime
-import os
-import pickle
 import time
 
 
@@ -18,9 +16,9 @@ class Observer:
 
 
 class MovementDetectionObserver(Observer):
-    def __init__(self, camera, nn=None):
+    def __init__(self, frame_handler, nn=None):
         """
-        :param camera: Camera to observe.
+        :param frame_handler: Camera's handler.
         :param nn: Neural network to detect movement, if not specified will use default.
         """
         super().__init__()
@@ -31,7 +29,7 @@ class MovementDetectionObserver(Observer):
         else:
             self._neural_network = nn
 
-        self._camera = camera
+        self._frame_handler = frame_handler
 
     def observe(self, frames: list) -> list:
         """
@@ -44,8 +42,8 @@ class MovementDetectionObserver(Observer):
             res = self._observe(frames)                                                    # do so.
         else:                                                                              # If it's not, then
             print("MovementDetectionObserver shift, now it's night observer time!")
-            observer = NightObserver(self._camera, self._neural_network)
-            self._camera.set_observer(observer)                                            # switch observer and
+            observer = NightObserver(self._frame_handler, self._neural_network)
+            self._frame_handler.set_observer(observer)                                     # switch observer and
             res = observer.observe(frames)                                                 # observe.
 
         return res
@@ -180,7 +178,7 @@ class MovementDetectionObserver(Observer):
                             j = j - 2
 
         print("Looked at {} FPS, {} times with {} bursts on {}"
-              .format(looked / (time.time() - start), looked, bursts, self._camera.place))
+              .format(looked / (time.time() - start), looked, bursts, self._frame_handler.place))
 
         return frames_with_movement
 
@@ -191,8 +189,8 @@ class NightObserver(MovementDetectionObserver):
     before analysing.
     This observer is more useful for cameras with low image quality.
     """
-    def __init__(self, camera, nn=None):
-        super().__init__(camera, nn)
+    def __init__(self, frame_handler, nn=None):
+        super().__init__(frame_handler, nn)
 
     def observe(self, frames: list) -> list:
         hour = datetime.datetime.now().hour
@@ -201,97 +199,11 @@ class NightObserver(MovementDetectionObserver):
             res = self._observe(frames)                                                         # do so.
         else:                                                                                   # If it's not, then,
             print("MovementDetectionObserver shift")
-            observer = MovementDetectionObserver(self._camera, self._neural_network)
-            self._camera.set_observer(observer)                                                 # switch observer and
+            observer = MovementDetectionObserver(self._frame_handler)
+            self._frame_handler.set_observer(observer)                                          # switch observer and
             res = observer.observe(frames)                                                      # observe.
 
         return res
 
     def _frame_manipulation(self, frame: Frame) -> Frame:
         return frame.get_denoised_frame()
-
-
-class DatasetObserver(MovementDetectionObserver):
-    """
-    Hardcoded observer for dataset creation don't pay attention to this.
-    """
-    def observe(self, frames: list):
-        i = 0
-        pf = frames[0]
-        move = 0
-        no_mov = 0
-        if not os.path.exists("Movement"):
-            os.mkdir("Movement")
-
-        if not os.path.exists("No Movement"):
-            os.mkdir("No Movement")
-
-        if not os.path.exists("Movement/list/"):
-            os.mkdir("Movement/list/")
-
-        if not os.path.exists("No Movement/list/"):
-            os.mkdir("No Movement/list/")
-
-        if not os.path.exists("Movement/list/{}/".format(self._camera.place)):
-            os.mkdir("Movement/list/{}/".format(self._camera.place))
-
-        if not os.path.exists("No Movement/list/{}/".format(self._camera.place)):
-            os.mkdir("No Movement/list/{}/".format(self._camera.place))
-
-        for file in os.listdir("Movement/list/{}/".format(self._camera.place)):
-            try:
-                int(file.replace(".pck", ""))
-                is_int = True
-            except Exception:
-                is_int = False
-
-            if is_int and int(file.replace(".pck", "")) > move:
-                move = int(file.replace(".pck", ""))
-
-        for file in os.listdir("No Movement/list/{}/".format(self._camera.place)):
-            try:
-                int(file.replace(".pck", ""))
-                is_int = True
-            except Exception:
-                is_int = False
-
-            if is_int and int(file.replace(".pck", "")) > no_mov:
-                no_mov = int(file.replace(".pck", ""))
-
-        while i < len(frames):
-            frame = frames[i]
-
-            if self._movement(pf, frame):
-                pf: Frame
-                frame: Frame
-                a = pf.store("Movement/{}/".format(self._camera.place))
-                b = frame.store("Movement/{}/".format(self._camera.place))
-
-                mov = [a, b]
-
-                with open("Movement/list/{}/{}.pck".format(self._camera.place, move), "wb") as handle:
-                    pickle.dump(mov, handle)
-                    handle.close()
-                    del handle
-                    del mov
-
-                move += 1
-            else:
-                a = pf.store("No Movement/{}/".format(self._camera.place))
-                b = frame.store("No Movement/{}/".format(self._camera.place))
-
-                mov = [a, b]
-
-                with open("No Movement/list/{}/{}.pck".format(self._camera.place, no_mov), "wb") as handle:
-                    pickle.dump(mov, handle)
-                    handle.close()
-                    del handle
-                    del mov
-
-                no_mov += 1
-
-            del pf
-            pf = frame
-            i += 1
-
-        del frames

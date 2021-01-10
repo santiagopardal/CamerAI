@@ -7,32 +7,21 @@ import Constants
 import numpy as np
 import requests
 from PIL import Image
-from Handlers.MotionEventHandler import MotionEventHandler, DiskStoreMotionHandler
-from Cameras.Frame import Frame
-from Observations.Observers import Observer, MovementDetectionObserver
+from Handlers.Handler import MotionDetectorFrameHandler, FrameHandler
 from threading import Semaphore
-import datetime
 
 
 class Camera:
-    def __init__(self, ip: str, port: int, place: str,
-                 screenshot_url: str, framerate: int,
-                 motion_handlers=None, observer=None):
+    def __init__(self, ip: str, port: int, place: str, screenshot_url: str, framerate: int, frames_handler=None):
         """
         :param ip: IP of the camera.
         :param port: Port for the camera live stream.
         :param place: Place where the camera is located, this will be the name of the folder where the frames will
         be stored.
-        :param motion_handlers: List with motion handlers to handle movement, if set to [] no action will be taken, if
-        set to None, the default will be DiskStoreMotionHandler.
-        :param: observer: Is the observer that will analyse the frames, if set to None the default will be MovementDetectionObserver.
         :param screenshot_url: URL to obtain screenshot from the CCTV camera.
+        :param framerate: Camera's framerate.
+        :param frames_handler: Handler to handle new frames.
         """
-        if motion_handlers is None:
-            motion_handlers = [DiskStoreMotionHandler(place)]
-
-        if not observer:
-            observer = MovementDetectionObserver(self)
 
         self._IP = ip
         self._port = port
@@ -41,11 +30,14 @@ class Camera:
         self._framerate = framerate
         self._record_thread = None
         self._kill_thread = False
-        self._motion_handlers = motion_handlers
-        self._observer = observer
         self._observe_semaphore = Semaphore(0)
         self._frames_to_observe = []
         self._last_frame = None
+
+        if not frames_handler:
+            self._frames_handler = MotionDetectorFrameHandler(self)
+        else:
+            self._frames_handler = frames_handler
 
     @property
     def place(self) -> str:
@@ -77,21 +69,9 @@ class Camera:
     def port(self, port: int):
         self._port = port
 
-    def set_observer(self, observer: Observer):
-        if observer:
-            self._observer = observer
-
-    def add_motion_handler(self, motion_handler: MotionEventHandler):
-        self._motion_handlers.append(motion_handler)
-
-    def remove_all_handlers(self):
-        del self._motion_handlers
-
-        self._motion_handlers = []
-
-    def remove_motion_handler(self, motion_handler: MotionEventHandler):
-        if motion_handler in self._motion_handlers:
-            self._motion_handlers.remove(motion_handler)
+    def set_frames_handler(self, frames_handler: FrameHandler):
+        self._frames_handler.stop()
+        self._frames_handler = frames_handler
 
     def __eq__(self, other):
         if isinstance(other, Camera):
@@ -131,12 +111,7 @@ class Camera:
         to check whether there has been movement or not in the frames gathered.
         """
         previous_capture = 0
-        frames = []
-
-        thread = threading.Thread(target=self._check_movement, args=())
-        thread.start()
-
-        start = time.time()
+        self._frames_handler.start()
 
         while not self._kill_thread:
             if time.perf_counter() - previous_capture >= 1 / Constants.FRAMERATE:
@@ -151,81 +126,13 @@ class Camera:
 
                     if frame is not None:
                         self._last_frame = frame
-                        frames.append(frame)
-                        if len(frames) >= Constants.DBS:
-                            end = time.time()
-                            true_framerate = Constants.DBS / (end - start)
-                            self._frames_to_observe.append((frames, true_framerate))
-                            self._observe_semaphore.release()
-                            frames = []
+                        self._frames_handler.handle(frame)
 
                 except Exception as e:
                     print("Error downloading image from camera {} on ip {}".format(self._place, self._IP))
                     print(e)
 
-        self._frames_to_observe = []
-        self._observe_semaphore.release()
-
-        thread.join()
-
-    @staticmethod
-    def _calculate_time_taken(tme, frame_rate, i):
-        """
-        Approximates the time a frame was taken using the last time an image was received and the framerate.
-        :param tme: Last time an image was received.
-        :param frame_rate: Frame rate.
-        :return: Time the frame was taken approximately.
-        """
-        return tme + datetime.timedelta(seconds=(1 / frame_rate)*i)
-
-    def _check_movement(self):
-        """
-        Waits for images to be ready and tells the observer to take a look at them.
-        """
-        last_frame = None
-        last_time_stored = None
-
-        while not self._kill_thread:
-            self._observe_semaphore.acquire()
-
-            if self._frames_to_observe:
-                """
-                Create frames and calculate the time they were taken, this is done here because obtaining the time
-                takes a lot of CPU time and it's not worth doing while receiving the frames from the camera. Note that
-                the first frame will be the same as the last of the previous batch, so we add the previous frame so as
-                to not calculate everything again, including everything needed by the observer, so the last frame
-                won't be analysed by the observer until the next batch arrives and will be the first frame of that
-                batch. This does not occur on the first run, in which all the frames will be analysed and the last one
-                will be analysed twice, on the first run and on the second one, but will be stored only once if needed.
-                """
-                frames, frame_rate = self._frames_to_observe.pop(0)
-
-                if not last_time_stored:
-                    last_time_stored = datetime.datetime.now() - datetime.timedelta(
-                        seconds=(Constants.DBS + 1) * (1 / frame_rate))
-
-                frames = [Frame(frame, self._calculate_time_taken(last_time_stored, frame_rate, i+1).time())
-                          for i, frame in enumerate(frames)]
-
-                last_time_stored = self._calculate_time_taken(last_time_stored, frame_rate, len(frames))
-
-                lf = frames[len(frames) - 1]
-
-                if last_frame:
-                    frames = [last_frame] + frames[:len(frames) - 1]
-
-                movement = self._observer.observe(frames=frames)                       # Pass the frames to the observer
-
-                for handler in self._motion_handlers:                                  # Handler, manage movement
-                    handler.handle(movement)
-
-                last_frame = lf                                                        # update last frame.
-
-                del frames
-                del movement
-
-        for handler in self._motion_handlers:
-            handler.free()
+        self._frames_handler.stop()
 
     def __hash__(self):
         return self._place.__hash__()
@@ -233,8 +140,7 @@ class Camera:
 
 class LiveVideoCamera(Camera):
     def __init__(self, ip: str, port: int, place: str, user: str, password: str,
-                 screenshot_url: str, live_video_url: str, width: int, height: int,
-                 motion_handlers: list, observer: Observer):
+                 screenshot_url: str, live_video_url: str, width: int, height: int, frames_handler=None):
         """
         :param ip: IP where the camera is located.
         :param port: Port to connect to camera.
@@ -249,8 +155,7 @@ class LiveVideoCamera(Camera):
         user = urllib.parse.quote(user)
         password = urllib.parse.quote(password)
 
-        super().__init__(ip, port, place, screenshot_url.format(user, password),
-                         Constants.FRAMERATE, motion_handlers, observer)
+        super().__init__(ip, port, place, screenshot_url.format(user, password), Constants.FRAMERATE, frames_handler)
 
         self._live_video_url = live_video_url.format(user, password)
         self._live_video = None
@@ -288,12 +193,7 @@ class LiveVideoCamera(Camera):
         self._record_thread.start()
 
     def _record_thread_worker(self):
-        frames = []
-
-        thread = threading.Thread(target=self._check_movement, args=())
-        thread.start()
-
-        start = time.time()
+        self._frames_handler.start()
 
         while not self._kill_thread:
             try:
@@ -305,16 +205,8 @@ class LiveVideoCamera(Camera):
                         self.__connect()                                    # Reconnect
                         grabbed, frame = self._live_video.read()            # Read again, if could not read again retry!
 
-                    frames.append(frame)                                    # Add to list
                     self._last_frame = frame
-
-                    if len(frames) >= Constants.DBS:                        # If we have enough frames to analyse
-                        end = time.time()
-                        true_framerate = Constants.DBS / (end - start)
-                        self._frames_to_observe.append((frames, true_framerate))  # Add them to the queue and
-                        self._observe_semaphore.release()                         # wake up observer.
-                        frames = []
-                        start = end
+                    self._frames_handler.handle(frame)
                 else:
                     self.__connect()
             except Exception as e:
@@ -322,10 +214,7 @@ class LiveVideoCamera(Camera):
                 print(e)
                 self.__connect()
 
-        self._frames_to_observe = []
-        self._observe_semaphore.release()
-
-        thread.join()
+        self._frames_handler.stop()
 
     def __connect(self):
         """
@@ -358,9 +247,7 @@ class LiveVideoCamera(Camera):
 
 
 class FI9803PV3(LiveVideoCamera):
-    def __init__(self, ip: str, port: int, place: str,
-                 user: str, password: str,
-                 motion_handlers=None, observer=None):
+    def __init__(self, ip: str, port: int, place: str, user: str, password: str, frames_handler=None):
         """
         :param ip: IP where the camera is located.
         :param port: Port to connect to camera.
@@ -371,13 +258,11 @@ class FI9803PV3(LiveVideoCamera):
         super().__init__(ip, port, place, user, password, "http://{}:{}/{}".
                          format(ip, str(port), "cgi-bin/CGIProxy.fcgi?cmd=snapPicture2&usr={}&pwd={}"),
                          "{}@{}:{}/videoMain".format("rtsp://{}:{}", ip, str(port + 2)),
-                         1280, 720, motion_handlers, observer)
+                         1280, 720, frames_handler)
 
 
 class FI89182(LiveVideoCamera):
-    def __init__(self, ip: str, port: int, place: str,
-                 user: str, password: str,
-                 motion_handlers=None, observer=None):
+    def __init__(self, ip: str, port: int, place: str, user: str, password: str, frames_handler=None):
         """
         :param ip: IP where the camera is located.
         :param port: Port to connect to camera.
@@ -390,4 +275,4 @@ class FI89182(LiveVideoCamera):
                          format(ip, str(port), "cgi-bin/CGIProxy.fcgi?cmd=snapPicture2&usr={}&pwd={}"),
                          "http://{}:{}/{}".
                          format(ip, port, "videostream.cgi?user={}&pwd={}"),
-                         640, 480, motion_handlers, observer)
+                         640, 480)
