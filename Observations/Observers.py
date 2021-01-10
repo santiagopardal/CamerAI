@@ -178,7 +178,7 @@ class MovementDetectionObserver(Observer):
                             j = j - 2
 
         print("Looked at {} FPS, {} times with {} bursts on {}"
-              .format(looked / (time.time() - start), looked, bursts, self._frame_handler.place))
+              .format(looked / (time.time() - start), looked, bursts, self._frame_handler.camera.place))
 
         return frames_with_movement
 

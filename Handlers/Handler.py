@@ -144,8 +144,8 @@ class FrameHandler(Handler):
             self._current_buffer_started_receiving = end
 
     @property
-    def place(self):
-        return self._camera.place
+    def camera(self):
+        return self._camera
 
     @staticmethod
     def _calculate_time_taken(tme, frame_rate, i):
