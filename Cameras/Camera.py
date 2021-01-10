@@ -8,7 +8,6 @@ import numpy as np
 import requests
 from PIL import Image
 from Handlers.Handler import MotionDetectorFrameHandler, FrameHandler
-from threading import Semaphore
 
 
 class Camera:
@@ -30,14 +29,8 @@ class Camera:
         self._framerate = framerate
         self._record_thread = None
         self._kill_thread = False
-        self._observe_semaphore = Semaphore(0)
-        self._frames_to_observe = []
         self._last_frame = None
-
-        if not frames_handler:
-            self._frames_handler = MotionDetectorFrameHandler(self)
-        else:
-            self._frames_handler = frames_handler
+        self._frames_handler = MotionDetectorFrameHandler(self) if frames_handler is None else frames_handler
 
     @property
     def place(self) -> str:
@@ -72,6 +65,7 @@ class Camera:
     def set_frames_handler(self, frames_handler: FrameHandler):
         self._frames_handler.stop()
         self._frames_handler = frames_handler
+        self._frames_handler.start()
 
     def __eq__(self, other):
         if isinstance(other, Camera):
@@ -90,14 +84,25 @@ class Camera:
 
         return image
 
-    def record(self):
+    def receive_video(self):
         """
         Starts the recording thread.
         """
-        self._record_thread = threading.Thread(target=self._record_thread_worker)
+        self._record_thread = threading.Thread(target=self._receive_frames)
         self._record_thread.start()
 
+    def start_recording(self):
+        self._frames_handler.stop()
+        self._frames_handler = MotionDetectorFrameHandler(self)
+        self._frames_handler.start()
+        print("Starting recording")
+
     def stop_recording(self):
+        self._frames_handler.stop()
+        self._frames_handler = FrameHandler(self)
+        self._frames_handler.start()
+
+    def stop_receiving_video(self):
         """
         Stops recording.
         """
@@ -105,7 +110,7 @@ class Camera:
         self._record_thread.join()
         self._record_thread = None
 
-    def _record_thread_worker(self):
+    def _receive_frames(self):
         """
         Obtains live images from the camera and stores them on self._frames_to_observe so as
         to check whether there has been movement or not in the frames gathered.
@@ -163,7 +168,7 @@ class LiveVideoCamera(Camera):
         self._frame_height = height
         self.__connect()
 
-    def record(self):
+    def receive_video(self):
         try:
             if self._live_video is not None:
                 if self._live_video.isOpened():
@@ -189,10 +194,10 @@ class LiveVideoCamera(Camera):
             self._record_thread.join()
             self._kill_thread = False
 
-        self._record_thread = threading.Thread(target=self._record_thread_worker)
+        self._record_thread = threading.Thread(target=self._receive_frames)
         self._record_thread.start()
 
-    def _record_thread_worker(self):
+    def _receive_frames(self):
         self._frames_handler.start()
 
         while not self._kill_thread:

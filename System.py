@@ -42,6 +42,14 @@ class System:
             pickle.dump(self.cameras, pck)
             pck.close()
 
+    def start_recording(self):
+        for camera in self.cameras:
+            camera.start_recording()
+
+    def stop_recording(self):
+        for camera in self.cameras:
+            camera.stop_recording()
+
     def init_gui(self):
         self._gui = CamerAI(system=self, cameras=self.cameras)
         self._gui.run()
@@ -59,12 +67,12 @@ class System:
 
     def run(self):
         for camera in self.cameras:
-            camera.record()
+            camera.receive_video()
 
         self._done_semaphore.acquire()
 
         for camera in self.cameras:
-            camera.stop_recording()
+            camera.stop_receiving_video()
 
     def run_n_seconds(self, n):
         thread = threading.Thread(target=self.run, args=())
