@@ -280,4 +280,4 @@ class FI89182(LiveVideoCamera):
                          format(ip, str(port), "cgi-bin/CGIProxy.fcgi?cmd=snapPicture2&usr={}&pwd={}"),
                          "http://{}:{}/{}".
                          format(ip, port, "videostream.cgi?user={}&pwd={}"),
-                         640, 480)
+                         640, 480, frames_handler)
