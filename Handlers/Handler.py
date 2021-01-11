@@ -105,22 +105,28 @@ class FrameHandler(Handler):
         self._camera = camera
         self._thread = None
         self._kill_thread = False
-        self._observe_semaphore = None
+        self._observe_semaphore = Semaphore(0)
         self._frames_to_observe = []
         self._current_buffer = []
         self._current_buffer_started_receiving = None
+        self._started = False
 
     def start(self):
-        self._observe_semaphore = Semaphore(0)
-        self._current_buffer_started_receiving = time.time()
-        self._thread = Thread(target=self._check_movement, args=())
-        self._thread.start()
+        if not self._started:
+            self._current_buffer_started_receiving = time.time()
+            self._thread = Thread(target=self._check_movement, args=())
+            self._thread.start()
+            self._started = True
 
     def stop(self):
-        self._kill_thread = True
-        self._frames_to_observe = []
-        if self._observe_semaphore is not None:
-            self._observe_semaphore.release()
+        if self._started:
+            self._kill_thread = True
+
+            if self._observe_semaphore is not None:
+                self._observe_semaphore.release()
+                self._frames_to_observe = []
+
+            self._started = False
 
         if self._thread is not None:
             self._thread.join()
@@ -137,7 +143,10 @@ class FrameHandler(Handler):
 
         if len(self._current_buffer) >= Constants.DBS:
             end = time.time()
-            true_framerate = len(self._current_buffer) / (end - self._current_buffer_started_receiving)
+
+            true_framerate = len(self._current_buffer) / (end - self._current_buffer_started_receiving) \
+                if self._current_buffer_started_receiving else Constants.FRAMERATE
+
             self._frames_to_observe.append((self._current_buffer, true_framerate))
             self._observe_semaphore.release()
             self._current_buffer = []

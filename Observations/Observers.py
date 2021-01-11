@@ -37,16 +37,86 @@ class MovementDetectionObserver(Observer):
         it is time to switch observers and does so if needed.
         :param frames: Frames to analyse.
         """
-        hour = datetime.datetime.now().hour
-        if Constants.NIGHT_OBSERVER_SHIFT_HOUR <= hour < Constants.OBSERVER_SHIFT_HOUR:    # If it is my time to observe
-            res = self._observe(frames)                                                    # do so.
-        else:                                                                              # If it's not, then
-            print("MovementDetectionObserver shift, now it's night observer time!")
-            observer = NightObserver(self._frame_handler, self._neural_network)
-            self._frame_handler.set_observer(observer)                                     # switch observer and
-            res = observer.observe(frames)                                                 # observe.
 
-        return res
+        start = time.time()
+        to_observe = [(frame, frames[i + 1]) for i, frame in enumerate(frames) if i % Constants.JUMP == 0]
+
+        results = self._batch_movement_check(to_observe)
+
+        recording = False
+        bursts = 0
+        looked = len(results)
+
+        frames_with_movement = []
+
+        for i, result in enumerate(results):
+            if result:
+                if not recording:
+                    bursts += 1
+                    recording = True
+
+                    if i != 0:
+                        last_element = (i - 1) * Constants.JUMP + 1
+                        j = i * Constants.JUMP - 1
+
+                        found_no_movement = False
+
+                        while j > last_element and not found_no_movement:
+                            frm = frames[j]
+                            pframe = frames[j - 1]
+                            looked += 1
+
+                            if self._movement(pframe, frm):
+                                frames_with_movement.append(frm)
+                                frames_with_movement.append(pframe)
+                            else:
+                                frames_with_movement.append(frames[j])
+                                found_no_movement = True
+
+                            j = j - 2
+
+                        if not found_no_movement and j == last_element - 1:
+                            frames_with_movement.append(frames[last_element - 1])
+                else:
+                    j = i * Constants.JUMP - 1
+                    last_element = (i - 1) * Constants.JUMP + 2
+
+                    while j > last_element:
+                        frames_with_movement.append(frames[j])
+                        j = j - 1
+
+                frames_with_movement.append(frames[i * Constants.JUMP + 1])
+                frames_with_movement.append(frames[i * Constants.JUMP])
+
+                if i * Constants.JUMP + 2 < len(frames):
+                    frames_with_movement.append(frames[i * Constants.JUMP + 2])
+            else:
+                if recording:
+                    recording = False
+                    store_all = False
+                    j = i * Constants.JUMP - 1
+                    last_element = (i - 1) * Constants.JUMP + 1
+
+                    while j - 1 > last_element and not store_all:
+                        frm = frames[j]
+                        pframe = frames[j - 1]
+                        looked += 1
+                        if self._movement(pframe, frm):
+                            store_all = True
+                        else:
+                            j = j - 2
+
+                    if store_all:
+                        frames_with_movement.append(frames[j + 1])
+                        while j > last_element:
+                            frames_with_movement.append(frames[j])
+                            frames_with_movement.append(frames[j - 1])
+                            j = j - 2
+
+        print("Looked at {} FPS, {} times with {} bursts on {}"
+              .format(looked / (time.time() - start), looked, bursts, self._frame_handler.camera.place))
+
+        return frames_with_movement
 
     def _movement(self, previous_frame: Frame, frame: Frame) -> bool:
         """
@@ -96,94 +166,8 @@ class MovementDetectionObserver(Observer):
 
         return [movement[0] >= Constants.MOVEMENT_SENSITIVITY for movement in movements]
 
-    def _observe(self, frames: list) -> list:
-        """
-        Receives a list of frames and stores those in which there has been movement.
-        :param frames: Frames to check movement for.
-        """
 
-        start = time.time()
-        to_observe = [(frame, frames[i+1]) for i, frame in enumerate(frames) if i % Constants.JUMP == 0]
-
-        results = self._batch_movement_check(to_observe)
-
-        recording = False
-        bursts = 0
-        looked = len(results)
-
-        frames_with_movement = []
-
-        for i, result in enumerate(results):
-            if result:
-                if not recording:
-                    bursts += 1
-                    recording = True
-
-                    if i != 0:
-                        last_element = (i - 1)*Constants.JUMP + 1
-                        j = i*Constants.JUMP - 1
-
-                        found_no_movement = False
-
-                        while j > last_element and not found_no_movement:
-                            frm = frames[j]
-                            pframe = frames[j - 1]
-                            looked += 1
-
-                            if self._movement(pframe, frm):
-                                frames_with_movement.append(frm)
-                                frames_with_movement.append(pframe)
-                            else:
-                                frames_with_movement.append(frames[j])
-                                found_no_movement = True
-
-                            j = j - 2
-
-                        if not found_no_movement and j == last_element - 1:
-                            frames_with_movement.append(frames[last_element - 1])
-                else:
-                    j = i*Constants.JUMP - 1
-                    last_element = (i - 1)*Constants.JUMP + 2
-
-                    while j > last_element:
-                        frames_with_movement.append(frames[j])
-                        j = j - 1
-
-                frames_with_movement.append(frames[i*Constants.JUMP + 1])
-                frames_with_movement.append(frames[i*Constants.JUMP])
-
-                if i*Constants.JUMP + 2 < len(frames):
-                    frames_with_movement.append(frames[i*Constants.JUMP + 2])
-            else:
-                if recording:
-                    recording = False
-                    store_all = False
-                    j = i*Constants.JUMP - 1
-                    last_element = (i - 1) * Constants.JUMP + 1
-
-                    while j - 1 > last_element and not store_all:
-                        frm = frames[j]
-                        pframe = frames[j - 1]
-                        looked += 1
-                        if self._movement(pframe, frm):
-                            store_all = True
-                        else:
-                            j = j - 2
-
-                    if store_all:
-                        frames_with_movement.append(frames[j + 1])
-                        while j > last_element:
-                            frames_with_movement.append(frames[j])
-                            frames_with_movement.append(frames[j - 1])
-                            j = j - 2
-
-        print("Looked at {} FPS, {} times with {} bursts on {}"
-              .format(looked / (time.time() - start), looked, bursts, self._frame_handler.camera.place))
-
-        return frames_with_movement
-
-
-class NightObserver(MovementDetectionObserver):
+class DenoiserObserver(MovementDetectionObserver):
     """
     MovementDetectionObserver for when the night comes, it does the same as MovementDetectionObserver but denoises the frames
     before analysing.
@@ -191,19 +175,6 @@ class NightObserver(MovementDetectionObserver):
     """
     def __init__(self, frame_handler, nn=None):
         super().__init__(frame_handler, nn)
-
-    def observe(self, frames: list) -> list:
-        hour = datetime.datetime.now().hour
-
-        if Constants.OBSERVER_SHIFT_HOUR <= hour or hour < Constants.NIGHT_OBSERVER_SHIFT_HOUR: # If it is my time to observe
-            res = self._observe(frames)                                                         # do so.
-        else:                                                                                   # If it's not, then,
-            print("MovementDetectionObserver shift")
-            observer = MovementDetectionObserver(self._frame_handler)
-            self._frame_handler.set_observer(observer)                                          # switch observer and
-            res = observer.observe(frames)                                                      # observe.
-
-        return res
 
     def _frame_manipulation(self, frame: Frame) -> Frame:
         return frame.get_denoised_frame()

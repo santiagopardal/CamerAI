@@ -8,6 +8,7 @@ import datetime
 from GUI.KivyGUI import CamerAI
 from threading import Thread, Semaphore
 import plotly.express as px
+import numpy as np
 
 
 class System:
@@ -94,16 +95,10 @@ class System:
         for place in os.listdir(Constants.STORING_PATH):
             place_path = os.path.join(Constants.STORING_PATH, place)
 
-            if ".DS" not in place and os.path.isdir(place_path):
-                dates_in_place = []
-
-                if os.path.exists(os.path.join(place_path, "dates.pck")):
-                    with open(os.path.join(place_path, "dates.pck"), "rb") as handle:
-                        dates_in_place = pickle.load(handle)
-
+            if os.path.isdir(place_path):
                 for day in os.listdir(place_path):
                     day_path = os.path.join(place_path, day)
-                    if ".DS" not in day and os.path.isdir(day_path):
+                    if os.path.isdir(day_path):
 
                         year = int(day[:4])
                         month = int(day[:7][5:])
@@ -112,7 +107,7 @@ class System:
                         dates = []
 
                         for file in os.listdir(day_path):
-                            if ".DS" not in day:
+                            if file.endswith(".jpeg"):
                                 file = file[:len(file)-5]
                                 hour = int(file[:2])
                                 minute = int(file[:5][3:])
@@ -121,37 +116,55 @@ class System:
                                                          hour=hour, minute=minute, second=seconds)
                                 dates.append(date)
 
-                        dates_in_place.append(dates)
-
-                with open(os.path.join(place_path, "dates.pck"), "wb") as handle:
-                    pickle.dump(dates_in_place, handle)
-
-            print(dates_in_place)
+                        with open(os.path.join(day_path, "statistics.pck"), "wb") as handle:
+                            pickle.dump(dates, handle)
 
     @staticmethod
-    def display_statistics():
+    def _display_statistics(divisor):
         for place in os.listdir(Constants.STORING_PATH):
             place_path = os.path.join(Constants.STORING_PATH, place)
 
-            dates = []
-            print(os.path.join(place_path, "dates.pck"))
-            if os.path.exists(os.path.join(place_path, "dates.pck")):
-                with open(os.path.join(place_path, "dates.pck"), "rb") as handle:
-                    dates = pickle.load(handle)
-
             data = {}
 
-            for lista in dates:
-                for date in lista:
+            for day in os.listdir(os.path.join(place_path)):
+                day_path = os.path.join(place_path, day)
+                dates = []
+
+                if os.path.exists(os.path.join(day_path, "statistics.pck")):
+                    with open(os.path.join(day_path, "statistics.pck"), "rb") as handle:
+                        dates = pickle.load(handle)
+
+                starting_hour = 25
+                ending_hour = -1
+
+                for date in dates:
                     date: datetime.datetime
                     start_of_day = datetime.datetime(date.year, date.month, date.day)
 
-                    seconds = (date - start_of_day).total_seconds()
+                    if date.hour < starting_hour:
+                        starting_hour = date.hour
 
-                    if seconds in data:
-                        data[seconds] += 1
+                    if date.hour > ending_hour:
+                        ending_hour = date.hour
+
+                    unit = (date - start_of_day).total_seconds() / divisor
+                    unit = round(unit*10)/10
+                    if unit in data:
+                        data[unit] = data[unit] + 1
                     else:
-                        data[seconds] = 1
+                        data[unit] = 1
 
-            fig = px.scatter(x=[int(val) for val in data.keys()], y=list(data.values()))
+                ending_hour = ending_hour if ending_hour == 24 else ending_hour + 1
+
+                for i in np.arange(starting_hour, ending_hour, 0.1):
+                    i = round(i, 3)
+                    if i not in data:
+                        data[i] = 0
+
+            vals = [val / len(os.listdir(os.path.join(place_path))) for val in data.values()]
+            fig = px.scatter(x=data.keys(), y=vals, title=place + " average")
             fig.show()
+
+    @staticmethod
+    def show_statistics_in_hours():
+        System._display_statistics(60**2)

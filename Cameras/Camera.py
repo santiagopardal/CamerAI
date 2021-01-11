@@ -95,7 +95,6 @@ class Camera:
         self._frames_handler.stop()
         self._frames_handler = MotionDetectorFrameHandler(self)
         self._frames_handler.start()
-        print("Starting recording")
 
     def stop_recording(self):
         self._frames_handler.stop()
