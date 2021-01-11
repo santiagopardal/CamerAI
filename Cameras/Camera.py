@@ -201,18 +201,15 @@ class LiveVideoCamera(Camera):
 
         while not self._kill_thread:
             try:
-                if self._live_video.isOpened():
-                    grabbed, frame = self._live_video.read()                # Read frame
+                grabbed, frame = self._live_video.read()                # Read frame
 
-                    while not grabbed:                                      # If could not read frame
-                        print("Reconnecting!")
-                        self.__connect()                                    # Reconnect
-                        grabbed, frame = self._live_video.read()            # Read again, if could not read again retry!
+                while not grabbed:                                      # If could not read frame
+                    print("Reconnecting!")
+                    self.__connect()                                    # Reconnect
+                    grabbed, frame = self._live_video.read()            # Read again, if could not read again retry!
 
-                    self._last_frame = frame
-                    self._frames_handler.handle(frame)
-                else:
-                    self.__connect()
+                self._last_frame = frame
+                self._frames_handler.handle(frame)
             except Exception as e:
                 print("Error downloading image from camera {} on ip {}".format(self._place, self._IP))
                 print(e)
