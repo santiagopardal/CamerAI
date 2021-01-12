@@ -15,7 +15,6 @@ class CamerAI(App):
 
         self._main_screen = MainScreen(self._images)
         self._sm.add_widget(self._main_screen)
-        self._main_screen.schedule_update()
         self._current_screen = self._main_screen
 
         self._single_camera_screen = CameraScreen(self._images[0])

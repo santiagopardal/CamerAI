@@ -3,6 +3,7 @@ from kivy.graphics.texture import Texture
 import cv2
 from kivy.uix.button import ButtonBehavior
 from Cameras.Camera import Camera
+from kivy.clock import Clock
 
 
 class KivyCV(ButtonBehavior, Image):
@@ -12,7 +13,9 @@ class KivyCV(ButtonBehavior, Image):
         self.nocache = True
 
         self._camera = camera
+        self._camera.subscribe(self)
         self._my_state = OnMainScreenState(gui, self)
+        self._trigger = Clock.create_trigger(self.update)
 
     @property
     def camera(self) -> Camera:
@@ -26,7 +29,10 @@ class KivyCV(ButtonBehavior, Image):
     def displaying_state(self, state):
         self._my_state = state
 
-    def update(self):
+    def notify(self):
+        self._trigger()
+
+    def update(self, dt):
         frame = self._camera.last_frame
 
         if frame is not None:
@@ -36,6 +42,8 @@ class KivyCV(ButtonBehavior, Image):
             image_texture.blit_buffer(buf, colorfmt='bgr', bufferfmt='ubyte')
 
             self.texture = image_texture
+
+        self._trigger = Clock.create_trigger(self.update)
 
     def on_press(self):
         super().on_press()

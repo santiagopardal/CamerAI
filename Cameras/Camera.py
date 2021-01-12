@@ -30,6 +30,7 @@ class Camera:
         self._record_thread = None
         self._kill_thread = False
         self._last_frame = None
+        self._subscriptors = []
         self._frames_handler = MotionDetectorFrameHandler(self) if frames_handler is None else frames_handler
 
     @property
@@ -61,6 +62,13 @@ class Camera:
     @port.setter
     def port(self, port: int):
         self._port = port
+
+    def subscribe(self, sub):
+        self._subscriptors.append(sub)
+
+    def _notify_subscribed(self):
+        for sub in self._subscriptors:
+            sub.notify()
 
     def set_frames_handler(self, frames_handler: FrameHandler):
         self._frames_handler.stop()
@@ -130,6 +138,7 @@ class Camera:
 
                     if frame is not None:
                         self._last_frame = frame
+                        self._notify_subscribed()
                         self._frames_handler.handle(frame)
 
                 except Exception as e:
@@ -204,6 +213,7 @@ class LiveVideoCamera(Camera):
                     grabbed, frame = self._live_video.read()            # Read again, if could not read again retry!
 
                 self._last_frame = frame
+                self._notify_subscribed()
                 self._frames_handler.handle(frame)
             except Exception as e:
                 print("Error downloading image from camera {} on ip {}".format(self._place, self._IP))
