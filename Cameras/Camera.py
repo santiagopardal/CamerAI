@@ -169,15 +169,10 @@ class LiveVideoCamera(Camera):
 
     def receive_video(self):
         try:
-            if self._live_video is not None:
-                if self._live_video.isOpened():
-                    self.__initialize_record_thread()
-                else:
-                    self.__connect()
-                    self.__initialize_record_thread()
-            else:
+            while self._live_video is None or not self._live_video.isOpened():
                 self.__connect()
-                self.__initialize_record_thread()
+
+            self.__initialize_record_thread()
         except Exception as e:
             while not self._live_video.isOpened():
                 print("Error downloading image from camera {} on ip {}".format(self._place, self._IP))

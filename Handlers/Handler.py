@@ -89,11 +89,15 @@ class DiskStoreMotionHandler(MotionHandler):
                 for frame in frames:
                     frame.store(self._storing_path)
 
+                del frames
+
         while self._frames:
             frames = self._frames.pop(0)
 
             for frame in frames:
                 frame.store(self._storing_path)
+
+            del frames
 
 
 class FrameHandler(Handler):
@@ -150,6 +154,7 @@ class FrameHandler(Handler):
             self._frames_to_observe.append((self._current_buffer, true_framerate))
             self._observe_semaphore.release()
             self._current_buffer = []
+            del self._current_buffer_started_receiving
             self._current_buffer_started_receiving = end
 
     @property

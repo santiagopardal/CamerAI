@@ -116,6 +116,9 @@ class MovementDetectionObserver(Observer):
         print("Looked at {} FPS, {} times with {} bursts on {}"
               .format(looked / (time.time() - start), looked, bursts, self._frame_handler.camera.place))
 
+        del to_observe
+        del results
+
         return frames_with_movement
 
     def _movement(self, previous_frame: Frame, frame: Frame) -> bool:
@@ -148,8 +151,7 @@ class MovementDetectionObserver(Observer):
         frm = self._frame_manipulation(frm)
         frm = frm.get_resized_and_grayscaled()
 
-        diff = cv2.absdiff(pf, frm)
-        diff = np.array(diff / 255, dtype="float32").reshape(Constants.CNN_INPUT_SHAPE)
+        diff = np.array(cv2.absdiff(pf, frm) / 255, dtype="float32").reshape(Constants.CNN_INPUT_SHAPE)
 
         return diff
 
@@ -163,6 +165,8 @@ class MovementDetectionObserver(Observer):
         images = [self._prepare_for_cnn(pf, frm) for pf, frm in frames]
 
         movements = self._neural_network.predict_on_batch(np.array(images))
+
+        del images
 
         return [movement[0] >= Constants.MOVEMENT_SENSITIVITY for movement in movements]
 
