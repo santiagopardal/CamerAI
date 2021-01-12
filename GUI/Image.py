@@ -29,7 +29,16 @@ class KivyCV(ButtonBehavior, Image):
     def displaying_state(self, state):
         self._my_state = state
 
+    def hide(self):
+        self._my_state.hide()
+
+    def display(self):
+        self._my_state.display()
+
     def notify(self):
+        self._my_state.notify()
+
+    def call_trigger(self):
         self._trigger()
 
     def update(self, dt):
@@ -48,38 +57,63 @@ class KivyCV(ButtonBehavior, Image):
     def on_press(self):
         super().on_press()
 
-        self._my_state.change_screen()
+        self._my_state.touch()
 
     def __hash__(self):
         return self._camera.__hash__()
 
 
 class State:
-    def change_screen(self):
+    def __init__(self, gui, image: KivyCV):
+        self._gui = gui
+        self._image = image
+
+    def touch(self):
+        pass
+
+    def notify(self):
+        pass
+
+    def hide(self):
+        self._image.displaying_state = HiddenState(self._gui, self._image)
+        del self
+
+    def display(self):
         pass
 
 
 class OnMainScreenState(State):
     def __init__(self, gui, image: KivyCV):
-        self._gui = gui
-        self._image = image
+        super().__init__(gui, image)
 
-    def change_screen(self):
+    def touch(self):
         self._gui.open_camera(self._image)
 
-        ns = DisplayingState(self._gui, self._image)
-        self._image.displaying_state = ns
+        self._image.displaying_state = DisplayingState(self._gui, self._image)
         del self
+
+    def notify(self):
+        self._image.call_trigger()
 
 
 class DisplayingState(State):
     def __init__(self, gui, image: KivyCV):
-        self._gui = gui
-        self._image = image
+        super().__init__(gui, image)
 
-    def change_screen(self):
+    def touch(self):
         self._gui.go_to_main()
 
-        ns = OnMainScreenState(self._gui, self._image)
-        self._image.displaying_state = ns
+        self._image.displaying_state = OnMainScreenState(self._gui, self._image)
+        del self
+
+    def notify(self):
+        self._image.call_trigger()
+
+
+class HiddenState(State):
+    def __init__(self, gui, image: KivyCV):
+        super().__init__(gui, image)
+
+    def display(self):
+        self._image.displaying_state = OnMainScreenState(self._gui, self._image)
         del self

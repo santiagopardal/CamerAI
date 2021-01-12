@@ -1,8 +1,6 @@
 from kivy.uix.screenmanager import Screen
 from GUI.Image import KivyCV
 from kivy.uix.gridlayout import GridLayout
-#from kivy.clock import Clock
-from Constants import FRAMERATE
 
 
 class CamerAIScreen(Screen):
@@ -43,11 +41,14 @@ class MainScreen(ScreenWithCameras):
 
     def display(self):
         for image in self._images:
+            image: KivyCV
+            image.display()
             self._layout.add_widget(image)
 
     def hide(self):
         for image in self._images:
             image: KivyCV
+            image.hide()
             self._layout.remove_widget(image)
 
 
