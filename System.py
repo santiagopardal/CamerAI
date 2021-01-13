@@ -2,7 +2,7 @@ import pickle
 import os
 import time
 import threading
-from Cameras.Camera import Camera
+from Cameras.Camera import Camera, CameraDeserializator
 import Constants
 import datetime
 from GUI.KivyGUI import CamerAI
@@ -22,27 +22,52 @@ class System:
         if not os.path.exists(Constants.STORING_PATH):
             os.mkdir(Constants.STORING_PATH)
 
-        if os.path.exists("cameras.pickle"):
-            with open("cameras.pickle", "rb") as pck:
-                self.cameras = pickle.load(pck)
-                pck.close()
+        if os.path.exists("cameras.pck"):
+            with open("cameras.pck", "rb") as cams:
+                serialized = pickle.load(cams)
+
+            deserializator = CameraDeserializator()
+
+            for cam in serialized:
+                print(cam)
+                self.cameras.append(deserializator.deserialize(cam))
 
     def update_gui(self):
         for camera in self.cameras:
             self._gui.update(camera.last_frame)
 
+    def add_cameras(self, cameras: list):
+        added = False
+        for cam in cameras:
+            if cam not in self.cameras:
+                self.cameras.append(cam)
+                added = True
+            else:
+                cam.stop_receiving_video()
+
+        if added:
+            jsons = [cam.to_dict() for cam in self.cameras]
+
+            with open("cameras.pck", "wb") as pck:
+                pickle.dump(jsons, pck)
+                pck.close()
+
     def add_camera(self, camera: Camera):
         if camera not in self.cameras:
             self.cameras.append(camera)
-            # with open("cameras.pickle", "wb") as pck:
-            #     pickle.dump(self.cameras, pck)
-            #     pck.close()
+
+            with open("cameras.pck", "wb") as pck:
+                jsons = [cam.to_dict() for cam in self.cameras]
+                pickle.dump(jsons, pck)
+                pck.close()
 
     def remove_camera(self, camera: Camera):
-        self.cameras.remove(camera)
-        with open("cameras.pickle", "wb") as pck:
-            pickle.dump(self.cameras, pck)
-            pck.close()
+        if camera in self.cameras:
+            self.cameras.remove(camera)
+
+            with open("cameras.pck", "wb") as pck:
+                pickle.dump([cam.to_dict() for cam in self.cameras], pck)
+                pck.close()
 
     def start_recording(self):
         for camera in self.cameras:
@@ -83,12 +108,6 @@ class System:
         time.sleep(n)
         self._done_semaphore.release()
         thread.join()
-
-    def __upload_time(self):
-        pass
-
-    def __upload(self, path: str):
-        pass
 
     @staticmethod
     def create_statistics():

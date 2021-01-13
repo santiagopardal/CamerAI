@@ -28,6 +28,19 @@ class CamerAI(App):
 
         super().on_stop()
 
+    def on_pause(self):
+        for image in self._images:
+            image.hide()
+
+        super().on_pause()
+
+        return True
+
+    def on_resume(self):
+        self.go_to_main()
+
+        super().on_resume()
+
     def open_camera(self, camera: KivyCV):
         self._current_screen.hide()
 

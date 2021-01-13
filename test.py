@@ -16,6 +16,6 @@ cameras = [
 for camera in cameras:
     fh = FrameHandler(camera)
     camera.set_frames_handler(fh)
-    sys.add_camera(camera)
 
+sys.add_cameras(cameras)
 sys.run_with_gui()

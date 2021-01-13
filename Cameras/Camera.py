@@ -27,7 +27,7 @@ class Camera:
         :param frames_handler: Handler to handle new frames.
         """
 
-        self._IP = ip
+        self._ip = ip
         self._port = port
         self._place = place
         self._screenshot_url = screenshot_url
@@ -38,13 +38,16 @@ class Camera:
         self._subscriptors = []
         self._frames_handler = MotionDetectorFrameHandler(self) if frames_handler is None else frames_handler
 
+    def _to_pop_from_dict(self):
+        return ["_record_thread", "_kill_thread", "_last_frame", "_subscriptors", "_frames_handler"]
+
     @property
     def place(self) -> str:
         return self._place
 
     @property
     def ip(self) -> str:
-        return self._IP
+        return self._ip
 
     @property
     def port(self) -> int:
@@ -60,7 +63,7 @@ class Camera:
 
     @ip.setter
     def ip(self, ip: str):
-        self._IP = ip
+        self._ip = ip
 
     @port.setter
     def port(self, port: int):
@@ -99,7 +102,7 @@ class Camera:
 
     def __eq__(self, other):
         if isinstance(other, Camera):
-            return other.ip == self._IP and other.port == self._port
+            return other.ip == self._ip and other.port == self._port
 
         return False
 
@@ -141,9 +144,13 @@ class Camera:
         """
         Stops receiving video.
         """
-        self._kill_thread = True
-        self._record_thread.join()
-        self._record_thread = None
+        if self._record_thread is not None:
+            self._kill_thread = True
+            self._record_thread.join()
+            self._record_thread = None
+            self._kill_thread = False
+
+        self._frames_handler.stop()
 
     def _receive_frames(self):
         """
@@ -169,7 +176,7 @@ class Camera:
                         self._frames_handler.handle(frame)
 
                 except Exception as e:
-                    print("Error downloading image from camera {} on ip {}".format(self._place, self._IP))
+                    print("Error downloading image from camera {} on ip {}".format(self._place, self._ip))
                     print(e)
 
         self._frames_handler.stop()
@@ -192,6 +199,9 @@ class LiveVideoCamera(Camera):
         :param width: Width of frame.
         :param height: Height of frame.
         """
+        self._user = user
+        self._password = password
+
         user = urllib.parse.quote(user)
         password = urllib.parse.quote(password)
 
@@ -202,6 +212,11 @@ class LiveVideoCamera(Camera):
         self._frame_width = width
         self._frame_height = height
         self.__connect()
+
+    def _to_pop_from_dict(self):
+        res = super()._to_pop_from_dict()
+        res.append("_live_video")
+        return res
 
     def receive_video(self):
         """
@@ -214,7 +229,7 @@ class LiveVideoCamera(Camera):
             self.__initialize_record_thread()
         except Exception as e:
             while not self._live_video.isOpened():
-                print("Error downloading image from camera {} on ip {}".format(self._place, self._IP))
+                print("Error downloading image from camera {} on ip {}".format(self._place, self._ip))
                 print(e)
                 self.__connect()
 
@@ -249,7 +264,7 @@ class LiveVideoCamera(Camera):
                 self._notify_subscribed()
                 self._frames_handler.handle(frame)
             except Exception as e:
-                print("Error downloading image from camera {} on ip {}".format(self._place, self._IP))
+                print("Error downloading image from camera {} on ip {}".format(self._place, self._ip))
                 print(e)
                 self.__connect()
 
@@ -264,7 +279,7 @@ class LiveVideoCamera(Camera):
         while not connected:
             try:
                 if self._live_video is not None:
-                    print("Reconnecting camera at {} on IP {}".format(self._place, self._IP))
+                    print("Reconnecting camera at {} on IP {}".format(self._place, self._ip))
                     self._live_video.release()
                     del self._live_video
 
@@ -276,7 +291,7 @@ class LiveVideoCamera(Camera):
 
                 connected = True
 
-                print("Connected camera at {} on IP {}".format(self._place, self._IP))
+                print("Connected camera at {} on IP {}".format(self._place, self._ip))
             except:
                 if i < 6:
                     i += 1
@@ -301,6 +316,23 @@ class FI9803PV3(LiveVideoCamera):
                          "{}@{}:{}/videoMain".format("rtsp://{}:{}", ip, str(streaming_port)),
                          1280, 720, frames_handler)
 
+        self._streaming_port = streaming_port
+
+    def to_dict(self) -> dict:
+        res = self.__dict__.copy()
+
+        for key in self._to_pop_from_dict():
+            res.pop(key)
+
+        res["model"] = "FI9803PV3"
+
+        return res
+
+    @staticmethod
+    def from_dict(json: dict):
+        return FI9803PV3(json["_ip"], json["_port"], json["_streaming_port"],
+                         json["_place"], json["_user"], json["_password"])
+
 
 class FI89182(LiveVideoCamera):
     def __init__(self, ip: str, port: int, place: str, user: str, password: str, frames_handler=None):
@@ -318,3 +350,38 @@ class FI89182(LiveVideoCamera):
                          "http://{}:{}/{}".
                          format(ip, port, "videostream.cgi?user={}&pwd={}"),
                          640, 480, frames_handler)
+
+    def to_dict(self) -> dict:
+        res = self.__dict__.copy()
+
+        for key in self._to_pop_from_dict():
+            res.pop(key)
+
+        res["model"] = "FI89182"
+
+        return res
+
+    @staticmethod
+    def from_dict(json: dict):
+        return FI89182(json["_ip"], json["_port"], json["_place"], json["_user"], json["_password"])
+
+
+class CameraDeserializator:
+    instance = None
+
+    def __new__(cls, *args, **kwargs):
+        if cls.instance is None:
+            cls.instance = super().__new__(cls, *args, **kwargs)
+
+        return cls.instance
+
+    def __init__(self):
+        self._classes = {
+            "FI89182": FI89182,
+            "FI9803PV3": FI9803PV3
+        }
+
+    def deserialize(self, cam: dict) -> Camera:
+        model = self._classes[cam["model"]]
+
+        return model.from_dict(cam)
