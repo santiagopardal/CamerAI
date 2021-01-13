@@ -4,9 +4,10 @@ import cv2
 from kivy.uix.button import ButtonBehavior
 from Cameras.Camera import Camera
 from kivy.clock import Clock
+from Cameras.Camera import Subscriber
 
 
-class KivyCV(ButtonBehavior, Image):
+class KivyCV(ButtonBehavior, Image, Subscriber):
     def __init__(self, camera, gui, **kwargs):
         super().__init__(**kwargs)
 

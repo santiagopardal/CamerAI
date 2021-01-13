@@ -10,6 +10,11 @@ from PIL import Image
 from Handlers.Handler import MotionDetectorFrameHandler, FrameHandler
 
 
+class Subscriber:
+    def notify(self):
+        pass
+
+
 class Camera:
     def __init__(self, ip: str, port: int, place: str, screenshot_url: str, framerate: int, frames_handler=None):
         """
@@ -47,9 +52,7 @@ class Camera:
 
     @property
     def last_frame(self) -> np.ndarray:
-        lf = self._last_frame
-        self._last_frame = None
-        return lf
+        return self._last_frame
 
     @property
     def framerate(self) -> int:
@@ -63,14 +66,33 @@ class Camera:
     def port(self, port: int):
         self._port = port
 
-    def subscribe(self, sub):
+    def subscribe(self, sub: Subscriber):
+        """
+        Adds a new subscriber to the list.
+        :param sub: Subscriber to add.
+        """
         self._subscriptors.append(sub)
 
+    def unsubscribe(self, sub: Subscriber):
+        """
+        Unsubscribes a subscriber if already subscribed.
+        :param sub: Subscriber.
+        """
+        if sub in self._subscriptors:
+            self._subscriptors.remove(sub)
+
     def _notify_subscribed(self):
+        """
+        Notifies all subscribed that a new frame is ready to be read.
+        """
         for sub in self._subscriptors:
             sub.notify()
 
     def set_frames_handler(self, frames_handler: FrameHandler):
+        """
+        Changes the frames handler.
+        :param frames_handler: New frames handler.
+        """
         self._frames_handler.stop()
         self._frames_handler = frames_handler
         self._frames_handler.start()
@@ -94,24 +116,30 @@ class Camera:
 
     def receive_video(self):
         """
-        Starts the recording thread.
+        Starts obtaining video.
         """
         self._record_thread = threading.Thread(target=self._receive_frames)
         self._record_thread.start()
 
     def start_recording(self):
+        """
+        Starts recording, this changes the frames handler.
+        """
         self._frames_handler.stop()
         self._frames_handler = MotionDetectorFrameHandler(self)
         self._frames_handler.start()
 
     def stop_recording(self):
+        """
+        Stops recording, this changes the frames handler.
+        """
         self._frames_handler.stop()
         self._frames_handler = FrameHandler(self)
         self._frames_handler.start()
 
     def stop_receiving_video(self):
         """
-        Stops recording.
+        Stops receiving video.
         """
         self._kill_thread = True
         self._record_thread.join()
@@ -119,8 +147,7 @@ class Camera:
 
     def _receive_frames(self):
         """
-        Obtains live images from the camera and stores them on self._frames_to_observe so as
-        to check whether there has been movement or not in the frames gathered.
+        Obtains live images from the camera and tells the frames handler to handle them.
         """
         previous_capture = 0
         self._frames_handler.start()
@@ -177,6 +204,9 @@ class LiveVideoCamera(Camera):
         self.__connect()
 
     def receive_video(self):
+        """
+        Starts obtaining video.
+        """
         try:
             while self._live_video is None or not self._live_video.isOpened():
                 self.__connect()
@@ -201,6 +231,9 @@ class LiveVideoCamera(Camera):
         self._record_thread.start()
 
     def _receive_frames(self):
+        """
+        Obtains live images from the camera and tells the frames handler to handle them.
+        """
         self._frames_handler.start()
 
         while not self._kill_thread:
@@ -260,6 +293,7 @@ class FI9803PV3(LiveVideoCamera):
         :param place: Place where the camera is located.
         :param user: Username to connect.
         :param password: Password.
+        :param frames_handler: Handler to handle new frames, if set to None will use default.
         """
         super().__init__(ip, port, place, user, password, "http://{}:{}/{}".
                          format(ip, str(port), "cgi-bin/CGIProxy.fcgi?cmd=snapPicture2&usr={}&pwd={}"),
@@ -275,6 +309,7 @@ class FI89182(LiveVideoCamera):
         :param place: Place where the camera is located.
         :param user: Username to connect.
         :param password: Password.
+        :param frames_handler: Handler to handle new frames, if set to None will use default.
         """
         super().__init__(ip, port, place, user, password,
                          "http://{}:{}/{}".
