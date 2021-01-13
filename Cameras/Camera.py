@@ -211,7 +211,6 @@ class LiveVideoCamera(Camera):
         self._live_video = None
         self._frame_width = width
         self._frame_height = height
-        self.__connect()
 
     def _to_pop_from_dict(self):
         res = super()._to_pop_from_dict()
