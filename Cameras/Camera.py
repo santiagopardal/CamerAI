@@ -286,10 +286,11 @@ class LiveVideoCamera(Camera):
 
 
 class FI9803PV3(LiveVideoCamera):
-    def __init__(self, ip: str, port: int, place: str, user: str, password: str, frames_handler=None):
+    def __init__(self, ip: str, port: int, streaming_port: int, place: str, user: str, password: str, frames_handler=None):
         """
         :param ip: IP where the camera is located.
         :param port: Port to connect to camera.
+        :param streaming_port: Port to receive live video.
         :param place: Place where the camera is located.
         :param user: Username to connect.
         :param password: Password.
@@ -297,7 +298,7 @@ class FI9803PV3(LiveVideoCamera):
         """
         super().__init__(ip, port, place, user, password, "http://{}:{}/{}".
                          format(ip, str(port), "cgi-bin/CGIProxy.fcgi?cmd=snapPicture2&usr={}&pwd={}"),
-                         "{}@{}:{}/videoMain".format("rtsp://{}:{}", ip, str(port + 2)),
+                         "{}@{}:{}/videoMain".format("rtsp://{}:{}", ip, str(streaming_port)),
                          1280, 720, frames_handler)
 
 
