@@ -38,6 +38,9 @@ class Camera:
         self._subscriptors = []
         self._frames_handler = MotionDetectorFrameHandler(self) if frames_handler is None else frames_handler
 
+    def to_dict(self) -> dict:
+        pass
+
     def _to_pop_from_dict(self):
         return ["_record_thread", "_kill_thread", "_last_frame", "_subscriptors", "_frames_handler"]
 

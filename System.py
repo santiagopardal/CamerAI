@@ -9,6 +9,7 @@ from GUI.KivyGUI import CamerAI
 from threading import Thread, Semaphore
 import plotly.express as px
 import numpy as np
+import json
 
 
 class System:
@@ -22,19 +23,20 @@ class System:
         if not os.path.exists(Constants.STORING_PATH):
             os.mkdir(Constants.STORING_PATH)
 
-        if os.path.exists("cameras.pck"):
-            with open("cameras.pck", "rb") as cams:
-                serialized = pickle.load(cams)
+        if os.path.exists("cameras.json"):
+            self._load_cams_from_json_file()
 
+    def _save_cams_as_json(self):
+        cams = {"cameras": [cam.to_dict() for cam in self.cameras]}
+
+        with open("cameras.json", "w") as json_file:
+            json.dump(cams, sort_keys=True, indent=4, fp=json_file)
+
+    def _load_cams_from_json_file(self):
+        with open("cameras.json") as json_file:
+            data = json.load(json_file)
             deserializator = CameraDeserializator()
-
-            for cam in serialized:
-                print(cam)
-                self.cameras.append(deserializator.deserialize(cam))
-
-    def update_gui(self):
-        for camera in self.cameras:
-            self._gui.update(camera.last_frame)
+            self.cameras = [deserializator.deserialize(cam=cam) for cam in data["cameras"]]
 
     def add_cameras(self, cameras: list):
         added = False
@@ -46,28 +48,19 @@ class System:
                 cam.stop_receiving_video()
 
         if added:
-            jsons = [cam.to_dict() for cam in self.cameras]
-
-            with open("cameras.pck", "wb") as pck:
-                pickle.dump(jsons, pck)
-                pck.close()
+            self._save_cams_as_json()
 
     def add_camera(self, camera: Camera):
         if camera not in self.cameras:
             self.cameras.append(camera)
 
-            with open("cameras.pck", "wb") as pck:
-                jsons = [cam.to_dict() for cam in self.cameras]
-                pickle.dump(jsons, pck)
-                pck.close()
+            self._save_cams_as_json()
 
     def remove_camera(self, camera: Camera):
         if camera in self.cameras:
             self.cameras.remove(camera)
 
-            with open("cameras.pck", "wb") as pck:
-                pickle.dump([cam.to_dict() for cam in self.cameras], pck)
-                pck.close()
+            self._save_cams_as_json()
 
     def start_recording(self):
         for camera in self.cameras:
