@@ -6,7 +6,9 @@ import numpy as np
 import Constants
 
 
-class Frame:
+class Frame(object):
+    __slots__ = "_time", "_frame", "_resized_and_grayscale", "_denoised", "_stored_in"
+
     def __init__(self, frame, time=None):
         if time:
             self._time = time
