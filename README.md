@@ -6,7 +6,7 @@ CameraAI is a program wich can retrieve images from CCTV cameras, display them, 
 ## How does it detect movement?
 There is a convolutional neural network which is fed with the difference between two frames and returns a probability, that probability will be the number that determines whether
 there's been movement or not. The sensitivity can be modified in the Constants.py file. The tests suggest that network's accuracy is about 97.64%, but it may be a bit higher around 98% or even 99%
-this may be due to a few mislabeled images in the dataset, fortunately, in practice the network seems to have better performance than 97%. More testing must be done in order to ensure this.
+this may be due to a few mislabeled images in the dataset, fortunately, in practice the network performs way better than 97%. More testing must be done in order to ensure this.
 
 # What's the architecture of the CNN?
 ![alt text](https://github.com/santiagopardal/CamerAI/blob/master/Documentation/CNN%20architecture.png)
@@ -84,4 +84,6 @@ Some visual explanations of what's happening when using b=5:
 
 
 ## I have a GPU can I use it?
-Yes, of course! Just install the requirements (requirements.txt) and you are ready to go, maybe you will benefit from decreasing the detection batch size.
+Yes, of course! Just install the requirements (requirements.txt) and you are ready to go, maybe you will benefit from decreasing the detection batch size,
+also remember that tensorflow for GPU requires CUDA toolkit and cuDNN, [here](https://www.tensorflow.org/install/gpu) is the official tutorial to install
+tensorflow GPU.
