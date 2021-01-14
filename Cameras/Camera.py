@@ -189,7 +189,8 @@ class Camera:
 
 class LiveVideoCamera(Camera):
     def __init__(self, ip: str, port: int, place: str, user: str, password: str,
-                 screenshot_url: str, live_video_url: str, width: int, height: int, frames_handler=None):
+                 screenshot_url: str, live_video_url: str, width: int, height: int,
+                 framerate: int, frames_handler=None):
         """
         :param ip: IP where the camera is located.
         :param port: Port to connect to camera.
@@ -207,7 +208,7 @@ class LiveVideoCamera(Camera):
         user = urllib.parse.quote(user)
         password = urllib.parse.quote(password)
 
-        super().__init__(ip, port, place, screenshot_url.format(user, password), Constants.FRAMERATE, frames_handler)
+        super().__init__(ip, port, place, screenshot_url.format(user, password), framerate, frames_handler)
 
         self._live_video_url = live_video_url.format(user, password)
         self._live_video = None
@@ -285,7 +286,7 @@ class LiveVideoCamera(Camera):
                     del self._live_video
 
                 self._live_video = cv2.VideoCapture(self._live_video_url, cv2.CAP_FFMPEG)
-                self._live_video.set(cv2.CAP_PROP_FPS, Constants.FRAMERATE)
+                self._live_video.set(cv2.CAP_PROP_FPS, self._framerate)
                 self._live_video.set(cv2.CAP_PROP_FRAME_WIDTH, self._frame_width)
                 self._live_video.set(cv2.CAP_PROP_FRAME_HEIGHT, self._frame_height)
                 self._live_video.set(cv2.CAP_PROP_BUFFERSIZE, 3)
@@ -315,7 +316,7 @@ class FI9803PV3(LiveVideoCamera):
         super().__init__(ip, port, place, user, password, "http://{}:{}/{}".
                          format(ip, str(port), "cgi-bin/CGIProxy.fcgi?cmd=snapPicture2&usr={}&pwd={}"),
                          "{}@{}:{}/videoMain".format("rtsp://{}:{}", ip, str(streaming_port)),
-                         1280, 720, frames_handler)
+                         1280, 720, 23, frames_handler)
 
         self._streaming_port = streaming_port
 
@@ -350,7 +351,7 @@ class FI89182(LiveVideoCamera):
                          format(ip, str(port), "cgi-bin/CGIProxy.fcgi?cmd=snapPicture2&usr={}&pwd={}"),
                          "http://{}:{}/{}".
                          format(ip, port, "videostream.cgi?user={}&pwd={}"),
-                         640, 480, frames_handler)
+                         640, 480, 15, frames_handler)
 
     def to_dict(self) -> dict:
         res = self.__dict__.copy()
