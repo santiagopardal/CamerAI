@@ -26,7 +26,32 @@ class MotionHandler(Handler):
         pass
 
 
-class DiskStoreMotionHandler(MotionHandler):
+class SynchronousDiskStoreMotionHandler(MotionHandler):
+    """
+    Handles motion storing the frames on disk.
+    """
+
+    def __init__(self, storing_path):
+        """
+        Initializes the handler.
+        :param storing_path: Folder name to which store the frames.
+        """
+        self._frames = []
+
+        self._storing_path = storing_path
+
+        super().__init__()
+
+    def handle(self, event: list):
+        """
+        Receives the frames and once the handler is ready stores them.
+        :param event: List of frames in which there has been movement.
+        """
+        for frame in event:
+            frame.store(self._storing_path)
+
+
+class AsynchronousDiskStoreMotionHandler(MotionHandler):
     """
     Handles motion storing the frames on disk.
     """
@@ -221,4 +246,4 @@ class FrameHandler(Handler):
 
 class MotionDetectorFrameHandler(FrameHandler):
     def __init__(self, camera):
-        super().__init__(camera, MovementDetectionObserver(self), [DiskStoreMotionHandler(camera.place)])
+        super().__init__(camera, MovementDetectionObserver(self), [SynchronousDiskStoreMotionHandler(camera.place)])
