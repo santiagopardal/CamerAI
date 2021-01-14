@@ -1,9 +1,8 @@
 import cv2
-from Detectors.CNNs import ModelGenerator
+from Detectors.CNNs import create_main_model
 from Cameras.Frame import Frame
 import Constants
 import numpy as np
-import datetime
 import time
 
 
@@ -24,8 +23,7 @@ class MovementDetectionObserver(Observer):
         super().__init__()
 
         if nn is None:
-            generator = ModelGenerator()
-            self._neural_network = generator.create_main_model()
+            self._neural_network = create_main_model()
         else:
             self._neural_network = nn
 

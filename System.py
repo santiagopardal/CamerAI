@@ -2,7 +2,8 @@ import pickle
 import os
 import time
 import threading
-from Cameras.Camera import Camera, CameraDeserializator
+from Cameras.Camera import Camera
+from Cameras.deserializator import deserialize
 import Constants
 import datetime
 from GUI.KivyGUI import CamerAI
@@ -35,8 +36,7 @@ class System:
     def _load_cams_from_json_file(self):
         with open("cameras.json") as json_file:
             data = json.load(json_file)
-            deserializator = CameraDeserializator()
-            self.cameras = [deserializator.deserialize(cam=cam) for cam in data["cameras"]]
+            self.cameras = [deserialize(cam=cam) for cam in data["cameras"]]
 
     def add_cameras(self, cameras: list):
         added = False

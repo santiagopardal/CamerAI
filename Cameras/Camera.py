@@ -365,24 +365,3 @@ class FI89182(LiveVideoCamera):
     @staticmethod
     def from_dict(json: dict):
         return FI89182(json["_ip"], json["_port"], json["_place"], json["_user"], json["_password"])
-
-
-class CameraDeserializator:
-    instance = None
-
-    def __new__(cls, *args, **kwargs):
-        if cls.instance is None:
-            cls.instance = super().__new__(cls, *args, **kwargs)
-
-        return cls.instance
-
-    def __init__(self):
-        self._classes = {
-            "FI89182": FI89182,
-            "FI9803PV3": FI9803PV3
-        }
-
-    def deserialize(self, cam: dict) -> Camera:
-        model = self._classes[cam["model"]]
-
-        return model.from_dict(cam)
