@@ -143,19 +143,20 @@ class FrameHandler(Handler):
             self._observer = observer
 
     def handle(self, frame):
-        self._current_buffer.append(frame)
+        if self._started:
+            self._current_buffer.append(frame)
 
-        if len(self._current_buffer) >= Constants.DBS:
-            end = time.time()
+            if len(self._current_buffer) >= Constants.DBS:
+                end = time.time()
 
-            true_framerate = len(self._current_buffer) / (end - self._current_buffer_started_receiving) \
-                if self._current_buffer_started_receiving else Constants.FRAMERATE
+                true_framerate = len(self._current_buffer) / (end - self._current_buffer_started_receiving) \
+                    if self._current_buffer_started_receiving else Constants.FRAMERATE
 
-            self._frames_to_observe.append((self._current_buffer, true_framerate))
-            self._observe_semaphore.release()
-            self._current_buffer = []
-            del self._current_buffer_started_receiving
-            self._current_buffer_started_receiving = end
+                self._frames_to_observe.append((self._current_buffer, true_framerate))
+                self._observe_semaphore.release()
+                self._current_buffer = []
+                del self._current_buffer_started_receiving
+                self._current_buffer_started_receiving = end
 
     @property
     def camera(self):

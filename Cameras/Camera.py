@@ -36,7 +36,7 @@ class Camera:
         self._kill_thread = False
         self._last_frame = None
         self._subscriptors = []
-        self._frames_handler = MotionDetectorFrameHandler(self) if frames_handler is None else frames_handler
+        self._frames_handler = FrameHandler(self) if frames_handler is None else frames_handler
 
     def to_dict(self) -> dict:
         pass
@@ -127,7 +127,7 @@ class Camera:
         self._record_thread = threading.Thread(target=self._receive_frames)
         self._record_thread.start()
 
-    def start_recording(self):
+    def record(self):
         """
         Starts recording, this changes the frames handler.
         """
@@ -141,7 +141,6 @@ class Camera:
         """
         self._frames_handler.stop()
         self._frames_handler = FrameHandler(self)
-        self._frames_handler.start()
 
     def stop_receiving_video(self):
         """

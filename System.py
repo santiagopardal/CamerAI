@@ -64,7 +64,7 @@ class System:
 
     def start_recording(self):
         for camera in self.cameras:
-            camera.start_recording()
+            camera.record()
 
     def stop_recording(self):
         for camera in self.cameras:
