@@ -63,12 +63,16 @@ class System:
             self._save_cams_as_json()
 
     def record(self):
-        for camera in self.cameras:
-            camera.record()
+        thread = threading.Thread(target=self._apply_to_all_cameras, args=(lambda cam: cam.record(),))
+        thread.start()
 
     def stop_recording(self):
+        thread = threading.Thread(target=self._apply_to_all_cameras, args=(lambda cam: cam.stop_recording(),))
+        thread.start()
+
+    def _apply_to_all_cameras(self, func):
         for camera in self.cameras:
-            camera.stop_recording()
+            func(camera)
 
     def init_gui(self):
         self._gui = CamerAI(system=self, cameras=self.cameras)

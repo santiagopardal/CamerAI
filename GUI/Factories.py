@@ -2,6 +2,7 @@ from kivy.uix.widget import Widget
 from kivy.uix.button import Button
 from kivy.uix.boxlayout import BoxLayout
 from kivy.uix.screenmanager import ScreenManager
+from threading import Thread
 
 
 class Factory:
@@ -58,9 +59,14 @@ class ShowStatisticsButton(Button):
 
     def on_press(self):
         super().on_press()
+        
+        thread = Thread(target=self.display_stats, args=(self._system,))
+        thread.start()
 
-        self._system.create_statistics()
-        self._system.show_statistics()
+    @staticmethod
+    def display_stats(system):
+        system.create_statistics()
+        system.show_statistics()
 
 
 class MenuLayoutFactory(Factory):
