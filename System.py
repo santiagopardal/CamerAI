@@ -62,7 +62,7 @@ class System:
 
             self._save_cams_as_json()
 
-    def start_recording(self):
+    def record(self):
         for camera in self.cameras:
             camera.record()
 
@@ -138,45 +138,46 @@ class System:
 
             data = {}
 
-            for day in os.listdir(os.path.join(place_path)):
-                day_path = os.path.join(place_path, day)
-                dates = []
+            if os.path.isdir(place_path):
+                for day in os.listdir(os.path.join(place_path)):
+                    day_path = os.path.join(place_path, day)
+                    dates = []
 
-                if os.path.exists(os.path.join(day_path, "statistics.pck")):
-                    with open(os.path.join(day_path, "statistics.pck"), "rb") as handle:
-                        dates = pickle.load(handle)
+                    if os.path.exists(os.path.join(day_path, "statistics.pck")):
+                        with open(os.path.join(day_path, "statistics.pck"), "rb") as handle:
+                            dates = pickle.load(handle)
 
-                starting_hour = 25
-                ending_hour = -1
+                    starting_hour = 25
+                    ending_hour = -1
 
-                for date in dates:
-                    date: datetime.datetime
-                    start_of_day = datetime.datetime(date.year, date.month, date.day)
+                    for date in dates:
+                        date: datetime.datetime
+                        start_of_day = datetime.datetime(date.year, date.month, date.day)
 
-                    if date.hour < starting_hour:
-                        starting_hour = date.hour
+                        if date.hour < starting_hour:
+                            starting_hour = date.hour
 
-                    if date.hour > ending_hour:
-                        ending_hour = date.hour
+                        if date.hour > ending_hour:
+                            ending_hour = date.hour
 
-                    unit = (date - start_of_day).total_seconds() / divisor
-                    unit = round(unit*10)/10
-                    if unit in data:
-                        data[unit] = data[unit] + 1
-                    else:
-                        data[unit] = 1
+                        unit = (date - start_of_day).total_seconds() / divisor
+                        unit = round(unit*10)/10
+                        if unit in data:
+                            data[unit] = data[unit] + 1
+                        else:
+                            data[unit] = 1
 
-                ending_hour = ending_hour if ending_hour == 24 else ending_hour + 1
+                    ending_hour = ending_hour if ending_hour == 24 else ending_hour + 1
 
-                for i in np.arange(starting_hour, ending_hour, 0.1):
-                    i = round(i, 3)
-                    if i not in data:
-                        data[i] = 0
+                    for i in np.arange(starting_hour, ending_hour, 0.1):
+                        i = round(i, 3)
+                        if i not in data:
+                            data[i] = 0
 
-            vals = [val / len(os.listdir(os.path.join(place_path))) for val in data.values()]
-            fig = px.scatter(x=data.keys(), y=vals, title=place + " average")
-            fig.show()
+                vals = [val / len(os.listdir(os.path.join(place_path))) for val in data.values()]
+                fig = px.scatter(x=data.keys(), y=vals, title=place + " average")
+                fig.show()
 
     @staticmethod
-    def show_statistics_in_hours():
+    def show_statistics():
         System._display_statistics(60**2)
