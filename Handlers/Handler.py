@@ -1,9 +1,13 @@
 from threading import Thread, Semaphore
-from Observations.Observers import Observer, MovementDetectionObserver
 import datetime
 import Constants
 import time
 from Cameras.Frame import Frame
+
+try:
+    from Observations.CObservers import Observer, MovementDetectionObserver
+except:
+    from Observations.Observers import Observer, MovementDetectionObserver
 
 
 class Handler:
@@ -233,7 +237,7 @@ class FrameHandler(Handler):
                 if last_frame:
                     frames = [last_frame] + frames[:len(frames) - 1]
 
-                movement = self._observer.observe(frames=frames)                       # Pass the frames to the observer
+                movement = self._observer.observe(frames)                              # Pass the frames to the observer
 
                 for handler in self._motion_handlers:                                  # Handler, manage movement
                     handler.handle(movement)
@@ -246,4 +250,4 @@ class FrameHandler(Handler):
 
 class MotionDetectorFrameHandler(FrameHandler):
     def __init__(self, camera):
-        super().__init__(camera, MovementDetectionObserver(self), [SynchronousDiskStoreMotionHandler(camera.place)])
+        super().__init__(camera, MovementDetectionObserver(self), [AsynchronousDiskStoreMotionHandler(camera.place)])
