@@ -3,13 +3,7 @@ import datetime
 import Constants
 import time
 from Cameras.Frame import Frame
-
-try:
-    from Observations.CObservers import Observer, MovementDetectionObserver
-except:
-    print("Fuck")
-    from Observations.Observers import Observer, MovementDetectionObserver
-
+from Observations.Observers import Observer, MovementDetectionObserver
 
 
 class Handler:

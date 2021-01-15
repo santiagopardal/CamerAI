@@ -4,6 +4,10 @@ from Cameras.Frame import Frame
 import Constants
 import numpy as np
 import time
+import tensorflow as tf
+
+
+tf.config.optimizer.set_jit(True)
 
 
 class Observer:
@@ -112,8 +116,8 @@ class MovementDetectionObserver(Observer):
                             j = j - 2
 
         d = (time.time() - start)
-        print("Looked at {} relative FPS and {} real FPS, {} times with {} bursts on {}, {}"
-              .format(len(frames) / d, looked / d, looked, bursts, self._frame_handler.camera.place, d))
+        print("Looked at {} relative FPS and {} real FPS, {} times with {} bursts on {}"
+              .format(len(frames) / d, looked / d, looked, bursts, self._frame_handler.camera.place))
 
         del to_observe
         del results
