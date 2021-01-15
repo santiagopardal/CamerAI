@@ -126,12 +126,11 @@ class AsynchronousDiskStoreMotionHandler(MotionHandler):
 
 
 class FrameHandler(Handler):
-    def __init__(self, camera, observer=None, motion_handlers=None):
+    def __init__(self, observer=None, motion_handlers=None):
         super().__init__()
 
         self._observer = Observer() if observer is None else observer
         self._motion_handlers = [] if motion_handlers is None else motion_handlers
-        self._camera = camera
         self._thread = None
         self._kill_thread = False
         self._observe_semaphore = Semaphore(0)
@@ -141,10 +140,12 @@ class FrameHandler(Handler):
         self._started = False
 
     def start(self):
-        if not self._started:
+        if not self._started and not self._kill_thread:
             self._current_buffer_started_receiving = time.time()
+
             self._thread = Thread(target=self._check_movement, args=())
             self._thread.start()
+
             self._started = True
 
     def stop(self):
@@ -153,19 +154,30 @@ class FrameHandler(Handler):
 
             if self._observe_semaphore is not None:
                 self._observe_semaphore.release()
-                self._frames_to_observe = []
 
             self._started = False
-
-        if self._thread is not None:
             self._thread.join()
+            self._kill_thread = False
+
+            self._frames_to_observe.clear()
+            self._current_buffer.clear()
 
         for handler in self._motion_handlers:
             handler.stop()
 
-    def set_observer(self, observer):
+    def set_observer(self, observer: Observer):
         if observer:
             self._observer = observer
+
+    def add_motion_handler(self, handler: MotionHandler):
+        if handler:
+            self._motion_handlers.append(handler)
+
+    def set_motion_handlers(self, handlers: list):
+        self._motion_handlers.clear()
+
+        for handler in handlers:
+            self._motion_handlers.append(handler)
 
     def handle(self, frame):
         if self._started:
@@ -183,9 +195,16 @@ class FrameHandler(Handler):
                 del self._current_buffer_started_receiving
                 self._current_buffer_started_receiving = end
 
-    @property
-    def camera(self):
-        return self._camera
+    def __del__(self):
+        del self._observer
+        del self._thread
+        del self._current_buffer_started_receiving
+        del self._motion_handlers
+        del self._current_buffer
+        del self._frames_to_observe
+        del self._started
+        del self._observe_semaphore
+        del self._kill_thread
 
     @staticmethod
     def _calculate_time_taken(tme, frame_rate, i):
@@ -246,4 +265,4 @@ class FrameHandler(Handler):
 
 class MotionDetectorFrameHandler(FrameHandler):
     def __init__(self, camera):
-        super().__init__(camera, MovementDetectionObserver(self), [AsynchronousDiskStoreMotionHandler(camera.place)])
+        super().__init__(MovementDetectionObserver(), [AsynchronousDiskStoreMotionHandler(camera.place)])

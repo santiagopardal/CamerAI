@@ -7,7 +7,8 @@ import Constants
 import numpy as np
 import requests
 from PIL import Image
-from Handlers.Handler import MotionDetectorFrameHandler, FrameHandler
+from Handlers.Handler import FrameHandler, AsynchronousDiskStoreMotionHandler
+from Observations.Observers import Observer, MovementDetectionObserver
 
 
 class Subscriber:
@@ -36,7 +37,7 @@ class Camera:
         self._kill_thread = False
         self._last_frame = None
         self._subscriptors = []
-        self._frames_handler = FrameHandler(self) if frames_handler is None else frames_handler
+        self._frames_handler = FrameHandler() if frames_handler is None else frames_handler
 
     def to_dict(self) -> dict:
         pass
@@ -131,16 +132,17 @@ class Camera:
         """
         Starts recording, this changes the frames handler.
         """
-        self._frames_handler.stop()
-        self._frames_handler = MotionDetectorFrameHandler(self)
+        self._frames_handler.set_observer(MovementDetectionObserver())
+        self._frames_handler.add_motion_handler(AsynchronousDiskStoreMotionHandler(self._place))
         self._frames_handler.start()
 
     def stop_recording(self):
         """
         Stops recording, this changes the frames handler.
         """
+        self._frames_handler.set_observer(Observer())
+        self._frames_handler.set_motion_handlers([])
         self._frames_handler.stop()
-        self._frames_handler = FrameHandler(self)
 
     def stop_receiving_video(self):
         """
@@ -159,7 +161,6 @@ class Camera:
         Obtains live images from the camera and tells the frames handler to handle them.
         """
         previous_capture = 0
-        self._frames_handler.start()
 
         while not self._kill_thread:
             if time.perf_counter() - previous_capture >= 1 / Constants.FRAMERATE:
@@ -251,7 +252,6 @@ class LiveVideoCamera(Camera):
         """
         Obtains live images from the camera and tells the frames handler to handle them.
         """
-        self._frames_handler.start()
 
         while not self._kill_thread:
             try:
@@ -271,6 +271,7 @@ class LiveVideoCamera(Camera):
                 self.__connect()
 
         self._frames_handler.stop()
+        print("Gone")
 
     def __connect(self):
         """

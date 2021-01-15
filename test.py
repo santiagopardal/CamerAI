@@ -2,5 +2,4 @@ from System import System
 
 
 sys = System()
-sys.record()
-sys.run()
+sys.run_with_gui()

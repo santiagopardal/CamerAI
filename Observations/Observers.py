@@ -19,9 +19,16 @@ class Observer:
 
 
 class MovementDetectionObserver(Observer):
-    def __init__(self, frame_handler, nn=None):
+    instance = None
+
+    def __new__(cls, *args, **kwargs):
+        if cls.instance is None:
+            cls.instance = super().__new__(cls, *args, **kwargs)
+
+        return cls.instance
+
+    def __init__(self, nn=None):
         """
-        :param frame_handler: Camera's handler.
         :param nn: Neural network to detect movement, if not specified will use default.
         """
         super().__init__()
@@ -30,8 +37,6 @@ class MovementDetectionObserver(Observer):
             self._neural_network = create_main_model()
         else:
             self._neural_network = nn
-
-        self._frame_handler = frame_handler
 
     def observe(self, frames: list) -> list:
         """
@@ -116,8 +121,8 @@ class MovementDetectionObserver(Observer):
                             j = j - 2
 
         d = (time.time() - start)
-        print("Looked at {} relative FPS and {} real FPS, {} times with {} bursts on {}"
-              .format(len(frames) / d, looked / d, looked, bursts, self._frame_handler.camera.place))
+        print("Looked at {} relative FPS and {} real FPS, {} times with {} bursts"
+              .format(len(frames) / d, looked / d, looked, bursts))
 
         del to_observe
         del results
@@ -180,8 +185,5 @@ class DenoiserObserver(MovementDetectionObserver):
     before analysing.
     This observer is more useful for cameras with low image quality.
     """
-    def __init__(self, frame_handler, nn=None):
-        super().__init__(frame_handler, nn)
-
     def _frame_manipulation(self, frame: Frame) -> Frame:
         return frame.get_denoised_frame()
