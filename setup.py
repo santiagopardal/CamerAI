@@ -1,5 +1,9 @@
 from distutils.core import setup
+from distutils.extension import Extension
 from Cython.Build import cythonize
+import numpy
 
-
-setup(ext_modules=cythonize("Observations/CObservers.pyx", language_level="3"))
+setup(
+      ext_modules=cythonize([Extension("CObservers", ["Observations/CObservers.pyx"],
+                                       include_dirs=[numpy.get_include()])])
+)

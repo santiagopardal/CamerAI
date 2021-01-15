@@ -36,9 +36,9 @@ class MovementDetectionObserver(Observer):
         :param frames: Frames to analyse.
         """
 
-        start = time.time()
         to_observe = [(frame, frames[i + 1]) for i, frame in enumerate(frames) if i % Constants.JUMP == 0]
 
+        start = time.time()
         results = self._batch_movement_check(to_observe)
 
         recording = False
@@ -111,8 +111,9 @@ class MovementDetectionObserver(Observer):
                             frames_with_movement.append(frames[j - 1])
                             j = j - 2
 
-        print("Looked at {} FPS, {} times with {} bursts on {}"
-              .format(looked / (time.time() - start), looked, bursts, self._frame_handler.camera.place))
+        d = (time.time() - start)
+        print("Looked at {} relative FPS and {} real FPS, {} times with {} bursts on {}, {}"
+              .format(len(frames) / d, looked / d, looked, bursts, self._frame_handler.camera.place, d))
 
         del to_observe
         del results

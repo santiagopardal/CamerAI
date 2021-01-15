@@ -45,6 +45,8 @@ cdef class MovementDetectionObserver(Observer):
         cdef Frame frame, pframe, frm
 
         cdef list to_observe = [(frame, frames[m + 1]) for m, frame in enumerate(frames) if m % JUMP == 0]
+
+        start = time.time()
         cdef list results = self._batch_movement_check(to_observe)
 
         cdef int j, last_element
@@ -123,7 +125,9 @@ cdef class MovementDetectionObserver(Observer):
                             j = j - 2
             i += 1
 
-        print("Looked {} times with {} bursts on {}".format(looked, bursts, self._frame_handler.camera.place))
+        cdef float d = (time.time() - start)
+        print("Looked at {} relative FPS and {} real FPS, {} times with {} bursts on {}, {}"
+              .format(len(frames) / d, looked / d, looked, bursts, self._frame_handler.camera.place, d))
 
         del to_observe
         del results
@@ -147,7 +151,7 @@ cdef class MovementDetectionObserver(Observer):
         """
         return frame
 
-    cpdef np.ndarray _prepare_for_cnn(self, Frame pf, Frame frm):
+    cpdef object _prepare_for_cnn(self, Frame pf, Frame frm):
         """
         Creates and returns an NumPy array with the difference between pf and frm resized, grayscaled and normalized.
         :param pf: Frame more distant in time.
@@ -155,10 +159,10 @@ cdef class MovementDetectionObserver(Observer):
         :return: NumPy array with the difference between pf and frm resized, grayscaled and normalized.
         """
         pf = self._frame_manipulation(pf)
-        cdef np.ndarray pf_arr = pf.get_resized_and_grayscaled()
+        cdef object pf_arr = pf.get_resized_and_grayscaled()
 
         frm = self._frame_manipulation(frm)
-        cdef np.ndarray frm_arr = frm.get_resized_and_grayscaled()
+        cdef object frm_arr = frm.get_resized_and_grayscaled()
 
         return np.array(cv2.absdiff(pf_arr, frm_arr) / 255, dtype="float32").reshape(Constants.CNN_INPUT_SHAPE)
 
@@ -172,7 +176,7 @@ cdef class MovementDetectionObserver(Observer):
         cdef Frame pf, frm
         cdef list images = [self._prepare_for_cnn(pf, frm) for pf, frm in frames]
 
-        cdef np.ndarray movements = self._neural_network.predict_on_batch(np.array(images))
+        cdef object movements = self._neural_network.predict_on_batch(np.array(images))
 
         del images
 
