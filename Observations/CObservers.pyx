@@ -1,6 +1,7 @@
 import cv2
 from Detectors.CNNs import create_main_model
 from Cameras.Frame import Frame
+from Cameras.Frame cimport Frame
 import Constants
 import numpy as np
 cimport numpy as np
@@ -38,14 +39,13 @@ cdef class MovementDetectionObserver(Observer):
         :param frames: Frames to analyse.
         """
 
-        start = time.time()
         cdef int m
         cdef int JUMP = Constants.JUMP
 
-        cdef object frame, pframe, frm
+        cdef Frame frame, pframe, frm
 
-        to_observe = [(frame, frames[m + 1]) for m, frame in enumerate(frames) if m % JUMP == 0]
-        results = self._batch_movement_check(to_observe)
+        cdef list to_observe = [(frame, frames[m + 1]) for m, frame in enumerate(frames) if m % JUMP == 0]
+        cdef list results = self._batch_movement_check(to_observe)
 
         cdef int j, last_element
         cdef int bursts = 0
@@ -53,7 +53,7 @@ cdef class MovementDetectionObserver(Observer):
         cdef bint recording = False
         cdef bint result, found_no_movement, store_all
 
-        frames_with_movement = []
+        cdef list frames_with_movement = []
         cdef int size = len(results)
         cdef int i = 0
 
@@ -123,15 +123,14 @@ cdef class MovementDetectionObserver(Observer):
                             j = j - 2
             i += 1
 
-        print("Looked at {} FPS, {} times with {} bursts on {}"
-              .format(looked / (time.time() - start), looked, bursts, self._frame_handler.camera.place))
+        print("Looked {} times with {} bursts on {}".format(looked, bursts, self._frame_handler.camera.place))
 
         del to_observe
         del results
 
         return frames_with_movement
 
-    cpdef bint _movement(self, object previous_frame, object frame):
+    cpdef bint _movement(self, Frame previous_frame, Frame frame):
         """
         Determines whether there has been movement between two frames.
         :param previous_frame: Frame more distant in time.
@@ -140,7 +139,7 @@ cdef class MovementDetectionObserver(Observer):
         """
         return self._batch_movement_check([(previous_frame, frame)])[0]
 
-    cpdef object _frame_manipulation(self, object frame):
+    cpdef Frame _frame_manipulation(self, Frame frame):
         """
         Manipulates the frame, in other words, performs some operation to the frame.
         :param frame: Frame to manipulate.
@@ -148,7 +147,7 @@ cdef class MovementDetectionObserver(Observer):
         """
         return frame
 
-    cpdef np.ndarray _prepare_for_cnn(self, object pf, object frm):
+    cpdef np.ndarray _prepare_for_cnn(self, Frame pf, Frame frm):
         """
         Creates and returns an NumPy array with the difference between pf and frm resized, grayscaled and normalized.
         :param pf: Frame more distant in time.
@@ -156,21 +155,21 @@ cdef class MovementDetectionObserver(Observer):
         :return: NumPy array with the difference between pf and frm resized, grayscaled and normalized.
         """
         pf = self._frame_manipulation(pf)
-        pf = pf.get_resized_and_grayscaled()
+        cdef np.ndarray pf_arr = pf.get_resized_and_grayscaled()
 
         frm = self._frame_manipulation(frm)
-        frm = frm.get_resized_and_grayscaled()
+        cdef np.ndarray frm_arr = frm.get_resized_and_grayscaled()
 
-        return np.array(cv2.absdiff(pf, frm) / 255, dtype="float32").reshape(Constants.CNN_INPUT_SHAPE)
+        return np.array(cv2.absdiff(pf_arr, frm_arr) / 255, dtype="float32").reshape(Constants.CNN_INPUT_SHAPE)
 
-    def _batch_movement_check(self, frames: list) -> list:
+    cpdef list _batch_movement_check(self, frames: list):
         """
         Returns a list with the results of checking for all difference in frames if there has been movement or not. By
         difference I mean what _prepare_for_cnn returns.
         :param frames: Frames to analyse.
         :return: List with boolean values representing whether there has been movement or not.
         """
-        cdef object pf, frm
+        cdef Frame pf, frm
         cdef list images = [self._prepare_for_cnn(pf, frm) for pf, frm in frames]
 
         cdef np.ndarray movements = self._neural_network.predict_on_batch(np.array(images))
@@ -189,5 +188,5 @@ cdef class DenoiserObserver(MovementDetectionObserver):
     def __init__(self, frame_handler, nn=None):
         super().__init__(frame_handler, nn)
 
-    cpdef object _frame_manipulation(self, object frame):
+    cpdef Frame _frame_manipulation(self, Frame frame):
         return frame.get_denoised_frame()
