@@ -182,8 +182,6 @@ class Camera:
                     print("Error downloading image from camera {} on ip {}".format(self._place, self._ip))
                     print(e)
 
-        self._frames_handler.stop()
-
     def __hash__(self):
         return self._place.__hash__()
 
@@ -235,6 +233,11 @@ class LiveVideoCamera(Camera):
                 print("Error downloading image from camera {} on ip {}".format(self._place, self._ip))
                 print(e)
                 self.__connect()
+
+    def stop_receiving_video(self):
+        super().stop_receiving_video()
+
+        self._live_video.release()
 
     def __initialize_record_thread(self):
         """
