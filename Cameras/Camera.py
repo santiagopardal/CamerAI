@@ -42,7 +42,7 @@ class Camera:
     def to_dict(self) -> dict:
         pass
 
-    def _to_pop_from_dict(self):
+    def _to_pop_from_dict(self) -> list:
         return ["_record_thread", "_kill_thread", "_last_frame", "_subscriptors", "_frames_handler"]
 
     @property
@@ -110,7 +110,7 @@ class Camera:
 
         return False
 
-    def screenshot(self):
+    def screenshot(self) -> Image.Image:
         """
         :return: A screenshot from the camera.
         """
@@ -214,7 +214,7 @@ class LiveVideoCamera(Camera):
         self._frame_width = width
         self._frame_height = height
 
-    def _to_pop_from_dict(self):
+    def _to_pop_from_dict(self) -> list:
         res = super()._to_pop_from_dict()
         res.append("_live_video")
         return res

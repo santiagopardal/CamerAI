@@ -146,7 +146,7 @@ class MovementDetectionObserver(Observer):
         """
         return frame
 
-    def _prepare_for_cnn(self, pf: Frame, frm: Frame):
+    def _prepare_for_cnn(self, pf: Frame, frm: Frame) -> np.ndarray:
         """
         Creates and returns an NumPy array with the difference between pf and frm resized, grayscaled and normalized.
         :param pf: Frame more distant in time.
@@ -159,9 +159,7 @@ class MovementDetectionObserver(Observer):
         frm = self._frame_manipulation(frm)
         frm = frm.get_resized_and_grayscaled()
 
-        diff = np.array(cv2.absdiff(pf, frm) / 255, dtype="float32").reshape(Constants.CNN_INPUT_SHAPE)
-
-        return diff
+        return np.array(cv2.absdiff(pf, frm) / 255, dtype="float32").reshape(Constants.CNN_INPUT_SHAPE)
 
     def _batch_movement_check(self, frames: list) -> list:
         """

@@ -28,10 +28,10 @@ class Frame(object):
     def set_time(self, tme):
         self._time = tme
 
-    def get_frame(self):
+    def get_frame(self) -> np.ndarray:
         return self._frame
 
-    def get_time(self):
+    def get_time(self) -> datetime.datetime.time:
         return self._time
 
     def get_denoised_frame(self):
@@ -47,13 +47,14 @@ class Frame(object):
 
         return self._denoised
 
-    def get_resized_and_grayscaled(self):
+    def get_resized_and_grayscaled(self) -> np.ndarray:
         """
         Resizes and grayscales the frame if it has not been already and returns it.
         :return: Frame grayscaled and resized.
         """
         if self._resized_and_grayscale is None:
-            self.__resize_and_grayscale()
+            self._resized_and_grayscale = cv2.resize(self._frame, Constants.RESOLUTION, interpolation=cv2.INTER_AREA)
+            self._resized_and_grayscale = cv2.cvtColor(self._resized_and_grayscale, cv2.COLOR_RGB2GRAY)
 
         return self._resized_and_grayscale
 
@@ -98,10 +99,3 @@ class Frame(object):
         except Exception as e:
             print("Error storing image from camera on {}".format(folder))
             print(e)
-
-    def __resize_and_grayscale(self):
-        """
-        Resizes and grayscales the frame.
-        """
-        self._resized_and_grayscale = cv2.resize(self._frame, Constants.RESOLUTION, interpolation=cv2.INTER_AREA)
-        self._resized_and_grayscale = cv2.cvtColor(self._resized_and_grayscale, cv2.COLOR_RGB2GRAY)

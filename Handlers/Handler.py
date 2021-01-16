@@ -2,6 +2,7 @@ from threading import Thread, Semaphore
 import datetime
 import Constants
 import time
+from collections import deque
 from Cameras.Frame import Frame
 from Observations.Observers import Observer, MovementDetectionObserver
 
@@ -36,7 +37,7 @@ class SynchronousDiskStoreMotionHandler(MotionHandler):
         Initializes the handler.
         :param storing_path: Folder name to which store the frames.
         """
-        self._frames = []
+        self._frames = deque()
 
         self._storing_path = storing_path
 
@@ -62,7 +63,7 @@ class AsynchronousDiskStoreMotionHandler(MotionHandler):
         :param buffer_size: If set, the frames will be stored as soon as the buffer reaches this number of frames,
         if not set, the frames will be stored as soon as they arrive to the handler.
         """
-        self._frames = []
+        self._frames = deque()
 
         if buffer_size:
             self._frames.append([])
@@ -113,7 +114,7 @@ class AsynchronousDiskStoreMotionHandler(MotionHandler):
             self._frames_ready.acquire()
 
             if self._frames:
-                frames = self._frames.pop(0)
+                frames = self._frames.popleft()
 
                 for frame in frames:
                     frame.store(self._storing_path)
@@ -121,7 +122,7 @@ class AsynchronousDiskStoreMotionHandler(MotionHandler):
                 del frames
 
         while self._frames:
-            frames = self._frames.pop(0)
+            frames = self._frames.popleft()
 
             for frame in frames:
                 frame.store(self._storing_path)
@@ -138,7 +139,7 @@ class FrameHandler(Handler):
         self._thread = None
         self._kill_thread = False
         self._observe_semaphore = Semaphore(0)
-        self._frames_to_observe = []
+        self._frames_to_observe = deque()
         self._current_buffer = []
         self._current_buffer_started_receiving = None
         self._started = False
@@ -243,7 +244,7 @@ class FrameHandler(Handler):
                 batch. This does not occur on the first run, in which all the frames will be analysed and the last one
                 will be analysed twice, on the first run and on the second one, but will be stored only once if needed.
                 """
-                frames, frame_rate = self._frames_to_observe.pop(0)
+                frames, frame_rate = self._frames_to_observe.popleft()
 
                 if not last_time_stored:
                     last_time_stored = datetime.datetime.now() - datetime.timedelta(
