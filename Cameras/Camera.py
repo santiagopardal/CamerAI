@@ -104,12 +104,6 @@ class Camera:
         self._frames_handler = frames_handler
         self._frames_handler.start()
 
-    def __eq__(self, other):
-        if isinstance(other, Camera):
-            return other.ip == self._ip and other.port == self._port
-
-        return False
-
     def screenshot(self) -> Image.Image:
         """
         :return: A screenshot from the camera.
@@ -183,7 +177,13 @@ class Camera:
                     print(e)
 
     def __hash__(self):
-        return self._place.__hash__()
+        return (self.ip + str(self._port) + self._place).__hash__()
+
+    def __eq__(self, other):
+        if isinstance(other, Camera):
+            return other.ip == self._ip and other.port == self._port
+
+        return False
 
 
 class LiveVideoCamera(Camera):
@@ -304,6 +304,12 @@ class LiveVideoCamera(Camera):
                 print("Could not connect, retrying in {} seconds".format(seconds))
                 time.sleep(seconds)
 
+    def __eq__(self, other):
+        if isinstance(other, LiveVideoCamera):
+            return super().__eq__(other)
+
+        return False
+
 
 class FI9803PV3(LiveVideoCamera):
     def __init__(self, ip: str, port: int, streaming_port: int, place: str, user: str, password: str, frames_handler=None):
@@ -338,6 +344,12 @@ class FI9803PV3(LiveVideoCamera):
         return FI9803PV3(json["_ip"], json["_port"], json["_streaming_port"],
                          json["_place"], json["_user"], json["_password"])
 
+    def __eq__(self, other):
+        if isinstance(other, FI9803PV3):
+            return super().__eq__(other)
+
+        return False
+
 
 class FI89182(LiveVideoCamera):
     def __init__(self, ip: str, port: int, place: str, user: str, password: str, frames_handler=None):
@@ -369,3 +381,9 @@ class FI89182(LiveVideoCamera):
     @staticmethod
     def from_dict(json: dict):
         return FI89182(json["_ip"], json["_port"], json["_place"], json["_user"], json["_password"])
+
+    def __eq__(self, other):
+        if isinstance(other, FI89182):
+            return super().__eq__(other)
+
+        return False
