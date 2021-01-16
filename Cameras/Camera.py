@@ -140,9 +140,9 @@ class Camera:
         """
         Stops recording, this changes the frames handler.
         """
+        self._frames_handler.stop()
         self._frames_handler.set_observer(Observer())
         self._frames_handler.set_motion_handlers([])
-        self._frames_handler.stop()
 
     def stop_receiving_video(self):
         """
@@ -271,7 +271,6 @@ class LiveVideoCamera(Camera):
                 self.__connect()
 
         self._frames_handler.stop()
-        print("Gone")
 
     def __connect(self):
         """

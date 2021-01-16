@@ -82,7 +82,7 @@ class AsynchronousDiskStoreMotionHandler(MotionHandler):
         Receives the frames and once the handler is ready stores them.
         :param event: List of frames in which there has been movement.
         """
-        if event:
+        if event and not self._done:
             if self._buffer_size:
                 self._frames[0] = self._frames[0] + event
 
@@ -100,6 +100,10 @@ class AsynchronousDiskStoreMotionHandler(MotionHandler):
         self._done = True
         self._frames_ready.release()
         self._background_thread.join()
+        self._done = False
+
+        while self._frames_ready.acquire(blocking=False):
+            continue
 
     def _store(self):
         """
@@ -152,18 +156,21 @@ class FrameHandler(Handler):
         if self._started:
             self._kill_thread = True
 
-            if self._observe_semaphore is not None:
-                self._observe_semaphore.release()
-
-            self._started = False
-            self._thread.join()
-            self._kill_thread = False
-
             self._frames_to_observe.clear()
             self._current_buffer.clear()
 
+            if self._observe_semaphore is not None:
+                self._observe_semaphore.release()
+
+            self._thread.join()
+            self._started = False
+            self._kill_thread = False
+
         for handler in self._motion_handlers:
             handler.stop()
+
+        while self._observe_semaphore.acquire(blocking=False):
+            continue
 
     def set_observer(self, observer: Observer):
         if observer:
@@ -180,7 +187,7 @@ class FrameHandler(Handler):
             self._motion_handlers.append(handler)
 
     def handle(self, frame):
-        if self._started:
+        if self._started and not self._kill_thread:
             self._current_buffer.append(frame)
 
             if len(self._current_buffer) >= Constants.DBS:
