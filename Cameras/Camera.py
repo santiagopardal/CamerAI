@@ -177,6 +177,7 @@ class Camera:
                     print(e)
 
     def __hash__(self):
+        print("Hashing", self._ip, self._port, self._place)
         return (self.ip + str(self._port) + self._place).__hash__()
 
     def __eq__(self, other):
@@ -201,9 +202,6 @@ class LiveVideoCamera(Camera):
         :param width: Width of frame.
         :param height: Height of frame.
         """
-        self._user = user
-        self._password = password
-
         user = urllib.parse.quote(user)
         password = urllib.parse.quote(password)
 

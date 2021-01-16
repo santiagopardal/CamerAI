@@ -203,17 +203,6 @@ class FrameHandler(Handler):
                 del self._current_buffer_started_receiving
                 self._current_buffer_started_receiving = end
 
-    def __del__(self):
-        del self._observer
-        del self._thread
-        del self._current_buffer_started_receiving
-        del self._motion_handlers
-        del self._current_buffer
-        del self._frames_to_observe
-        del self._started
-        del self._observe_semaphore
-        del self._kill_thread
-
     @staticmethod
     def _calculate_time_taken(tme, frame_rate, i):
         """

@@ -16,7 +16,6 @@ class KivyCV(ButtonBehavior, Image, Subscriber):
         self._camera = camera
         self._camera.subscribe(self)
         self._my_state = OnMainScreenState(gui, self)
-        self._trigger = Clock.create_trigger(self.update)
 
     @property
     def camera(self) -> Camera:
@@ -39,9 +38,6 @@ class KivyCV(ButtonBehavior, Image, Subscriber):
     def notify(self):
         self._my_state.notify()
 
-    def call_trigger(self):
-        self._trigger()
-
     def update(self, dt):
         frame = self._camera.last_frame
 
@@ -53,15 +49,10 @@ class KivyCV(ButtonBehavior, Image, Subscriber):
 
             self.texture = image_texture
 
-        self._trigger = Clock.create_trigger(self.update)
-
     def on_press(self):
         super().on_press()
 
         self._my_state.touch()
-
-    def __hash__(self):
-        return self._camera.__hash__()
 
 
 class State:
@@ -86,6 +77,7 @@ class State:
 class OnMainScreenState(State):
     def __init__(self, gui, image: KivyCV):
         super().__init__(gui, image)
+        self._trigger = Clock.create_trigger(image.update)
 
     def touch(self):
         self._gui.open_camera(self._image)
@@ -94,12 +86,13 @@ class OnMainScreenState(State):
         del self
 
     def notify(self):
-        self._image.call_trigger()
+        self._trigger()
 
 
 class DisplayingState(State):
     def __init__(self, gui, image: KivyCV):
         super().__init__(gui, image)
+        self._trigger = Clock.create_trigger(image.update)
 
     def touch(self):
         self._gui.go_to_main()
@@ -108,7 +101,7 @@ class DisplayingState(State):
         del self
 
     def notify(self):
-        self._image.call_trigger()
+        self._trigger()
 
 
 class HiddenState(State):

@@ -19,8 +19,6 @@ class ScreenWithCameras(Screen):
         super().__init__(**kwargs)
 
         self._images = images
-        self._scheduled_update = False
-        self._update_event = None
 
     def _update_images(self, dt):
         for image in self._images:
@@ -70,8 +68,8 @@ class CameraScreen(ScreenWithCameras):
 
     @image.setter
     def image(self, image):
-        del self._images
-        self._images = [image]
+        self._images.clear()
+        self._images.append(image)
 
     def display(self):
         self._layout.add_widget(self._images[0])

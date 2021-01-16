@@ -16,16 +16,14 @@ class CamerAI(App):
 
         self._current_screen = self._main_screen
         self._sm = None
-        self._layout = None
 
     def build(self):
         factory = CamerAIScreenManagerFactory([self._main_screen, self._single_camera_screen])
         self._sm = factory.create()
 
         factory = CamerAILayoutFactory(self._sm, self, self._system)
-        self._layout = factory.create()
 
-        return self._layout
+        return factory.create()
 
     def on_stop(self):
         self._system.terminate()
