@@ -39,6 +39,10 @@ class Camera:
         self._subscriptors = []
         self._frames_handler = FrameHandler() if frames_handler is None else frames_handler
 
+    @classmethod
+    def from_dict(cls, json: dict):
+        pass
+
     def to_dict(self) -> dict:
         pass
 
@@ -337,10 +341,10 @@ class FI9803PV3(LiveVideoCamera):
 
         return res
 
-    @staticmethod
-    def from_dict(json: dict):
-        return FI9803PV3(json["_ip"], json["_port"], json["_streaming_port"],
-                         json["_place"], json["_user"], json["_password"])
+    @classmethod
+    def from_dict(cls, json: dict):
+        return cls(json["_ip"], json["_port"], json["_streaming_port"],
+                   json["_place"], json["_user"], json["_password"])
 
     def __eq__(self, other):
         if isinstance(other, FI9803PV3):
@@ -376,9 +380,9 @@ class FI89182(LiveVideoCamera):
 
         return res
 
-    @staticmethod
-    def from_dict(json: dict):
-        return FI89182(json["_ip"], json["_port"], json["_place"], json["_user"], json["_password"])
+    @classmethod
+    def from_dict(cls, json: dict):
+        return cls(json["_ip"], json["_port"], json["_place"], json["_user"], json["_password"])
 
     def __eq__(self, other):
         if isinstance(other, FI89182):
