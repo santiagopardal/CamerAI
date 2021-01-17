@@ -12,7 +12,7 @@ class Handler:
     def handle(self, event):
         """
         Handles movement.
-        :param event: List of frames in which there has been movement.
+        :param event: Even to handle.
         """
         pass
 
@@ -30,7 +30,7 @@ class MotionHandler(Handler):
 
 class SynchronousDiskStoreMotionHandler(MotionHandler):
     """
-    Handles motion storing the frames on disk.
+    Handles motion storing the frames on disk synchronously.
     """
 
     def __init__(self, storing_path: str):
@@ -46,7 +46,7 @@ class SynchronousDiskStoreMotionHandler(MotionHandler):
 
     def handle(self, event: list):
         """
-        Receives the frames and once the handler is ready stores them.
+        Receives the frames and stores them straightaway.
         :param event: List of frames in which there has been movement.
         """
         for frame in event:
@@ -55,7 +55,7 @@ class SynchronousDiskStoreMotionHandler(MotionHandler):
 
 class AsynchronousDiskStoreMotionHandler(MotionHandler):
     """
-    Handles motion storing the frames on disk.
+    Handles motion storing the frames on disk asynchronously.
     """
     def __init__(self, storing_path: str, buffer_size: int = None):
         """
@@ -146,6 +146,9 @@ class FrameHandler(Handler):
         self._started = False
 
     def start(self):
+        """
+        Starts the handler.
+        """
         if not self._started and not self._kill_thread:
             self._current_buffer_started_receiving = time.time()
 
@@ -155,6 +158,9 @@ class FrameHandler(Handler):
             self._started = True
 
     def stop(self):
+        """
+        Stops the handler.
+        """
         if self._started:
             self._kill_thread = True
 
@@ -191,6 +197,10 @@ class FrameHandler(Handler):
             self._motion_handlers.append(handler)
 
     def handle(self, frame: np.ndarray):
+        """
+        Handles a new frame.
+        :param frame: Frame to handle.
+        """
         if self._started and not self._kill_thread:
             self._current_buffer.append(frame)
 

@@ -22,7 +22,7 @@ class Frame(object):
 
         self._stored_in = []
 
-    def set_frame(self, frm):
+    def set_frame(self, frm: np.ndarray):
         self._frame = frm
 
     def set_time(self, tme):
@@ -60,8 +60,7 @@ class Frame(object):
 
     def store(self, folder: str) -> str:
         """
-        Stores the frame in the folder if it has not been stored in that folder already, otherwise it will
-        not store it.
+        Stores the frame in the folder if it has not been stored in that folder already, otherwise it will not store it.
         :param folder: Folder to store frame in.
         :return: Path where the frame has been stored.
         """

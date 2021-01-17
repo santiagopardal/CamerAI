@@ -28,17 +28,27 @@ class System:
             self._load_cams_from_json_file()
 
     def _save_cams_as_json(self):
+        """
+        Saves a json file with all the cameras.
+        """
         cams = {"cameras": [cam.to_dict() for cam in self.cameras]}
 
         with open("cameras.json", "w") as json_file:
             json.dump(cams, sort_keys=True, indent=4, fp=json_file)
 
     def _load_cams_from_json_file(self):
+        """
+        Loads cameras from the json file.
+        """
         with open("cameras.json") as json_file:
             data = json.load(json_file)
             self.cameras = [deserialize(cam=cam) for cam in data["cameras"]]
 
     def add_cameras(self, cameras: list):
+        """
+        Adds all the cameras in cameras to the system if they weren't present before.
+        :param cameras: Cameras to add.
+        """
         added = False
         for cam in cameras:
             if cam not in self.cameras:
@@ -51,37 +61,64 @@ class System:
             self._save_cams_as_json()
 
     def add_camera(self, camera: Camera):
+        """
+        Adds a camera to the system if not present.
+        :param camera: Camera to add.
+        """
         if camera not in self.cameras:
             self.cameras.append(camera)
 
             self._save_cams_as_json()
 
     def remove_camera(self, camera: Camera):
+        """
+        Removes a camera from the system if present.
+        :param camera: Camera to remove.
+        """
         if camera in self.cameras:
             self.cameras.remove(camera)
 
             self._save_cams_as_json()
 
     def record(self):
+        """
+        Starts recording.
+        """
         thread = threading.Thread(target=self._apply_to_all_cameras, args=(lambda cam: cam.record(),))
         thread.start()
 
     def stop_recording(self):
+        """
+        Stops recording.
+        """
         thread = threading.Thread(target=self._apply_to_all_cameras, args=(lambda cam: cam.stop_recording(),))
         thread.start()
 
     def _apply_to_all_cameras(self, func):
+        """
+        Applies a function to all the cameras in the system.
+        :param func: function tu apply to all the cameras.
+        """
         for camera in self.cameras:
             func(camera)
 
     def init_gui(self):
+        """
+        Initializes the GUI.
+        """
         self._gui = CamerAI(system=self, cameras=self.cameras)
         self._gui.run()
 
     def terminate(self):
+        """
+        Exits the system.
+        """
         self._done_semaphore.release()
 
     def run_with_gui(self):
+        """
+        Runs the system using GUI.
+        """
         t = Thread(target=self.run, args=())
         t.start()
 
@@ -90,6 +127,9 @@ class System:
         t.join()
 
     def run(self):
+        """
+        Runs the system without using GUI.
+        """
         for camera in self.cameras:
             camera.receive_video()
 
@@ -99,6 +139,10 @@ class System:
             camera.stop_receiving_video()
 
     def run_n_seconds(self, n):
+        """
+        Runs without GUI for n seconds.
+        :param n: Number of seconds to run.
+        """
         thread = threading.Thread(target=self.run, args=())
         thread.start()
 
@@ -108,6 +152,9 @@ class System:
 
     @staticmethod
     def create_statistics():
+        """
+        Creates binary file with statistics.
+        """
         for place in os.listdir(Constants.STORING_PATH):
             place_path = os.path.join(Constants.STORING_PATH, place)
 
@@ -137,6 +184,9 @@ class System:
 
     @staticmethod
     def _display_statistics(divisor):
+        """
+        Displays statistics in web browser.
+        """
         for place in os.listdir(Constants.STORING_PATH):
             place_path = os.path.join(Constants.STORING_PATH, place)
 
@@ -184,4 +234,7 @@ class System:
 
     @staticmethod
     def show_statistics():
+        """
+        Displays statistics in web browser.
+        """
         System._display_statistics(60**2)

@@ -40,8 +40,7 @@ class MovementDetectionObserver(Observer):
 
     def observe(self, frames: list) -> list:
         """
-        Receives a list of frames and stores those in which there has been movement. Also checks whether
-        it is time to switch observers and does so if needed. Brace yourself.
+        Receives a list of frames and stores those in which there has been movement. Brace yourself.
         :param frames: Frames to analyse.
         """
 
@@ -165,7 +164,7 @@ class MovementDetectionObserver(Observer):
         """
         Returns a list with the results of checking for all difference in frames if there has been movement or not. By
         difference I mean what _prepare_for_cnn returns.
-        :param frames: Frames to analyse.
+        :param frames: List of frames to analyse.
         :return: List with boolean values representing whether there has been movement or not.
         """
         images = [self._prepare_for_cnn(pf, frm) for pf, frm in frames]
@@ -177,8 +176,7 @@ class MovementDetectionObserver(Observer):
 
 class DenoiserObserver(MovementDetectionObserver):
     """
-    MovementDetectionObserver for when the night comes, it does the same as MovementDetectionObserver but denoises the frames
-    before analysing.
+    DenoiserObserver does the same as MovementDetectionObserver but denoises the frames before analysing.
     This observer is more useful for cameras with low image quality.
     """
     def _frame_manipulation(self, frame: Frame) -> Frame:

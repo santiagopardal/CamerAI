@@ -7,6 +7,10 @@ _classes = {
 
 
 def deserialize(cam: dict) -> Camera:
+    """
+    Deserializes a camera from a dictionary.
+    :return: Camera deserialized.
+    """
     model = _classes[cam["model"]]
 
     return model.from_dict(cam)

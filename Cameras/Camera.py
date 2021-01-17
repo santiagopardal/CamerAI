@@ -21,7 +21,7 @@ class Camera:
                  framerate: int, frames_handler: FrameHandler = None):
         """
         :param ip: IP of the camera.
-        :param port: Port for the camera live stream.
+        :param port: Port for the camera's IP.
         :param place: Place where the camera is located, this will be the name of the folder where the frames will
         be stored.
         :param screenshot_url: URL to obtain screenshot from the CCTV camera.
@@ -42,12 +42,25 @@ class Camera:
 
     @classmethod
     def from_dict(cls, json: dict):
+        """
+        Returns a Camera from a dictionary.
+        :param json: Dictionary to transform into camera.
+        :return: Camera from the dictionary.
+        """
         pass
 
     def to_dict(self) -> dict:
+        """
+        Transforms a camera into a dictionary for serialization.
+        :return: dictionary representing the camera.
+        """
         pass
 
     def _to_pop_from_dict(self) -> list:
+        """
+        Returns list of attributes to remove when transforming camera to dictionary.
+        :return: list of attributes to remove.
+        """
         return ["_record_thread", "_kill_thread", "_last_frame", "_subscriptors", "_frames_handler"]
 
     @property
@@ -122,14 +135,14 @@ class Camera:
 
     def receive_video(self):
         """
-        Starts obtaining video.
+        Starts receiving video.
         """
         self._record_thread = threading.Thread(target=self._receive_frames)
         self._record_thread.start()
 
     def record(self):
         """
-        Starts recording, this changes the frames handler.
+        Starts recording.
         """
         self._frames_handler.set_observer(MovementDetectionObserver())
         self._frames_handler.add_motion_handler(AsynchronousDiskStoreMotionHandler(self._place))
@@ -137,7 +150,7 @@ class Camera:
 
     def stop_recording(self):
         """
-        Stops recording, this changes the frames handler.
+        Stops recording.
         """
         self._frames_handler.stop()
         self._frames_handler.set_observer(Observer())
@@ -157,7 +170,7 @@ class Camera:
 
     def _receive_frames(self):
         """
-        Obtains live images from the camera and tells the frames handler to handle them.
+        Obtains live images from the camera, notifies subscribers and calls the frames handler to handle them.
         """
         previous_capture = 0
 
@@ -182,7 +195,6 @@ class Camera:
                     print(e)
 
     def __hash__(self):
-        print("Hashing", self._ip, self._port, self._place)
         return (self.ip + str(self._port) + self._place).__hash__()
 
     def __eq__(self, other):
@@ -218,6 +230,10 @@ class LiveVideoCamera(Camera):
         self._frame_height = height
 
     def _to_pop_from_dict(self) -> list:
+        """
+        Returns list of attributes to remove when transforming camera to dictionary.
+        :return: List of attributes to remove.
+        """
         res = super()._to_pop_from_dict()
         res.append("_live_video")
         return res
@@ -238,13 +254,16 @@ class LiveVideoCamera(Camera):
         self._record_thread.start()                                             # Start thread to receive frames
 
     def stop_receiving_video(self):
+        """
+        Stops receiving video from the camera.
+        """
         super().stop_receiving_video()
 
         self._live_video.release()
 
     def _receive_frames(self):
         """
-        Obtains live images from the camera and tells the frames handler to handle them.
+        Obtains live images from the camera, notifies subscribers and calls the frames handler to handle them.
         """
 
         while not self._kill_thread:
@@ -315,14 +334,18 @@ class FI9803PV3(LiveVideoCamera):
         :param password: Password.
         :param frames_handler: Handler to handle new frames, if set to None will use default.
         """
-        super().__init__(ip, port, place, user, password, "http://{}:{}/{}".
-                         format(ip, str(port), "cgi-bin/CGIProxy.fcgi?cmd=snapPicture2&usr={}&pwd={}"),
+        super().__init__(ip, port, place, user, password,
+                         "http://{}:{}/{}".format(ip, str(port), "cgi-bin/CGIProxy.fcgi?cmd=snapPicture2&usr={}&pwd={}"),
                          "{}@{}:{}/videoMain".format("rtsp://{}:{}", ip, str(streaming_port)),
                          1280, 720, 23, frames_handler)
 
         self._streaming_port = streaming_port
 
     def to_dict(self) -> dict:
+        """
+        Transforms a camera into a dictionary for serialization.
+        :return: dictionary representing the camera.
+        """
         res = self.__dict__.copy()
 
         for key in self._to_pop_from_dict():
@@ -333,7 +356,12 @@ class FI9803PV3(LiveVideoCamera):
         return res
 
     @classmethod
-    def from_dict(cls, json: dict):
+    def from_dict(cls, json: dict) -> Camera:
+        """
+        Returns a Camera from a dictionary.
+        :param json: Dictionary to transform into FI9803PV3 camera.
+        :return: FI9803PV3 camera from the dictionary.
+        """
         return cls(json["_ip"], json["_port"], json["_streaming_port"],
                    json["_place"], json["_user"], json["_password"])
 
@@ -357,13 +385,15 @@ class FI89182(LiveVideoCamera):
         :param frames_handler: Handler to handle new frames, if set to None will use default.
         """
         super().__init__(ip, port, place, user, password,
-                         "http://{}:{}/{}".
-                         format(ip, str(port), "cgi-bin/CGIProxy.fcgi?cmd=snapPicture2&usr={}&pwd={}"),
-                         "http://{}:{}/{}".
-                         format(ip, port, "videostream.cgi?user={}&pwd={}"),
+                         "http://{}:{}/{}".format(ip, str(port), "cgi-bin/CGIProxy.fcgi?cmd=snapPicture2&usr={}&pwd={}"),
+                         "http://{}:{}/{}".format(ip, port, "videostream.cgi?user={}&pwd={}"),
                          640, 480, 15, frames_handler)
 
     def to_dict(self) -> dict:
+        """
+        Transforms a camera into a dictionary for serialization.
+        :return: dictionary representing the camera.
+        """
         res = self.__dict__.copy()
 
         for key in self._to_pop_from_dict():
@@ -374,7 +404,12 @@ class FI89182(LiveVideoCamera):
         return res
 
     @classmethod
-    def from_dict(cls, json: dict):
+    def from_dict(cls, json: dict) -> Camera:
+        """
+        Returns a Camera from a dictionary.
+        :param json: Dictionary to transform into FI89182 camera.
+        :return: FI89182 camera from the dictionary.
+        """
         return cls(json["_ip"], json["_port"], json["_place"], json["_user"], json["_password"])
 
     def __eq__(self, other):

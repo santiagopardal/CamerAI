@@ -11,6 +11,9 @@ class Factory:
 
 
 class RecordButton(Button):
+    """
+    Button that starts recording all cameras.
+    """
     def __init__(self, system, **kwargs):
         super().__init__(**kwargs)
 
@@ -32,6 +35,9 @@ class RecordButton(Button):
 
 
 class DoNotUpdateGUIButton(Button):
+    """
+    Button that prevents the GUI from updating images, it freezes them.
+    """
     def __init__(self, gui, **kwargs):
         super().__init__(**kwargs)
         self._gui = gui
@@ -52,6 +58,9 @@ class DoNotUpdateGUIButton(Button):
 
 
 class ShowStatisticsButton(Button):
+    """
+    Button to show camera's statistics.
+    """
     def __init__(self, system, **kwargs):
         super().__init__(**kwargs)
         self._system = system
@@ -70,11 +79,18 @@ class ShowStatisticsButton(Button):
 
 
 class MenuLayoutFactory(Factory):
+    """
+    Factory for main screen's menu.
+    """
     def __init__(self, gui, system):
         self._gui = gui
         self._system = system
 
     def create(self) -> Widget:
+        """
+        Creates the menu's layout.
+        :return: Menu's layout.
+        """
         button_layout = BoxLayout(orientation="horizontal")
         button_layout.size_hint_x = 1
         button_layout.size_hint_y = 0.1
@@ -92,10 +108,17 @@ class MenuLayoutFactory(Factory):
 
 
 class CamerAIScreenManagerFactory(Factory):
+    """
+    GUI's screen manager factory.
+    """
     def __init__(self, screens: list):
         self._screens = screens
 
     def create(self) -> Widget:
+        """
+        Creates the screen manager for the GUI.
+        :return: Screen manager.
+        """
         sm = ScreenManager()
 
         for screen in self._screens:
@@ -105,12 +128,19 @@ class CamerAIScreenManagerFactory(Factory):
 
 
 class CamerAILayoutFactory(Factory):
+    """
+    App's layout factory.
+    """
     def __init__(self, screen_manager, gui, system):
         self._screen_manager = screen_manager
         self._gui = gui
         self._system = system
 
     def create(self) -> Widget:
+        """
+        Creates the app's layout.
+        :return: App's layout.
+        """
         layout = BoxLayout(orientation="vertical")
 
         factory = MenuLayoutFactory(self._gui, self._system)

@@ -5,6 +5,10 @@ from GUI.Factories import CamerAIScreenManagerFactory, CamerAILayoutFactory
 
 
 class CamerAI(App):
+    """
+    GUI for CamerAI.
+    """
+
     def __init__(self, system, cameras: list, **kwargs):
         super().__init__(**kwargs)
 
@@ -44,6 +48,10 @@ class CamerAI(App):
         super().on_resume()
 
     def open_camera(self, camera: KivyCV):
+        """
+        Changes the view to only display one camera.
+        :param camera: Camera to display.
+        """
         self._current_screen.hide()
 
         self._single_camera_screen.image = camera
@@ -52,6 +60,9 @@ class CamerAI(App):
         self._current_screen = self._single_camera_screen
 
     def go_to_main(self):
+        """
+        Goes back to the main screen displaying all cameras.
+        """
         self._current_screen.hide()
 
         screen = self._main_screen
@@ -60,9 +71,15 @@ class CamerAI(App):
         self._current_screen = screen
 
     def freeze(self):
+        """
+        Stops updating all cameras images.
+        """
         for camera in self._images:
             camera.hide()
 
     def unfreeze(self):
+        """
+        Starts updating all cameras images.
+        """
         for camera in self._images:
             camera.display()

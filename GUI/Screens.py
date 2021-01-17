@@ -8,9 +8,15 @@ class CamerAIScreen(Screen):
         super().__init__(**kwargs)
 
     def display(self):
+        """
+        Displays screen.
+        """
         pass
 
     def hide(self):
+        """
+        Hides screen.
+        """
         pass
 
 
@@ -38,12 +44,18 @@ class MainScreen(ScreenWithCameras):
         self.add_widget(self._layout)
 
     def display(self):
+        """
+        Displays screen.
+        """
         for image in self._images:
             image: KivyCV
             image.display()
             self._layout.add_widget(image)
 
     def hide(self):
+        """
+        Hides screen.
+        """
         for image in self._images:
             image: KivyCV
             image.hide()
@@ -72,7 +84,13 @@ class CameraScreen(ScreenWithCameras):
         self._images.append(image)
 
     def display(self):
+        """
+        Displays the screen.
+        """
         self._layout.add_widget(self._images[0])
 
     def hide(self):
+        """
+        Hides the screen.
+        """
         self._layout.remove_widget(self._images[0])
