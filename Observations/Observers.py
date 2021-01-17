@@ -19,13 +19,13 @@ class Observer:
 
 
 class MovementDetectionObserver(Observer):
-    instance = None
+    _instance = None
 
     def __new__(cls, *args, **kwargs):
-        if cls.instance is None:
-            cls.instance = super().__new__(cls, *args, **kwargs)
+        if cls._instance is None:
+            cls._instance = super().__new__(cls, *args, **kwargs)
 
-        return cls.instance
+        return cls._instance
 
     def __init__(self, nn=None):
         """
@@ -41,7 +41,7 @@ class MovementDetectionObserver(Observer):
     def observe(self, frames: list) -> list:
         """
         Receives a list of frames and stores those in which there has been movement. Also checks whether
-        it is time to switch observers and does so if needed.
+        it is time to switch observers and does so if needed. Brace yourself.
         :param frames: Frames to analyse.
         """
 
@@ -171,8 +171,6 @@ class MovementDetectionObserver(Observer):
         images = [self._prepare_for_cnn(pf, frm) for pf, frm in frames]
 
         movements = self._neural_network.predict_on_batch(np.array(images))
-
-        del images
 
         return [movement[0] >= Constants.MOVEMENT_SENSITIVITY for movement in movements]
 

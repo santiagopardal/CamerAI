@@ -39,7 +39,7 @@ class Frame(object):
         Denoises the frame and returns it.
         :return: Frame denoised.
         """
-        if self._denoised is None:
+        if not self._denoised:
             kernel = np.ones((3, 3), np.float32) / 9
             frm = cv2.filter2D(self._frame, -1, kernel)
             self._denoised = Frame(frm)

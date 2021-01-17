@@ -41,13 +41,12 @@ class KivyCV(ButtonBehavior, Image, Subscriber):
     def update(self, dt):
         frame = self._camera.last_frame
 
-        if frame is not None:
-            frm = cv2.flip(frame, 0)
-            buf = frm.tostring()
-            image_texture = Texture.create(size=(frame.shape[1], frame.shape[0]), colorfmt='bgr')
-            image_texture.blit_buffer(buf, colorfmt='bgr', bufferfmt='ubyte')
+        frm = cv2.flip(frame, 0)
+        buf = frm.tostring()
+        image_texture = Texture.create(size=(frame.shape[1], frame.shape[0]), colorfmt='bgr')
+        image_texture.blit_buffer(buf, colorfmt='bgr', bufferfmt='ubyte')
 
-            self.texture = image_texture
+        self.texture = image_texture
 
     def on_press(self):
         super().on_press()

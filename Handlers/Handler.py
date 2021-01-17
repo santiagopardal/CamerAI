@@ -1,6 +1,7 @@
 from threading import Thread, Semaphore
 import datetime
 import Constants
+import numpy as np
 import time
 from collections import deque
 from Cameras.Frame import Frame
@@ -32,7 +33,7 @@ class SynchronousDiskStoreMotionHandler(MotionHandler):
     Handles motion storing the frames on disk.
     """
 
-    def __init__(self, storing_path):
+    def __init__(self, storing_path: str):
         """
         Initializes the handler.
         :param storing_path: Folder name to which store the frames.
@@ -56,7 +57,7 @@ class AsynchronousDiskStoreMotionHandler(MotionHandler):
     """
     Handles motion storing the frames on disk.
     """
-    def __init__(self, storing_path, buffer_size=None):
+    def __init__(self, storing_path: str, buffer_size: int = None):
         """
         Initializes the handler.
         :param storing_path: Folder name to which store the frames.
@@ -131,7 +132,7 @@ class AsynchronousDiskStoreMotionHandler(MotionHandler):
 
 
 class FrameHandler(Handler):
-    def __init__(self, observer=None, motion_handlers=None):
+    def __init__(self, observer: Observer = None, motion_handlers: list = None):
         super().__init__()
 
         self._observer = Observer() if observer is None else observer
@@ -160,8 +161,7 @@ class FrameHandler(Handler):
             self._frames_to_observe.clear()
             self._current_buffer.clear()
 
-            if self._observe_semaphore is not None:
-                self._observe_semaphore.release()
+            self._observe_semaphore.release()
 
             self._thread.join()
             self._started = False
@@ -182,12 +182,15 @@ class FrameHandler(Handler):
             self._motion_handlers.append(handler)
 
     def set_motion_handlers(self, handlers: list):
+        for handler in self._motion_handlers:
+            handler.stop()
+
         self._motion_handlers.clear()
 
         for handler in handlers:
             self._motion_handlers.append(handler)
 
-    def handle(self, frame):
+    def handle(self, frame: np.ndarray):
         if self._started and not self._kill_thread:
             self._current_buffer.append(frame)
 
@@ -200,7 +203,6 @@ class FrameHandler(Handler):
                 self._frames_to_observe.append((self._current_buffer, true_framerate))
                 self._observe_semaphore.release()
                 self._current_buffer = []
-                del self._current_buffer_started_receiving
                 self._current_buffer_started_receiving = end
 
     @staticmethod

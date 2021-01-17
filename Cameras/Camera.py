@@ -17,7 +17,8 @@ class Subscriber:
 
 
 class Camera:
-    def __init__(self, ip: str, port: int, place: str, screenshot_url: str, framerate: int, frames_handler=None):
+    def __init__(self, ip: str, port: int, place: str, screenshot_url: str,
+                 framerate: int, frames_handler: FrameHandler = None):
         """
         :param ip: IP of the camera.
         :param port: Port for the camera live stream.
@@ -146,7 +147,7 @@ class Camera:
         """
         Stops receiving video.
         """
-        if self._record_thread is not None:
+        if self._record_thread:
             self._kill_thread = True
             self._record_thread.join()
             self._record_thread = None
@@ -194,7 +195,7 @@ class Camera:
 class LiveVideoCamera(Camera):
     def __init__(self, ip: str, port: int, place: str, user: str, password: str,
                  screenshot_url: str, live_video_url: str, width: int, height: int,
-                 framerate: int, frames_handler=None):
+                 framerate: int, frames_handler: FrameHandler = None):
         """
         :param ip: IP where the camera is located.
         :param port: Port to connect to camera.
@@ -223,35 +224,23 @@ class LiveVideoCamera(Camera):
 
     def receive_video(self):
         """
-        Starts obtaining video.
+        Starts receiving video.
         """
-        try:
-            while self._live_video is None or not self._live_video.isOpened():
-                self.__connect()
+        while (not self._live_video) or (not self._live_video.isOpened()):      # While not connected or video is not
+            self.__connect()                                                    # opened, connect!
 
-            self.__initialize_record_thread()
-        except Exception as e:
-            while not self._live_video.isOpened():
-                print("Error downloading image from camera {} on ip {}".format(self._place, self._ip))
-                print(e)
-                self.__connect()
+        if self._record_thread:                                                 # If there was another thread running
+            self._kill_thread = True                                            # stop it,
+            self._record_thread.join()                                          # wait for it to finish
+            self._kill_thread = False                                           # reset variables.
+
+        self._record_thread = threading.Thread(target=self._receive_frames)
+        self._record_thread.start()                                             # Start thread to receive frames
 
     def stop_receiving_video(self):
         super().stop_receiving_video()
 
         self._live_video.release()
-
-    def __initialize_record_thread(self):
-        """
-        Initializes the recording thread.
-        """
-        if self._record_thread is not None:
-            self._kill_thread = True
-            self._record_thread.join()
-            self._kill_thread = False
-
-        self._record_thread = threading.Thread(target=self._receive_frames)
-        self._record_thread.start()
 
     def _receive_frames(self):
         """
@@ -262,10 +251,10 @@ class LiveVideoCamera(Camera):
             try:
                 grabbed, frame = self._live_video.read()                # Read frame
 
-                while not grabbed:                                      # If could not read frame
+                while not grabbed:                                      # While could not obtain frame
                     print("Reconnecting!")
                     self.__connect()                                    # Reconnect
-                    grabbed, frame = self._live_video.read()            # Read again, if could not read again retry!
+                    grabbed, frame = self._live_video.read()            # Read again
 
                 self._last_frame = frame
                 self._notify_subscribed()
@@ -285,7 +274,7 @@ class LiveVideoCamera(Camera):
         i = 0
         while not connected:
             try:
-                if self._live_video is not None:
+                if self._live_video:
                     print("Reconnecting camera at {} on IP {}".format(self._place, self._ip))
                     self._live_video.release()
                     del self._live_video
@@ -314,7 +303,9 @@ class LiveVideoCamera(Camera):
 
 
 class FI9803PV3(LiveVideoCamera):
-    def __init__(self, ip: str, port: int, streaming_port: int, place: str, user: str, password: str, frames_handler=None):
+    def __init__(self, ip: str, port: int, streaming_port: int,
+                 place: str, user: str, password: str,
+                 frames_handler: FrameHandler = None):
         """
         :param ip: IP where the camera is located.
         :param port: Port to connect to camera.
@@ -354,7 +345,9 @@ class FI9803PV3(LiveVideoCamera):
 
 
 class FI89182(LiveVideoCamera):
-    def __init__(self, ip: str, port: int, place: str, user: str, password: str, frames_handler=None):
+    def __init__(self, ip: str, port: int, place: str,
+                 user: str, password: str,
+                 frames_handler: FrameHandler = None):
         """
         :param ip: IP where the camera is located.
         :param port: Port to connect to camera.
