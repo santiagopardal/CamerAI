@@ -37,6 +37,7 @@ The truth is that the worst case scenario is extremely unlikely to happen becaus
 ![alt text](https://github.com/santiagopardal/CamerAI/blob/master/Documentation/Math%20functions%20for%20CamerAI/Average%20case/Cost%20function%20derivative%20with%20respect%20to%20b.png)
 
 ![alt text](https://github.com/santiagopardal/CamerAI/blob/master/Documentation/Math%20functions%20for%20CamerAI/Average%20case/b%20value.png)
+
 As you can see, the worst case scenario function is the same to the "average case scenario", because m=n/2b. For different environments one has to explore what is the best value for m, in my case, as I said before, 2 is a very reasonable number and reduces significantly the number of times we have to look for movement. In order to figure out the best value for m, an statistical approach would be more suitable, unfortunately I don't have the means to do it. When setting m, you have to consider the final value of b and the framerate you are going to work with, because skipping 9 frames in a camera running at 120 fps is not the same as skipping 9 frames in a comera running at 23 fps, so be careful when setting this number, ideally we would not skip frames.
 
 Some visual explanations of what's happening when using b=5:
