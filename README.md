@@ -30,7 +30,7 @@ times for movement, where n is the DBS and b is the number of frames we will be 
 
 in which we want the function to be equal to 0 to find the value b for the minimum cost, as you can see, there is no
 value for b in which the partial derivative with respect to b equals to 0, b would need to tend to infinity, and we do not want that.
-The truth is that the worst case scenario is extremely unlikely to happen because movements in the real world occur "continuously" and in that case we analyse what would happen if every time we skip frames we find the contrary state to the pair previously analysed, for example movement, not movement, movement, not movement, etc. A more reasonable case would be to have a constant "m" which would be the ammount of "bursts" we have in the batch, for example for a DBS of 100, I figured out that 2 is a very reasonable number to use. Using m as another variable the functions would be:
+The truth is that the worst case scenario is extremely unlikely to happen because movements in the real world occur "continuously" and in that case we analyse what would happen if every time we skip frames we find the contrary state to the pair previously analysed, for example movement, not movement, movement, not movement, etc. A more reasonable case would be to have a constant "m" which would be the ammount of "bursts" we have in the batch, for example for a DBS of 92, I figured out that 2 is a very reasonable number to use. Using m as another variable the functions would be:
 
 ![alt text](https://github.com/santiagopardal/CamerAI/blob/master/Documentation/Math%20functions%20for%20CamerAI/Average%20case/Cost%20function.png)
 
