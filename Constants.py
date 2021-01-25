@@ -1,3 +1,4 @@
+import numpy as np
 from numpy import sqrt
 import os
 
@@ -11,7 +12,11 @@ def cost_derivative(b):
 
 
 def calculate_jump():
-    return round(sqrt(2 * DETECTION_BATCH_SIZE / MOVEMENT_BURSTS))
+    res = round(sqrt(2 * DETECTION_BATCH_SIZE / MOVEMENT_BURSTS))
+
+    vals = np.array([cost_function(res - 1), cost_function(res), cost_function(res + 1)])
+
+    return res + (np.argmin(vals) - 1)
 
 
 def calculate_dbs():
@@ -65,4 +70,3 @@ YOLO_V4_WEIGHTS = os.path.join(YOLO_V3_PATH, os.path.join("320", "yolov4.weights
 YOLO_V4_CONFIGS = os.path.join(YOLO_V3_PATH, os.path.join("320", "yolov4.cfg"))
 YOLO_V4_RESOLUTION = 320
 
-print(JUMP, calculate_dbs())
