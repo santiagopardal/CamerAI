@@ -28,29 +28,16 @@ times for movement, where n is the DBS and b is the number of frames we will be 
 
 ![alt text](https://github.com/santiagopardal/CamerAI/blob/master/Documentation/Math%20functions%20for%20CamerAI/Worst%20case/Cost%20function%20derivative%20with%20respect%20to%20b.png)
 
-in which we want the function to be equal to 0 to find the value b for the minimum cost. The truth is that the worst case scenario is extremely unlikely to happen because movements in the real world occur "continuously" and in that case we analyse what would happen if every time we skip frames we find the contrary state to the pair previously analysed, for example movement, not movement, movement, not movement, etc. A more reasonable case would be to have a constant "m" which would be the ammount of "bursts" we have in the batch, for example for a DBS of 100, I figured out that 2 is a very reasonable number to use. Using m as another variable the functions would be:
+in which we want the function to be equal to 0 to find the value b for the minimum cost, as you can see, there is no
+value for b in which the partial derivative with respect to b equals to 0, b would need to tend to infinity, and we do not want that.
+The truth is that the worst case scenario is extremely unlikely to happen because movements in the real world occur "continuously" and in that case we analyse what would happen if every time we skip frames we find the contrary state to the pair previously analysed, for example movement, not movement, movement, not movement, etc. A more reasonable case would be to have a constant "m" which would be the ammount of "bursts" we have in the batch, for example for a DBS of 100, I figured out that 2 is a very reasonable number to use. Using m as another variable the functions would be:
 
 ![alt text](https://github.com/santiagopardal/CamerAI/blob/master/Documentation/Math%20functions%20for%20CamerAI/Average%20case/Cost%20function.png)
 
 ![alt text](https://github.com/santiagopardal/CamerAI/blob/master/Documentation/Math%20functions%20for%20CamerAI/Average%20case/Cost%20function%20derivative%20with%20respect%20to%20b.png)
 
-As you can see, the worst case scenario function is the same to the "average case scenario", because m=n/2b. For different environments one has to explore what is the best value for m, in my case, as I said before, 2 is a very reasonable number and reduces significantly the number of times we have to look for movement. In order to figure out the best value for m, an statistical approach would be more suitable, unfortunately I don't have the means to do it. When setting m, you have to consider the final value of b and the framerate you are going to work with, because skipping 9 frames in a camera running at 120 fps is no the same as skipping 9 frames in a comera running at 23 fps, so be careful when setting this number. Ideally we would not skip frames, but skipping aproximately 20% of frames (i.e for 60 fps, skipping 12 frames is ok) won't hurt detection. Using m=2 and DBS=100 or n=100, for b=5 the cost function's partial derivative with respect to b is aproximately cero, more specifically 4.705. If you decide to go for the worst case scenario, b=3 as shown in the graphs below.
-
-The graph of the "worst case" cost function (red) and it's derivative with respect to b (black) when n = 100:
-
-![alt text](https://github.com/santiagopardal/CamerAI/blob/master/Documentation/Math%20functions%20for%20CamerAI/n%3D100%2C%20m%3Dn(div)2b.png)
-
-The graph of the "average case" cost function (red) and it's derivative with respect to b (black) when n = 100 and m = 2:
-
-![alt text](https://github.com/santiagopardal/CamerAI/blob/master/Documentation/Math%20functions%20for%20CamerAI/n%3D100%2Cm%3D2.png)
-
-The graph of the "worst case" cost function in 3 dimentions, where x is b and y is DBS:
-
-![alt text](https://github.com/santiagopardal/CamerAI/blob/master/Documentation/Math%20functions%20for%20CamerAI/3d%20graph%2C%20m%3Dn(div)2b.png)
-
-The graph of the "average case" cost function in 3 dimentions, where x is b, y is DBS and m = 2:
-
-![alt text](https://github.com/santiagopardal/CamerAI/blob/master/Documentation/Math%20functions%20for%20CamerAI/3d%20graph%2C%20m%3D2.png)
+![alt text](https://github.com/santiagopardal/CamerAI/blob/master/Documentation/Math%20functions%20for%20CamerAI/Average%20case/b%20value.png)
+As you can see, the worst case scenario function is the same to the "average case scenario", because m=n/2b. For different environments one has to explore what is the best value for m, in my case, as I said before, 2 is a very reasonable number and reduces significantly the number of times we have to look for movement. In order to figure out the best value for m, an statistical approach would be more suitable, unfortunately I don't have the means to do it. When setting m, you have to consider the final value of b and the framerate you are going to work with, because skipping 9 frames in a camera running at 120 fps is not the same as skipping 9 frames in a comera running at 23 fps, so be careful when setting this number, ideally we would not skip frames.
 
 Some visual explanations of what's happening when using b=5:
 
