@@ -4,15 +4,15 @@ import os
 
 
 def cost_function(b):
-    return DETECTION_BATCH_SIZE / b + 1 + MOVEMENT_BURSTS * (b-1) / 2
+    return DETECTION_BATCH_SIZE / b + 1 + MOVEMENT_BURSTS * (b-1)
 
 
 def cost_derivative(b):
-    return MOVEMENT_BURSTS/2 + DETECTION_BATCH_SIZE/(b**2)
+    return MOVEMENT_BURSTS - DETECTION_BATCH_SIZE/(b**2)
 
 
 def calculate_jump():
-    res = round(sqrt(2 * DETECTION_BATCH_SIZE / MOVEMENT_BURSTS))
+    res = round(sqrt(DETECTION_BATCH_SIZE / MOVEMENT_BURSTS))
 
     vals = np.array([cost_function(res - 1), cost_function(res), cost_function(res + 1)])
 
