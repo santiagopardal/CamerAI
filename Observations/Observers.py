@@ -67,7 +67,8 @@ class MovementDetectionObserver(Observer):
 
                         found_no_movement = False
 
-                        while j > last_element and not found_no_movement:
+                        #while j > last_element and not found_no_movement:
+                        for j in range(j, last_element, -2):
                             frm = frames[j]
                             pframe = frames[j - 1]
                             looked += 1
@@ -77,9 +78,10 @@ class MovementDetectionObserver(Observer):
                                 frames_with_movement.append(pframe)
                             else:
                                 frames_with_movement.append(frames[j])
-                                found_no_movement = True
+                                break
+                                #found_no_movement = True
 
-                            j = j - 2
+                            #j = j - 2
 
                         if not found_no_movement and j == last_element - 1:
                             frames_with_movement.append(frames[last_element - 1])
@@ -87,9 +89,10 @@ class MovementDetectionObserver(Observer):
                     j = i * Constants.JUMP - 1
                     last_element = (i - 1) * Constants.JUMP + 2
 
-                    while j > last_element:
+                    #while j > last_element:
+                    for j in range(j, last_element, -1):
                         frames_with_movement.append(frames[j])
-                        j = j - 1
+                    #    j = j - 1
 
                 frames_with_movement.append(frames[i * Constants.JUMP + 1])
                 frames_with_movement.append(frames[i * Constants.JUMP])
@@ -103,21 +106,25 @@ class MovementDetectionObserver(Observer):
                     j = i * Constants.JUMP - 1
                     last_element = (i - 1) * Constants.JUMP + 1
 
-                    while j - 1 > last_element and not store_all:
+                    for j in range(j, last_element + 1, -2):
+                    #while j - 1 > last_element and not store_all:
                         frm = frames[j]
                         pframe = frames[j - 1]
                         looked += 1
                         if self._movement(pframe, frm):
-                            store_all = True
-                        else:
-                            j = j - 2
+                            break
+                            #store_all = True
+                        #else:
+                        #    j = j - 2
 
                     if store_all:
                         frames_with_movement.append(frames[j + 1])
-                        while j > last_element:
+                        for j in range(j, last_element, -1):
+                    #    while j > last_element:
                             frames_with_movement.append(frames[j])
                             frames_with_movement.append(frames[j - 1])
-                            j = j - 2
+                          #  j = j - 2
+
 
         d = (time.time() - start)
         print("Looked at {} relative FPS and {} real FPS, {} times with {} bursts"
