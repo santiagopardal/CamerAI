@@ -112,7 +112,7 @@ class MovementDetectionObserver(Observer):
 
                     if store_all:
                         frames_with_movement.append(frames[j + 1])
-                        for j in range(j, last_element, -1):
+                        for j in range(j, last_element, -2):
                             frames_with_movement.append(frames[j])
                             frames_with_movement.append(frames[j - 1])
 
