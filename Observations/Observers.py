@@ -46,12 +46,13 @@ class MovementDetectionObserver(Observer):
 
         to_observe = [(frame, frames[i + 1]) for i, frame in enumerate(frames) if i % Constants.JUMP == 0]
 
-        start = time.time()
+        #start = time.time()
         results = self._batch_movement_check(to_observe)
 
         recording = False
         bursts = 0
         looked = len(results)
+        frames_list_length = len(frames)
 
         frames_with_movement = []
 
@@ -92,7 +93,7 @@ class MovementDetectionObserver(Observer):
                 frames_with_movement.append(frames[i * Constants.JUMP + 1])
                 frames_with_movement.append(frames[i * Constants.JUMP])
 
-                if i * Constants.JUMP + 2 < len(frames):
+                if i * Constants.JUMP + 2 < frames_list_length:
                     frames_with_movement.append(frames[i * Constants.JUMP + 2])
             else:
                 if recording:
@@ -116,9 +117,9 @@ class MovementDetectionObserver(Observer):
                             frames_with_movement.append(frames[j])
                             frames_with_movement.append(frames[j - 1])
 
-        d = (time.time() - start)
-        print("Looked at {} relative FPS and {} real FPS, {} times with {} bursts"
-              .format(len(frames) / d, looked / d, looked, bursts))
+        #d = (time.time() - start)
+        #print("Looked at {} relative FPS and {} real FPS, {} times with {} bursts"
+        #      .format(len(frames) / d, looked / d, looked, bursts))
 
         del to_observe
         del results
