@@ -13,6 +13,41 @@ _mutex = Lock()
 _model = None
 
 
+def create_lite_model():
+    model = tf.keras.models.Sequential([
+
+        tf.keras.layers.Conv2D(32, kernel_size=(5, 5), padding="same", activation="relu", input_shape=(180, 180, 1)),
+        tf.keras.layers.MaxPooling2D(pool_size=5, strides=3),
+        tf.keras.layers.Dropout(0.25),
+        tf.keras.layers.BatchNormalization(),
+
+        tf.keras.layers.Conv2D(32, kernel_size=(7, 7), padding="same", activation="relu"),
+        tf.keras.layers.MaxPooling2D(pool_size=7, strides=3),
+        tf.keras.layers.Dropout(0.25),
+        tf.keras.layers.BatchNormalization(),
+
+        tf.keras.layers.Conv2D(64, kernel_size=(7, 7), padding="same", activation="relu"),
+        tf.keras.layers.MaxPooling2D(pool_size=7, strides=3),
+        tf.keras.layers.Dropout(0.25),
+        tf.keras.layers.BatchNormalization(),
+
+        tf.keras.layers.Flatten(),
+        tf.keras.layers.Dropout(0.5),
+
+        tf.keras.layers.Dense(1024, activation="relu"),
+        tf.keras.layers.Dense(512, activation="relu"),
+        tf.keras.layers.Dense(1, activation="sigmoid")
+    ])
+
+    optimizer = tf.keras.optimizers.Adam(lr=1e-64)
+    loss = tf.keras.losses.BinaryCrossentropy()
+
+    model.compile(loss=loss, optimizer=optimizer, metrics=["accuracy"])
+    model.load_weights(Constants.TINY_MODEL_WEIGHTS)
+
+    return model
+
+
 def create_main_model():
     """
     Generates the main model.

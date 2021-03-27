@@ -43,6 +43,8 @@ ABSOLUTE_PATH = os.path.abspath(os.path.curdir)
 STORING_PATH = os.path.join(ABSOLUTE_PATH, "Images")
 
 V3_MODEL_WEIGHTS = os.path.join(ABSOLUTE_PATH, "Neural Network")
+TINY_MODEL_WEIGHTS = os.path.join(V3_MODEL_WEIGHTS, "tiny")
+TINY_MODEL_WEIGHTS = os.path.join(TINY_MODEL_WEIGHTS, "model")
 V3_MODEL_WEIGHTS = os.path.join(V3_MODEL_WEIGHTS, "Second network")
 V3_MODEL_WEIGHTS = os.path.join(V3_MODEL_WEIGHTS, "v3")
 V3_MODEL_WEIGHTS = os.path.join(V3_MODEL_WEIGHTS, "model")

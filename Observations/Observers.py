@@ -1,5 +1,5 @@
 import cv2
-from Detectors.CNNs import create_main_model
+from Detectors.CNNs import create_lite_model
 from Cameras.Frame import Frame
 import Constants
 import numpy as np
@@ -34,7 +34,7 @@ class MovementDetectionObserver(Observer):
         super().__init__()
 
         if nn is None:
-            self._neural_network = create_main_model()
+            self._neural_network = create_lite_model()
         else:
             self._neural_network = nn
 
