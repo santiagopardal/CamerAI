@@ -9,7 +9,7 @@ there's been movement or not. The sensitivity can be modified in the Constants.p
 this may be due to a few mislabeled images in the dataset, fortunately, in practice the network performs way better than 97%. More testing must be done in order to ensure this.
 
 # What's the architecture of the CNN?
-![alt text](https://github.com/santiagopardal/CamerAI/blob/master/Documentation/CNN%20architecture.png)
+![alt text](https://github.com/santiagopardal/CamerAI/blob/master/Documentation/Lite%20CNN%20architecture.png)
 
 # How do we detect objects?
 Objects are detected by YOLO v4, it's a pretrained convolutional neural network designed to detect a variety of objects. See [YOLOv4/coco.names](https://github.com/santiagopardal/CamerAI/blob/master/YOLO%20v4/coco.names) to get the full list.
