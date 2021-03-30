@@ -43,7 +43,6 @@ class MovementDetectionObserver(Observer):
         Receives a list of frames and stores those in which there has been movement. Brace yourself.
         :param frames: Frames to analyse.
         """
-
         to_observe = [(frame, frames[i + 1]) for i, frame in enumerate(frames) if i % Constants.JUMP == 0]
 
         #start = time.time()

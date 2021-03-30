@@ -1,6 +1,7 @@
 import tensorflow as tf
 from threading import Lock
 import Constants
+import numpy as np
 
 
 physical_devices = tf.config.experimental.list_physical_devices('GPU')
@@ -49,6 +50,7 @@ def create_lite_model():
 
             _model.compile(loss=loss, optimizer=optimizer, metrics=["accuracy"])
             _model.load_weights(Constants.TINY_MODEL_WEIGHTS)
+            _model.predict(np.array([np.array([[180]*180]*180).reshape(Constants.CNN_INPUT_SHAPE)]))
 
     return _model
 
