@@ -22,17 +22,21 @@ class Frame(object):
 
         self._stored_in = []
 
-    def set_frame(self, frm: np.ndarray):
-        self._frame = frm
-
-    def set_time(self, tme):
-        self._time = tme
-
-    def get_frame(self) -> np.ndarray:
+    @property
+    def frame(self) -> np.ndarray:
         return self._frame
 
-    def get_time(self) -> datetime.datetime.time:
+    @property
+    def time(self) -> datetime.datetime.time:
         return self._time
+
+    @frame.setter
+    def frame(self, frm: np.ndarray):
+        self._frame = frm
+
+    @time.setter
+    def time(self, tme):
+        self._time = tme
 
     def get_denoised_frame(self):
         """
@@ -43,7 +47,7 @@ class Frame(object):
             kernel = np.ones((3, 3), np.float32) / 9
             frm = cv2.filter2D(self._frame, -1, kernel)
             self._denoised = Frame(frm)
-            self._denoised.set_time(self._time)
+            self._denoised.time = self._time
 
         return self._denoised
 
