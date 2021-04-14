@@ -2,7 +2,6 @@ import urllib
 import io
 import time
 import cv2
-import threading
 import Constants
 import numpy as np
 import requests
