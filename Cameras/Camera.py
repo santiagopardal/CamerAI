@@ -9,6 +9,7 @@ import requests
 from PIL import Image
 from Handlers.Handler import FrameHandler, AsynchronousDiskStoreMotionHandler
 from Observations.Observers import Observer, MovementDetectionObserver
+from concurrent.futures import ThreadPoolExecutor
 
 
 class Subscriber:
@@ -39,6 +40,7 @@ class Camera:
         self._last_frame = None
         self._subscriptors = []
         self._frames_handler = FrameHandler() if frames_handler is None else frames_handler
+        self._thread_pool = ThreadPoolExecutor(max_workers=2)
 
     @classmethod
     def from_dict(cls, json: dict):
@@ -135,10 +137,15 @@ class Camera:
 
     def receive_video(self):
         """
-        Starts receiving video.
+        Starts thread to receive video.
         """
-        self._record_thread = threading.Thread(target=self._receive_frames)
-        self._record_thread.start()
+        self._thread_pool.submit(self._receive_video)
+
+    def _receive_video(self):
+        """
+        Tries to get video.
+        """
+        self._thread_pool.submit(self._receive_frames)                  # Start thread to receive frames
 
     def record(self):
         """
@@ -238,9 +245,9 @@ class LiveVideoCamera(Camera):
         res.append("_live_video")
         return res
 
-    def receive_video(self):
+    def _receive_video(self):
         """
-        Starts receiving video.
+        Tries to receive video.
         """
         while (not self._live_video) or (not self._live_video.isOpened()):      # While not connected or video is not
             self.__connect()                                                    # opened, connect!
@@ -250,8 +257,7 @@ class LiveVideoCamera(Camera):
             self._record_thread.join()                                          # wait for it to finish
             self._kill_thread = False                                           # reset variables.
 
-        self._record_thread = threading.Thread(target=self._receive_frames)
-        self._record_thread.start()                                             # Start thread to receive frames
+        super()._receive_video()
 
     def stop_receiving_video(self):
         """
