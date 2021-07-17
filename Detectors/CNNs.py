@@ -45,7 +45,7 @@ def create_lite_model():
                 tf.keras.layers.Dense(1, activation="sigmoid")
             ])
 
-            optimizer = tf.keras.optimizers.Adam(lr=1e-64)
+            optimizer = tf.keras.optimizers.Adam(learning_rate=1e-64)
             loss = tf.keras.losses.BinaryCrossentropy()
 
             _model.compile(loss=loss, optimizer=optimizer, metrics=["accuracy"])
@@ -93,7 +93,7 @@ def create_main_model():
                 tf.keras.layers.Dense(1, activation="sigmoid")
             ])
 
-            optimizer = tf.keras.optimizers.Adam(lr=1e-50)
+            optimizer = tf.keras.optimizers.Adam(learning_rate=1e-50)
             loss = tf.keras.losses.BinaryCrossentropy()
 
             _model.compile(loss=loss, optimizer=optimizer, metrics=["accuracy"])
