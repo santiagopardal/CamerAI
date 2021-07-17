@@ -188,26 +188,21 @@ class Camera(Publisher):
 
 
 class LiveVideoCamera(Camera):
-    def __init__(self, ip: str, port: int, place: str, user: str, password: str,
-                 screenshot_url: str, live_video_url: str, width: int, height: int,
+    def __init__(self, ip: str, port: int, place: str, screenshot_url: str,
+                 live_video_url: str, width: int, height: int,
                  framerate: int, frames_handler: FrameHandler = None):
         """
         :param ip: IP where the camera is located.
         :param port: Port to connect to camera.
         :param place: Place where the camera is located, this will be the folder's name where the frames will be stored.
-        :param user: Username to connect to camera.
-        :param password: Password for username.
         :param screenshot_url: Screenshot URL for camera.
         :param live_video_url: Live video URL for camera.
         :param width: Width of frame.
         :param height: Height of frame.
         """
-        user = urllib.parse.quote(user)
-        password = urllib.parse.quote(password)
+        super().__init__(ip, port, place, screenshot_url, framerate, frames_handler)
 
-        super().__init__(ip, port, place, screenshot_url.format(user, password), framerate, frames_handler)
-
-        self._live_video_url = live_video_url.format(user, password)
+        self._live_video_url = live_video_url
         self._live_video = None
         self._frame_width = width
         self._frame_height = height
@@ -322,9 +317,17 @@ class FI9803PV3(LiveVideoCamera):
         :param password: Password.
         :param frames_handler: Handler to handle new frames, if set to None will use default.
         """
-        super().__init__(ip, port, place, user, password,
-                         "http://{}:{}/{}".format(ip, str(port), "cgi-bin/CGIProxy.fcgi?cmd=snapPicture2&usr={}&pwd={}"),
-                         "{}@{}:{}/videoMain".format("rtsp://{}:{}", ip, str(streaming_port)),
+        user = urllib.parse.quote(user)
+        password = urllib.parse.quote(password)
+
+        screenshot_url = "http://{}:{}/{}".format(ip, str(port), "cgi-bin/CGIProxy.fcgi?cmd=snapPicture2&usr={}&pwd={}")
+        screenshot_url = screenshot_url.format(user, password)
+
+        live_video_url = "{}@{}:{}/videoMain".format("rtsp://{}:{}", ip, str(streaming_port))
+        live_video_url = live_video_url.format(user, password)
+
+        super().__init__(ip, port, place,
+                         screenshot_url, live_video_url,
                          1280, 720, 23, frames_handler)
 
         self._streaming_port = streaming_port
@@ -372,9 +375,17 @@ class FI89182(LiveVideoCamera):
         :param password: Password.
         :param frames_handler: Handler to handle new frames, if set to None will use default.
         """
-        super().__init__(ip, port, place, user, password,
-                         "http://{}:{}/{}".format(ip, str(port), "cgi-bin/CGIProxy.fcgi?cmd=snapPicture2&usr={}&pwd={}"),
-                         "http://{}:{}/{}".format(ip, port, "videostream.cgi?user={}&pwd={}"),
+        user = urllib.parse.quote(user)
+        password = urllib.parse.quote(password)
+
+        screenshot_url = "http://{}:{}/{}".format(ip, str(port), "cgi-bin/CGIProxy.fcgi?cmd=snapPicture2&usr={}&pwd={}")
+        screenshot_url = screenshot_url.format(user, password)
+
+        live_video_url = "http://{}:{}/{}".format(ip, port, "videostream.cgi?user={}&pwd={}")
+        live_video_url = live_video_url.format(user, password)
+
+        super().__init__(ip, port, place,
+                         screenshot_url, live_video_url,
                          640, 480, 15, frames_handler)
 
     def to_dict(self) -> dict:
