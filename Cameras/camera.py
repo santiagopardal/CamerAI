@@ -118,7 +118,7 @@ class Camera(Publisher):
         """
         Tries to get video.
         """
-        self._thread_pool.submit(self._receive_frames)                  # Start thread to receive frames
+        self._thread_pool.submit(self._receive_frames)
 
     def record(self):
         """
@@ -148,6 +148,12 @@ class Camera(Publisher):
 
         self._frames_handler.stop()
 
+    def _acquire_frame(self):
+        response = requests.get(self._screenshot_url, stream=True).raw
+        frame = np.asarray(bytearray(response.read()), dtype="uint8")
+
+        return cv2.imdecode(frame, cv2.IMREAD_COLOR)
+
     def _receive_frames(self):
         """
         Obtains live images from the camera, notifies subscribers and calls the frames handler to handle them.
@@ -160,12 +166,9 @@ class Camera(Publisher):
                 try:
                     previous_capture = time.perf_counter()
 
-                    response = requests.get(self._screenshot_url, stream=True).raw
+                    frame = self._acquire_frame()
 
-                    frame = np.asarray(bytearray(response.read()), dtype="uint8")
-                    frame = cv2.imdecode(frame, cv2.IMREAD_COLOR)
-
-                    if frame is not None:
+                    if frame:
                         self._last_frame = frame
                         self._notify_subscribed()
                         self._frames_handler.handle(frame)
@@ -240,6 +243,16 @@ class LiveVideoCamera(Camera):
 
         self._live_video.release()
 
+    def _acquire_frame(self):
+        grabbed, frame = self._live_video.read()
+
+        while not grabbed:
+            print("Reconnecting!")
+            self.__connect()
+            self._acquire_frame()
+
+        return frame
+
     def _receive_frames(self):
         """
         Obtains live images from the camera, notifies subscribers and calls the frames handler to handle them.
@@ -247,12 +260,7 @@ class LiveVideoCamera(Camera):
 
         while not self._kill_thread:
             try:
-                grabbed, frame = self._live_video.read()                # Read frame
-
-                while not grabbed:                                      # While could not obtain frame
-                    print("Reconnecting!")
-                    self.__connect()                                    # Reconnect
-                    grabbed, frame = self._live_video.read()            # Read again
+                frame = self._acquire_frame()
 
                 self._last_frame = frame
                 self._notify_subscribed()
@@ -286,10 +294,11 @@ class LiveVideoCamera(Camera):
                 connected = True
 
                 print("Connected camera at {} on IP {}".format(self._place, self._ip))
-            except:
+            except Exception as e:
                 if i < 6:
                     i += 1
                 seconds = 2 ** i
+                print(e)
                 print("Could not connect, retrying in {} seconds".format(seconds))
                 time.sleep(seconds)
 
