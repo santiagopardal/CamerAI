@@ -263,12 +263,12 @@ class FrameHandler(Handler):
                 if last_frame:
                     frames = [last_frame] + frames[:frames_length - 1]
 
-                movement = self._observer.observe(frames)                              # Pass the frames to the observer
+                movement = self._observer.observe(frames)
 
-                for handler in self._motion_handlers:                                  # Handler, manage movement
+                for handler in self._motion_handlers:
                     handler.handle(movement)
 
-                last_frame = lf                                                        # update last frame.
+                last_frame = lf
 
                 del frames
                 del movement

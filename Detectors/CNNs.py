@@ -2,6 +2,7 @@ import tensorflow as tf
 from threading import Lock
 import constants
 import numpy as np
+from constants import CNN_INPUT_SHAPE
 
 
 physical_devices = tf.config.experimental.list_physical_devices('GPU')
@@ -22,7 +23,8 @@ def create_lite_model():
         if _model is None:
             _model = tf.keras.models.Sequential([
 
-                tf.keras.layers.Conv2D(32, kernel_size=(5, 5), padding="same", activation="relu", input_shape=(180, 180, 1)),
+                tf.keras.layers.Conv2D(32, kernel_size=(5, 5), padding="same",
+                                       activation="relu", input_shape=CNN_INPUT_SHAPE),
                 tf.keras.layers.MaxPooling2D(pool_size=5, strides=3),
                 tf.keras.layers.Dropout(0.25),
                 tf.keras.layers.BatchNormalization(),
@@ -67,7 +69,8 @@ def create_main_model():
         if _model is None:
             _model = tf.keras.models.Sequential([
 
-                tf.keras.layers.Conv2D(64, kernel_size=(5, 5), padding="same", activation="relu", input_shape=(180, 180, 1)),
+                tf.keras.layers.Conv2D(64, kernel_size=(5, 5), padding="same",
+                                       activation="relu", input_shape=CNN_INPUT_SHAPE),
                 tf.keras.layers.MaxPooling2D(pool_size=5, strides=3),
                 tf.keras.layers.Dropout(0.25),
                 tf.keras.layers.BatchNormalization(),
