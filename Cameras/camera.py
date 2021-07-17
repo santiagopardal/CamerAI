@@ -9,16 +9,12 @@ from PIL import Image
 from Handlers.handler import FrameHandler, AsynchronousDiskStoreMotionHandler
 from Observations.observers import Observer, MovementDetectionObserver
 from concurrent.futures import ThreadPoolExecutor
+from Observer.observer import Publisher
 
 
-class Subscriber:
-    def notify(self):
-        pass
-
-
-class Camera:
-    def __init__(self, ip: str, port: int, place: str, screenshot_url: str,
-                 framerate: int, frames_handler: FrameHandler = None):
+class Camera(Publisher):
+    def __init__(self, ip: str, port: int, place: str, screenshot_url: str, framerate: int,
+                 frames_handler: FrameHandler = None):
         """
         :param ip: IP of the camera.
         :param port: Port for the camera's IP.
@@ -29,6 +25,7 @@ class Camera:
         :param frames_handler: Handler to handle new frames.
         """
 
+        super().__init__()
         self._ip = ip
         self._port = port
         self._place = place
@@ -37,7 +34,6 @@ class Camera:
         self._record_thread = None
         self._kill_thread = False
         self._last_frame = None
-        self._subscriptors = []
         self._frames_handler = FrameHandler() if frames_handler is None else frames_handler
         self._thread_pool = ThreadPoolExecutor(max_workers=2)
 
@@ -91,28 +87,6 @@ class Camera:
     @port.setter
     def port(self, port: int):
         self._port = port
-
-    def subscribe(self, sub: Subscriber):
-        """
-        Adds a new subscriber to the list.
-        :param sub: Subscriber to add.
-        """
-        self._subscriptors.append(sub)
-
-    def unsubscribe(self, sub: Subscriber):
-        """
-        Unsubscribes a subscriber if already subscribed.
-        :param sub: Subscriber.
-        """
-        if sub in self._subscriptors:
-            self._subscriptors.remove(sub)
-
-    def _notify_subscribed(self):
-        """
-        Notifies all subscribed that a new frame is ready to be read.
-        """
-        for sub in self._subscriptors:
-            sub.notify()
 
     def set_frames_handler(self, frames_handler: FrameHandler):
         """

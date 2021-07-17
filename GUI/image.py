@@ -4,7 +4,7 @@ import cv2
 from kivy.uix.button import ButtonBehavior
 from Cameras.camera import Camera
 from kivy.clock import Clock
-from Cameras.camera import Subscriber
+from Observer.observer import Subscriber
 
 
 class KivyCV(ButtonBehavior, Image, Subscriber):
