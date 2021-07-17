@@ -3,7 +3,7 @@ from PIL import Image
 import datetime
 import os
 import numpy as np
-import Constants
+import constants
 
 
 class Frame(object):
@@ -57,7 +57,7 @@ class Frame(object):
         :return: Frame grayscaled and resized.
         """
         if self._resized_and_grayscale is None:
-            self._resized_and_grayscale = cv2.resize(self._frame, Constants.RESOLUTION, interpolation=cv2.INTER_AREA)
+            self._resized_and_grayscale = cv2.resize(self._frame, constants.RESOLUTION, interpolation=cv2.INTER_AREA)
             self._resized_and_grayscale = cv2.cvtColor(self._resized_and_grayscale, cv2.COLOR_RGB2GRAY)
 
         return self._resized_and_grayscale
@@ -80,7 +80,7 @@ class Frame(object):
         try:
             filename = str(self._time).replace(":", "-") + ".jpeg"
 
-            pth = Constants.STORING_PATH
+            pth = constants.STORING_PATH
             for fold in folder.split("/"):
                 pth = os.path.join(pth, fold)
                 if not os.path.exists(pth):

@@ -1,4 +1,4 @@
-from System import System
+from system import System
 
 
 sys = System()

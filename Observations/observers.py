@@ -1,7 +1,7 @@
 import cv2
 from Detectors.CNNs import create_lite_model
-from Cameras.Frame import Frame
-import Constants
+from Cameras.frame import Frame
+import constants
 import numpy as np
 import time
 import tensorflow as tf
@@ -43,7 +43,7 @@ class MovementDetectionObserver(Observer):
         Receives a list of frames and stores those in which there has been movement. Brace yourself.
         :param frames: Frames to analyse.
         """
-        to_observe = [(frame, frames[i + 1]) for i, frame in enumerate(frames) if i % Constants.JUMP == 0]
+        to_observe = [(frame, frames[i + 1]) for i, frame in enumerate(frames) if i % constants.JUMP == 0]
 
         #start = time.time()
         results = self._batch_movement_check(to_observe)
@@ -62,8 +62,8 @@ class MovementDetectionObserver(Observer):
                     recording = True
 
                     if i != 0:
-                        last_element = (i - 1) * Constants.JUMP + 1
-                        j = i * Constants.JUMP - 1
+                        last_element = (i - 1) * constants.JUMP + 1
+                        j = i * constants.JUMP - 1
 
                         found_no_movement = False
 
@@ -83,23 +83,23 @@ class MovementDetectionObserver(Observer):
                         if not found_no_movement and j == last_element - 1:
                             frames_with_movement.append(frames[last_element - 1])
                 else:
-                    j = i * Constants.JUMP - 1
-                    last_element = (i - 1) * Constants.JUMP + 2
+                    j = i * constants.JUMP - 1
+                    last_element = (i - 1) * constants.JUMP + 2
 
                     for j in range(j, last_element, -1):
                         frames_with_movement.append(frames[j])
 
-                frames_with_movement.append(frames[i * Constants.JUMP + 1])
-                frames_with_movement.append(frames[i * Constants.JUMP])
+                frames_with_movement.append(frames[i * constants.JUMP + 1])
+                frames_with_movement.append(frames[i * constants.JUMP])
 
-                if i * Constants.JUMP + 2 < frames_list_length:
-                    frames_with_movement.append(frames[i * Constants.JUMP + 2])
+                if i * constants.JUMP + 2 < frames_list_length:
+                    frames_with_movement.append(frames[i * constants.JUMP + 2])
             else:
                 if recording:
                     recording = False
                     store_all = False
-                    j = i * Constants.JUMP - 1
-                    last_element = (i - 1) * Constants.JUMP + 1
+                    j = i * constants.JUMP - 1
+                    last_element = (i - 1) * constants.JUMP + 1
 
                     for j in range(j, last_element + 1, -2):
                         frm = frames[j]
@@ -155,7 +155,7 @@ class MovementDetectionObserver(Observer):
         frm = self._frame_manipulation(frm)
         frm = frm.get_resized_and_grayscaled()
 
-        return np.array(cv2.absdiff(pf, frm) / 255, dtype="float32").reshape(Constants.CNN_INPUT_SHAPE)
+        return np.array(cv2.absdiff(pf, frm) / 255, dtype="float32").reshape(constants.CNN_INPUT_SHAPE)
 
     def _batch_movement_check(self, frames: list) -> list:
         """
@@ -168,7 +168,7 @@ class MovementDetectionObserver(Observer):
 
         movements = self._neural_network.predict_on_batch(np.array(images))
 
-        return [movement[0] >= Constants.MOVEMENT_SENSITIVITY for movement in movements]
+        return [movement[0] >= constants.MOVEMENT_SENSITIVITY for movement in movements]
 
 
 class DenoiserObserver(MovementDetectionObserver):

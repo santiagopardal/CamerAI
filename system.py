@@ -2,9 +2,9 @@ import pickle
 import os
 import time
 import threading
-from Cameras.Camera import Camera
+from Cameras.camera import Camera
 from Cameras.deserializator import deserialize
-import Constants
+import constants
 import datetime
 from GUI.KivyGUI import CamerAI
 from threading import Thread, Semaphore
@@ -21,8 +21,8 @@ class System:
 
         self._done_semaphore = Semaphore(0)
 
-        if not os.path.exists(Constants.STORING_PATH):
-            os.mkdir(Constants.STORING_PATH)
+        if not os.path.exists(constants.STORING_PATH):
+            os.mkdir(constants.STORING_PATH)
 
         if os.path.exists("cameras.json"):
             self._load_cams_from_json_file()
@@ -155,8 +155,8 @@ class System:
         """
         Creates binary file with statistics.
         """
-        for place in os.listdir(Constants.STORING_PATH):
-            place_path = os.path.join(Constants.STORING_PATH, place)
+        for place in os.listdir(constants.STORING_PATH):
+            place_path = os.path.join(constants.STORING_PATH, place)
 
             if os.path.isdir(place_path):
                 for day in os.listdir(place_path):
@@ -187,8 +187,8 @@ class System:
         """
         Displays statistics in web browser.
         """
-        for place in os.listdir(Constants.STORING_PATH):
-            place_path = os.path.join(Constants.STORING_PATH, place)
+        for place in os.listdir(constants.STORING_PATH):
+            place_path = os.path.join(constants.STORING_PATH, place)
 
             data = {}
 

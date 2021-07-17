@@ -2,9 +2,9 @@ from kivy.uix.image import Image
 from kivy.graphics.texture import Texture
 import cv2
 from kivy.uix.button import ButtonBehavior
-from Cameras.Camera import Camera
+from Cameras.camera import Camera
 from kivy.clock import Clock
-from Cameras.Camera import Subscriber
+from Cameras.camera import Subscriber
 
 
 class KivyCV(ButtonBehavior, Image, Subscriber):

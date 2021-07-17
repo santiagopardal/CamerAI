@@ -1,11 +1,11 @@
 from threading import Thread, Semaphore
 import datetime
-import Constants
+import constants
 import numpy as np
 import time
 from collections import deque
-from Cameras.Frame import Frame
-from Observations.Observers import Observer, MovementDetectionObserver
+from Cameras.frame import Frame
+from Observations.observers import Observer, MovementDetectionObserver
 
 
 class Handler:
@@ -205,11 +205,11 @@ class FrameHandler(Handler):
             self._current_buffer.append(frame)
             current_buffer_length = len(self._current_buffer)
 
-            if current_buffer_length >= Constants.DBS:
+            if current_buffer_length >= constants.DBS:
                 end = time.time()
 
                 true_framerate = current_buffer_length / (end - self._current_buffer_started_receiving) \
-                    if self._current_buffer_started_receiving else Constants.FRAMERATE
+                    if self._current_buffer_started_receiving else constants.FRAMERATE
 
                 self._frames_to_observe.append((self._current_buffer, true_framerate))
                 self._observe_semaphore.release()
@@ -250,7 +250,7 @@ class FrameHandler(Handler):
 
                 if not last_time_stored:
                     last_time_stored = datetime.datetime.now() - datetime.timedelta(
-                        seconds=(Constants.DBS + 1) * (1 / frame_rate))
+                        seconds=(constants.DBS + 1) * (1 / frame_rate))
 
                 frames = [Frame(frame, self._calculate_time_taken(last_time_stored, frame_rate, i+1).time())
                           for i, frame in enumerate(frames)]

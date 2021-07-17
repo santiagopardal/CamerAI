@@ -2,12 +2,12 @@ import urllib
 import io
 import time
 import cv2
-import Constants
+import constants
 import numpy as np
 import requests
 from PIL import Image
-from Handlers.Handler import FrameHandler, AsynchronousDiskStoreMotionHandler
-from Observations.Observers import Observer, MovementDetectionObserver
+from Handlers.handler import FrameHandler, AsynchronousDiskStoreMotionHandler
+from Observations.observers import Observer, MovementDetectionObserver
 from concurrent.futures import ThreadPoolExecutor
 
 
@@ -181,7 +181,7 @@ class Camera:
         previous_capture = 0
 
         while not self._kill_thread:
-            if time.perf_counter() - previous_capture >= 1 / Constants.FRAMERATE:
+            if time.perf_counter() - previous_capture >= 1 / constants.FRAMERATE:
 
                 try:
                     previous_capture = time.perf_counter()

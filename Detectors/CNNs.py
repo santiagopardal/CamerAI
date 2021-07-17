@@ -1,6 +1,6 @@
 import tensorflow as tf
 from threading import Lock
-import Constants
+import constants
 import numpy as np
 
 
@@ -49,8 +49,8 @@ def create_lite_model():
             loss = tf.keras.losses.BinaryCrossentropy()
 
             _model.compile(loss=loss, optimizer=optimizer, metrics=["accuracy"])
-            _model.load_weights(Constants.TINY_MODEL_WEIGHTS)
-            _model.predict(np.array([np.array([[180]*180]*180).reshape(Constants.CNN_INPUT_SHAPE)]))
+            _model.load_weights(constants.TINY_MODEL_WEIGHTS)
+            _model.predict(np.array([np.array([[180]*180]*180).reshape(constants.CNN_INPUT_SHAPE)]))
 
     return _model
 
@@ -97,6 +97,6 @@ def create_main_model():
             loss = tf.keras.losses.BinaryCrossentropy()
 
             _model.compile(loss=loss, optimizer=optimizer, metrics=["accuracy"])
-            _model.load_weights(Constants.V3_MODEL_WEIGHTS)
+            _model.load_weights(constants.V3_MODEL_WEIGHTS)
 
     return _model

@@ -1,5 +1,5 @@
 from kivy.uix.screenmanager import Screen
-from GUI.Image import KivyCV
+from GUI.image import KivyCV
 from kivy.uix.gridlayout import GridLayout
 
 
