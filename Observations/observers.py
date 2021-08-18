@@ -166,7 +166,7 @@ class MovementDetectionObserver(Observer):
         """
         images = [self._prepare_for_cnn(pf, frm) for pf, frm in frames]
 
-        movements = self._neural_network.predict_on_batch(np.array(images))
+        movements = self._neural_network(np.array(images))
 
         return [movement[0] >= constants.MOVEMENT_SENSITIVITY for movement in movements]
 
