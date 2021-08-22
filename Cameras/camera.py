@@ -7,7 +7,8 @@ import numpy as np
 import requests
 from PIL import Image
 from Handlers.handler import FrameHandler, AsynchronousDiskStoreMotionHandler
-from Observations.observers import Observer, LiteObserver
+from Observations.Observers.observer import Observer
+from Observations.Observers.lite_observer import LiteObserver
 from concurrent.futures import ThreadPoolExecutor
 from Observer.observer import Publisher
 

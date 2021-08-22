@@ -1,12 +1,7 @@
 import cv2
-from Detectors.CNNs import create_lite_model, create_tflite_interpreter
 from Cameras.frame import Frame
 import constants
 import numpy as np
-import tensorflow as tf
-
-
-tf.config.optimizer.set_jit(True)
 
 
 class Observer:
@@ -129,79 +124,3 @@ class Observer:
         del results
 
         return frames_with_movement
-
-
-class MovementDetectionObserver(Observer):
-    _instance = None
-
-    def __new__(cls, *args, **kwargs):
-        if cls._instance is None:
-            cls._instance = super().__new__(cls, *args, **kwargs)
-
-        return cls._instance
-
-    def __init__(self, nn=None):
-        """
-        :param nn: Neural network to detect movement, if not specified will use default.
-        """
-        super().__init__()
-
-        if nn is None:
-            self._neural_network = create_lite_model()
-        else:
-            self._neural_network = nn
-
-    def _batch_movement_check(self, frames: list) -> list:
-        """
-        Returns a list with the results of checking for all difference in frames if there has been movement or not. By
-        difference I mean what _prepare_for_cnn returns.
-        :param frames: List of frames to analyse.
-        :return: List with boolean values representing whether there has been movement or not.
-        """
-        images = [self._prepare_for_cnn(pf, frm) for pf, frm in frames]
-
-        movements = self._neural_network(np.array(images))
-
-        return [movement[0] >= constants.MOVEMENT_SENSITIVITY for movement in movements]
-
-
-class LiteObserver(Observer):
-    def __init__(self):
-        super().__init__()
-
-        self._interpreter = create_tflite_interpreter()
-
-    def _prepare_for_cnn(self, previous_frame, frame):
-        res = super()._prepare_for_cnn(previous_frame, frame)
-
-        return np.expand_dims(res, axis=0)
-
-    def _tflite_predict(self, image):
-        self._interpreter.set_tensor(self._interpreter.get_input_details()[0]['index'], image)
-
-        self._interpreter.invoke()
-
-        output_data = self._interpreter.get_tensor(self._interpreter.get_output_details()[0]['index'])
-        results = np.squeeze(output_data)
-
-        return results
-
-    def _batch_movement_check(self, frames: list) -> list:
-        """
-        Returns a list with the results of checking for all difference in frames if there has been movement or not. By
-        difference I mean what _prepare_for_cnn returns.
-        :param frames: List of frames to analyse.
-        :return: List with boolean values representing whether there has been movement or not.
-        """
-        images = [self._prepare_for_cnn(pf, frm) for pf, frm in frames]
-
-        return [self._tflite_predict(image) >= constants.MOVEMENT_SENSITIVITY for image in images]
-
-
-class DenoiserObserver(MovementDetectionObserver):
-    """
-    DenoiserObserver does the same as MovementDetectionObserver but denoises the frames before analysing.
-    This observer is more useful for cameras with low image quality.
-    """
-    def _frame_manipulation(self, frame: Frame) -> Frame:
-        return frame.get_denoised_frame()

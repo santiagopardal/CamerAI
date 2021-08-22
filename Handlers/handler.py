@@ -5,7 +5,8 @@ import numpy as np
 import time
 from collections import deque
 from Cameras.frame import Frame
-from Observations.observers import Observer, MovementDetectionObserver, LiteObserver
+from Observations.Observers.observer import Observer
+from Observations.Observers.lite_observer import LiteObserver
 
 
 class Handler:
