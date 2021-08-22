@@ -5,7 +5,7 @@ import numpy as np
 import time
 from collections import deque
 from Cameras.frame import Frame
-from Observations.observers import Observer, MovementDetectionObserver
+from Observations.observers import Observer, MovementDetectionObserver, LiteObserver
 
 
 class Handler:
@@ -276,4 +276,5 @@ class FrameHandler(Handler):
 
 class MotionDetectorFrameHandler(FrameHandler):
     def __init__(self, camera):
-        super().__init__(MovementDetectionObserver(), [AsynchronousDiskStoreMotionHandler(camera.place)])
+        #super().__init__(MovementDetectionObserver(), [AsynchronousDiskStoreMotionHandler(camera.place)])
+        super().__init__(LiteObserver(), [AsynchronousDiskStoreMotionHandler(camera.place)])

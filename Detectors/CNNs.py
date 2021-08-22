@@ -3,6 +3,7 @@ from threading import Lock
 import constants
 import numpy as np
 from constants import CNN_INPUT_SHAPE
+import tflite_runtime.interpreter as tflite
 
 
 physical_devices = tf.config.experimental.list_physical_devices('GPU')
@@ -13,6 +14,13 @@ if len(physical_devices) > 0:
 
 _mutex = Lock()
 _model = None
+
+
+def create_tflite_interpreter():
+    interpreter = tflite.Interpreter(model_path=constants.LITE_MODEL_PATH)
+    interpreter.allocate_tensors()
+
+    return interpreter
 
 
 def create_lite_model():
