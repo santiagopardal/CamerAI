@@ -6,7 +6,6 @@ from Cameras.camera import Camera
 from Cameras.deserializator import deserialize
 import constants
 import datetime
-from GUI.KivyGUI import CamerAI
 from threading import Thread, Semaphore
 import plotly.express as px
 import numpy as np
@@ -102,29 +101,11 @@ class System:
         for camera in self.cameras:
             func(camera)
 
-    def init_gui(self):
-        """
-        Initializes the GUI.
-        """
-        self._gui = CamerAI(system=self, cameras=self.cameras)
-        self._gui.run()
-
     def terminate(self):
         """
         Exits the system.
         """
         self._done_semaphore.release()
-
-    def run_with_gui(self):
-        """
-        Runs the system using GUI.
-        """
-        t = Thread(target=self.run, args=())
-        t.start()
-
-        self.init_gui()
-
-        t.join()
 
     def run(self):
         """
