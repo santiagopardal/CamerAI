@@ -18,7 +18,7 @@ class TFLiteModelDetector(Model):
 
         output_data = self._interpreter.get_tensor(self._interpreter.get_output_details()[0]['index'])
 
-        return np.squeeze(output_data)
+        return float(np.squeeze(output_data))
 
     def predict_on_batch(self, data) -> list:
         return [self.predict(dta) for dta in data]
