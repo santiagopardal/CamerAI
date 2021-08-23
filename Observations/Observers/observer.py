@@ -2,10 +2,11 @@ import cv2
 from Cameras.frame import Frame
 import constants
 import numpy as np
+from Observations.Models.model import Model
 
 
 class Observer:
-    def __init__(self, model):
+    def __init__(self, model: Model):
         self._model = model
 
     def _frame_manipulation(self, frame: Frame) -> Frame:
