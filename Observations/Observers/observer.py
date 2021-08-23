@@ -53,7 +53,7 @@ class Observer:
         """
         image = self._prepare_for_cnn(previous_frame, frame)
 
-        return self._model.predict(image)
+        return self._model.predict(image) >= constants.MOVEMENT_SENSITIVITY
 
     def observe(self, frames: list) -> list:
         """
