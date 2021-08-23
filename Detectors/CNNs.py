@@ -3,7 +3,7 @@ from threading import Lock
 import constants
 import numpy as np
 from constants import CNN_INPUT_SHAPE
-import tflite_runtime.interpreter as tflite
+"""import tflite_runtime.interpreter as tflite
 
 
 physical_devices = tf.config.experimental.list_physical_devices('GPU')
@@ -66,10 +66,6 @@ def create_lite_model():
 
 
 def create_main_model():
-    """
-    Generates the main model.
-    :return: Model created.
-    """
     global _model
     global _mutex
 
@@ -110,4 +106,4 @@ def create_main_model():
             _model.compile(loss=loss, optimizer=optimizer, metrics=["accuracy"])
             _model.load_weights(constants.V3_MODEL_WEIGHTS)
 
-    return _model
+    return _model"""

@@ -136,7 +136,7 @@ class FrameHandler(Handler):
     def __init__(self, observer: Observer = None, motion_handlers: list = None):
         super().__init__()
 
-        self._observer = Observer() if observer is None else observer
+        self._observer = LiteObserver() if observer is None else observer
         self._motion_handlers = [] if motion_handlers is None else motion_handlers
         self._thread = None
         self._kill_thread = False
@@ -277,5 +277,4 @@ class FrameHandler(Handler):
 
 class MotionDetectorFrameHandler(FrameHandler):
     def __init__(self, camera):
-        #super().__init__(MovementDetectionObserver(), [AsynchronousDiskStoreMotionHandler(camera.place)])
         super().__init__(LiteObserver(), [AsynchronousDiskStoreMotionHandler(camera.place)])
