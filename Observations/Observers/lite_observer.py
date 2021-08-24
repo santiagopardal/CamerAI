@@ -2,7 +2,7 @@ from Observations.Observers.observer import Observer
 from Observations.Models.TFLiteMovementDetector import TFLiteModelDetector
 import numpy as np
 from threading import Semaphore
-from Cameras.frame import Frame
+from CameraUtils.frame import Frame
 
 
 class LiteObserver(Observer):

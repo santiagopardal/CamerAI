@@ -1,5 +1,5 @@
 import cv2
-from Cameras.frame import Frame
+from CameraUtils.frame import Frame
 import constants
 import numpy as np
 from Observations.Models.model import Model

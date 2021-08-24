@@ -2,11 +2,11 @@ import pickle
 import os
 import time
 import threading
-from Cameras.camera import Camera
-from Cameras.deserializator import deserialize
+from CameraUtils.Camera.camera import Camera
+from CameraUtils.deserializator import deserialize
 import constants
 import datetime
-from threading import Thread, Semaphore
+from threading import Semaphore
 import plotly.express as px
 import numpy as np
 import json
@@ -46,7 +46,7 @@ class System:
     def add_cameras(self, cameras: list):
         """
         Adds all the cameras in cameras to the system if they weren't present before.
-        :param cameras: Cameras to add.
+        :param cameras: CameraUtils to add.
         """
         added = False
         for cam in cameras:
