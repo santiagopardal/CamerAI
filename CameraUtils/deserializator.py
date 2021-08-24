@@ -1,4 +1,6 @@
-from Cameras.camera import Camera, FI89182, FI9803PV3
+from CameraUtils.Camera.camera import Camera
+from CameraUtils.Camera.Foscam.FI9803PV3 import FI9803PV3
+from CameraUtils.Camera.Foscam.FI89182 import FI89182
 
 _classes = {
     "FI89182": FI89182,
