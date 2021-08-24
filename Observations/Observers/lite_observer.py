@@ -7,6 +7,7 @@ from Cameras.frame import Frame
 
 class LiteObserver(Observer):
     _instance = None
+    _model = TFLiteModelDetector()
 
     def __new__(cls, *args, **kwargs):
         if not cls._instance:
@@ -15,8 +16,7 @@ class LiteObserver(Observer):
         return cls._instance
 
     def __init__(self):
-        super().__init__(TFLiteModelDetector())
-
+        super().__init__(self._model)
         self._mutex = Semaphore(1)
 
     def _prepare_for_cnn(self, previous_frame, frame):
@@ -26,18 +26,14 @@ class LiteObserver(Observer):
 
     def _batch_movement_check(self, frames: list) -> list:
         self._mutex.acquire()
-
         res = super()._batch_movement_check(frames)
-
         self._mutex.release()
 
         return res
 
     def _movement(self, previous_frame: Frame, frame: Frame) -> bool:
         self._mutex.acquire()
-
         res = super()._movement(previous_frame, frame)
-
         self._mutex.release()
 
         return res
