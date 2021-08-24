@@ -3,21 +3,38 @@ from Observations.Models.TFLiteMovementDetector import TFLiteModelDetector
 import numpy as np
 from threading import Semaphore
 from CameraUtils.frame import Frame
+from multiprocessing import Process, Manager
+from Observations.Models.lite_model_process import process
+import constants
 
 
 class LiteObserver(Observer):
     _instance = None
-    _model = TFLiteModelDetector()
+    _model_process = None#TFLiteModelDetector()
 
     def __new__(cls, *args, **kwargs):
         if not cls._instance:
             cls._instance = super().__new__(cls, *args, **kwargs)
+            cls._model_process = cls.__create_model_process(cls._instance)
 
         return cls._instance
 
     def __init__(self):
         super().__init__(self._model)
-        self._mutex = Semaphore(1)
+        #self._mutex = Semaphore(1)
+
+    def __create_model_process(cls):
+        manager = Manager()
+        cls._frames_for_process_to_observe = manager.Queue()
+        cls._results = manager.Queue()
+
+        cls._frames_for_process = manager.Semaphore(0)
+        cls._results_from_process = manager.Semaphore(0)
+
+        cls._done = manager.Value('i', False)
+
+        return Process(target=process, args=(cls._frames_for_process, cls._results_from_process,
+                                             cls._frames_for_process, cls._results, cls._done))
 
     def _prepare_for_cnn(self, previous_frame, frame):
         res = super()._prepare_for_cnn(previous_frame, frame)
@@ -25,15 +42,19 @@ class LiteObserver(Observer):
         return np.expand_dims(res, axis=0)
 
     def _batch_movement_check(self, frames: list) -> list:
-        self._mutex.acquire()
-        res = super()._batch_movement_check(frames)
-        self._mutex.release()
+        images = [self._prepare_for_cnn(pf, frm) for pf, frm in frames]
 
-        return res
+        self._frames_for_process_to_observe.put(images)
+        self._frames_for_process.release()
+
+        self._results_from_process.acquire()
+        movements = self._results.get()
+
+        return [movement >= constants.MOVEMENT_SENSITIVITY for movement in movements]
 
     def _movement(self, previous_frame: Frame, frame: Frame) -> bool:
-        self._mutex.acquire()
-        res = super()._movement(previous_frame, frame)
-        self._mutex.release()
+        #self._mutex.acquire()
+        #res = super()._movement(previous_frame, frame)
+        #self._mutex.release()
 
         return res
