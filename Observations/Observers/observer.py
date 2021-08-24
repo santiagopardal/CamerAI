@@ -6,7 +6,7 @@ from Observations.Models.model import Model
 
 
 class Observer:
-    def __init__(self, model: Model):
+    def __init__(self, model: Model = None):
         self._model = model
 
     def _frame_manipulation(self, frame: Frame) -> Frame:

@@ -10,18 +10,18 @@ import constants
 
 class LiteObserver(Observer):
     _instance = None
-    _model_process = None#TFLiteModelDetector()
+    _model_process = None
 
     def __new__(cls, *args, **kwargs):
         if not cls._instance:
             cls._instance = super().__new__(cls, *args, **kwargs)
             cls._model_process = cls.__create_model_process(cls._instance)
+            cls._model_process.start()
 
         return cls._instance
 
     def __init__(self):
-        super().__init__(self._model)
-        #self._mutex = Semaphore(1)
+        super().__init__()
 
     def __create_model_process(cls):
         manager = Manager()
@@ -34,7 +34,7 @@ class LiteObserver(Observer):
         cls._done = manager.Value('i', False)
 
         return Process(target=process, args=(cls._frames_for_process, cls._results_from_process,
-                                             cls._frames_for_process, cls._results, cls._done))
+                                             cls._frames_for_process_to_observe, cls._results, cls._done))
 
     def _prepare_for_cnn(self, previous_frame, frame):
         res = super()._prepare_for_cnn(previous_frame, frame)
@@ -53,8 +53,12 @@ class LiteObserver(Observer):
         return [movement >= constants.MOVEMENT_SENSITIVITY for movement in movements]
 
     def _movement(self, previous_frame: Frame, frame: Frame) -> bool:
-        #self._mutex.acquire()
-        #res = super()._movement(previous_frame, frame)
-        #self._mutex.release()
+        image = self._prepare_for_cnn(previous_frame, frame)
 
-        return res
+        self._frames_for_process_to_observe.put([image])
+        self._frames_for_process.release()
+
+        self._results_from_process.acquire()
+        movement = self._results.get()[0]
+
+        return movement >= constants.MOVEMENT_SENSITIVITY
