@@ -6,7 +6,8 @@ import constants
 import numpy as np
 import requests
 from PIL import Image
-from Handlers.handler import FrameHandler, AsynchronousDiskStoreMotionHandler
+from Handlers.frame_handler import FrameHandler
+from Handlers.asynchronous_disk_store_motion_handler import AsynchronousDiskStoreMotionHandler
 from Observations.Observers.observer import Observer
 from Observations.Observers.lite_observer import LiteObserver
 from concurrent.futures import ThreadPoolExecutor
