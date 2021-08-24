@@ -4,7 +4,7 @@ import constants
 import numpy as np
 import time
 from collections import deque
-from Cameras.frame import Frame
+from CameraUtils.frame import Frame
 from Observations.Observers.observer import Observer
 from Handlers.handler import Handler
 from Observations.Observers.lite_observer import LiteObserver
