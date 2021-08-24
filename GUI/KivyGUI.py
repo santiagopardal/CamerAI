@@ -1,7 +1,7 @@
 from kivy.app import App
-from GUI.Image import KivyCV
+from GUI.image import KivyCV
 from GUI.Screens import CameraScreen, MainScreen
-from GUI.Factories import CamerAIScreenManagerFactory, CamerAILayoutFactory
+from GUI.factories import CamerAIScreenManagerFactory, CamerAILayoutFactory
 
 
 class CamerAI(App):

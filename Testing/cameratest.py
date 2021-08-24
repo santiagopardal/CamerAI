@@ -2,14 +2,14 @@ import cv2
 import numpy as np
 import threading
 from Detectors.CNNs import ModelGenerator
-from Constants import MOVEMENT_SENSITIVITY
+from constants import MOVEMENT_SENSITIVITY
 from Observations.YOLO import YOLOv4Tiny
-import Constants
+import constants
 import urllib.parse
 
 mg = ModelGenerator()
 model = mg.create_main_model()
-model.load_weights(Constants.V3_MODEL_WEIGHTS)
+model.load_weights(constants.V3_MODEL_WEIGHTS)
 
 
 def look_for_people(frame):
@@ -24,10 +24,10 @@ def look_for_people(frame):
 
 
 def detect_movement(previous_frame, frame):
-    previous_frame = cv2.resize(previous_frame, Constants.RESOLUTION, interpolation=cv2.INTER_AREA)
+    previous_frame = cv2.resize(previous_frame, constants.RESOLUTION, interpolation=cv2.INTER_AREA)
     previous_frame = cv2.cvtColor(previous_frame, cv2.COLOR_RGB2GRAY)
 
-    img = cv2.resize(frame, Constants.RESOLUTION, interpolation=cv2.INTER_AREA)
+    img = cv2.resize(frame, constants.RESOLUTION, interpolation=cv2.INTER_AREA)
     img = cv2.cvtColor(img, cv2.COLOR_RGB2GRAY)
 
     diff = cv2.absdiff(previous_frame, img)
@@ -43,7 +43,7 @@ def detect_movement(previous_frame, frame):
 
 
 def show_video():
-    cap = cv2.VideoCapture("rtsp://{}:{}@192.168.1.131:1113/videoMain".format(urllib.parse.quote(Constants.USER), urllib.parse.quote(Constants.PASSWORD)))
+    cap = cv2.VideoCapture("rtsp://{}:{}@192.168.1.131:1113/videoMain".format(urllib.parse.quote(constants.USER), urllib.parse.quote(constants.PASSWORD)))
 
     _, previous_frame = cap.read()
 
