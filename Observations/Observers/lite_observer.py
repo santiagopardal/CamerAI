@@ -1,7 +1,5 @@
 from Observations.Observers.observer import Observer
-from Observations.Models.TFLiteMovementDetector import TFLiteModelDetector
 import numpy as np
-from threading import Semaphore
 from CameraUtils.frame import Frame
 from multiprocessing import Process, Manager
 from Observations.Models.lite_model_process import process
