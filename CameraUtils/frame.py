@@ -85,4 +85,3 @@ class Frame(object):
 
     def clean_cache(self):
         del self._resized_and_grayscale
-        del self._denoised

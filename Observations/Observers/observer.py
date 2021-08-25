@@ -24,13 +24,15 @@ class Observer:
         :param frm: Frame nearest in time.
         :return: NumPy array with the difference between pf and frm resized, grayscaled and normalized.
         """
-        pf = self._frame_manipulation(pf)
-        pf = pf.get_resized_and_grayscaled()
+        p_frame = self._frame_manipulation(pf)
+        p_frame = p_frame.get_resized_and_grayscaled()
 
         frm = self._frame_manipulation(frm)
         frm = frm.get_resized_and_grayscaled()
 
-        return np.array(cv2.absdiff(pf, frm) / 255, dtype="float32").reshape(constants.CNN_INPUT_SHAPE)
+        pf.clean_cache()
+
+        return np.array(cv2.absdiff(p_frame, frm) / 255, dtype="float32").reshape(constants.CNN_INPUT_SHAPE)
 
     def _batch_movement_check(self, frames: list) -> list:
         """
