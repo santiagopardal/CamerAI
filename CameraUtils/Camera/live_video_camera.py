@@ -92,7 +92,7 @@ class LiveVideoCamera(Camera):
                     self._live_video.release()
                     del self._live_video
 
-                self._live_video = cv2.VideoCapture(self._live_video_url)
+                self._live_video = cv2.VideoCapture(self._live_video_url, cv2.CAP_FFMPEG)
                 self._live_video.set(cv2.CAP_PROP_FPS, self._framerate)
                 self._live_video.set(cv2.CAP_PROP_FRAME_WIDTH, self._frame_width)
                 self._live_video.set(cv2.CAP_PROP_FRAME_HEIGHT, self._frame_height)

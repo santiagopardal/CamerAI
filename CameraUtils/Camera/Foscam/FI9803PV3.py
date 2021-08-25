@@ -26,9 +26,7 @@ class FI9803PV3(LiveVideoCamera):
         live_video_url = "{}@{}:{}/videoMain".format("rtsp://{}:{}", ip, str(streaming_port))
         live_video_url = live_video_url.format(user, password)
 
-        super().__init__(ip, port, place,
-                         screenshot_url, live_video_url,
-                         1280, 720, 23, frames_handler)
+        super().__init__(ip, port, place, screenshot_url, live_video_url, 1280, 720, 23, frames_handler)
 
         self._streaming_port = streaming_port
 

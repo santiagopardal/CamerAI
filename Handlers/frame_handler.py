@@ -104,7 +104,11 @@ class FrameHandler(Handler):
         :param frame_rate: Frame rate.
         :return: Time the frame was taken approximately.
         """
-        return tme + datetime.timedelta(seconds=(1 / frame_rate) * i)
+        return tme + datetime.timedelta(seconds=i / frame_rate)
+
+    @staticmethod
+    def _last_time_stored(frame_rate):
+        return datetime.datetime.now() - datetime.timedelta(seconds=(constants.DBS + 1) / frame_rate)
 
     def _check_movement(self):
         """
@@ -129,19 +133,17 @@ class FrameHandler(Handler):
                 frames, frame_rate = self._frames_to_observe.popleft()
 
                 if not last_time_stored:
-                    last_time_stored = datetime.datetime.now() - datetime.timedelta(
-                        seconds=(constants.DBS + 1) * (1 / frame_rate))
+                    last_time_stored = self._last_time_stored(frame_rate)
 
                 frames = [Frame(frame, self._calculate_time_taken(last_time_stored, frame_rate, i+1).time())
                           for i, frame in enumerate(frames)]
 
-                frames_length = len(frames)
-                last_time_stored = self._calculate_time_taken(last_time_stored, frame_rate, frames_length)
+                last_time_stored = self._calculate_time_taken(last_time_stored, frame_rate, len(frames))
 
                 lf = frames[-1]
 
                 if last_frame:
-                    frames = [last_frame] + frames[:frames_length - 1]
+                    frames = [last_frame] + frames[:len(frames) - 1]
 
                 movement = self._observer.observe(frames)
 
