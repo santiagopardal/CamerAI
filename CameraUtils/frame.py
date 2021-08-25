@@ -1,5 +1,4 @@
 import cv2
-from PIL import Image
 import datetime
 import os
 import numpy as np
@@ -58,7 +57,7 @@ class Frame(object):
         :return: Path where the frame has been stored.
         """
         try:
-            filename = str(self._time).replace(":", "-") + ".jpeg"
+            filename = "{}.jpeg".format(str(self._time).replace(":", "-"))
 
             pth = constants.STORING_PATH
             for fold in folder.split("/"):
@@ -72,9 +71,7 @@ class Frame(object):
             if not os.path.exists(folder):
                 os.mkdir(folder)
 
-            frame = Image.fromarray(self._frame)
-            frame.save(file_path, optimize=True, quality=50)
-            frame.close()
+            cv2.imwrite(filename=file_path, img=self._frame)
 
             self._stored_in.append(folder)
 

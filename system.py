@@ -13,15 +13,10 @@ import json
 import sched
 import time
 
-SECONDS_IN_A_DAY = 86400
-
 
 class System:
     def __init__(self):
-        self._last_upload = -4
         self.cameras = []
-        self._gui = None
-
         self._done_semaphore = Semaphore(0)
 
         if not os.path.exists(constants.STORING_PATH):
@@ -31,24 +26,21 @@ class System:
             self._load_cams_from_json_file()
 
         self.__scheduler = None
-        self.__schedule_video_transformation()
+        #self.__schedule_video_transformation()
 
     def __schedule_video_transformation(self):
         if not self.__scheduler:
             self.__scheduler = sched.scheduler(time.time, time.sleep)
 
         now = datetime.datetime.now()
-        tomorrow_3_am = now + timedelta(days=1) - \
-                        timedelta(hours=now.hour) - \
-                        timedelta(minutes=now.minute) - \
-                        timedelta(seconds=now.second) - \
-                        timedelta(microseconds=now.microsecond) + \
-                        timedelta(hours=3)
+        tomorrow_3_am = now + timedelta(days=1) - timedelta(hours=now.hour) - timedelta(minutes=now.minute) - \
+                        timedelta(seconds=now.second) - timedelta(microseconds=now.microsecond) + timedelta(hours=3)
 
         time_until_3 = tomorrow_3_am - now
         time_until_3 = time_until_3.total_seconds()
 
         self.__scheduler.enter(time_until_3, 1, self._transform_yesterday_into_video)
+        self.__scheduler.run(blocking=False)
 
     def _save_cams_as_json(self):
         """
@@ -94,7 +86,23 @@ class System:
             self._save_cams_as_json()
 
     def _transform_yesterday_into_video(self):
-        pass
+        for place in os.listdir(constants.STORING_PATH):
+            pth = os.path.join(constants.STORING_PATH, place)
+
+            if os.path.isdir(pth):
+                today = datetime.datetime.now()
+
+                day = today.day if today.day > 9 else "0{}".format(today.day)
+                month = today.month if today.month > 9 else "0{}".format(today.month)
+
+                yesterday_path = os.path.join(pth, "{}-{}-{}".format(today.year, month, day-1))
+
+                command = 'cat $(find . -maxdepth 1 -name "{}/*.jpeg" | sort -V) | ffmpeg -framerate 23 -i - "{}.mp4"'\
+                    .format(yesterday_path,
+                            "{}/{} on {}-{}-{}".format(yesterday_path, place, today.year, today.month, today.day - 1)
+                            )
+
+                os.system(command)
 
     def remove_camera(self, camera: Camera):
         """
