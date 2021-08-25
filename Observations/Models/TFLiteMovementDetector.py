@@ -1,5 +1,5 @@
 from Observations.Models.model import Model
-import tflite_runtime.interpreter as tflite
+from tflite_runtime.interpreter import Interpreter
 import constants
 import numpy as np
 
@@ -8,7 +8,7 @@ class TFLiteModelDetector(Model):
     def __init__(self, tflite_model_path=constants.LITE_MODEL_PATH):
         super().__init__()
 
-        self._interpreter = tflite.Interpreter(model_path=tflite_model_path)
+        self._interpreter = Interpreter(model_path=tflite_model_path)
         self._interpreter.allocate_tensors()
 
     def predict(self, data) -> float:
