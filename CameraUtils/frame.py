@@ -7,13 +7,12 @@ import constants
 
 
 class Frame(object):
-    __slots__ = "_time", "_frame", "_resized_and_grayscale", "_denoised", "_stored_in"
+    __slots__ = "_time", "_frame", "_resized_and_grayscale", "_stored_in"
 
     def __init__(self, frame, time=datetime.datetime.now().time()):
         self._time = time
         self._frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
         self._resized_and_grayscale = None
-        self._denoised = None
         self._stored_in = []
 
     @property
@@ -31,19 +30,6 @@ class Frame(object):
     @time.setter
     def time(self, tme):
         self._time = tme
-
-    def get_denoised_frame(self):
-        """
-        Denoises the frame and returns it.
-        :return: Frame denoised.
-        """
-        if not self._denoised:
-            kernel = np.ones((3, 3), np.float32) / 9
-            frm = cv2.filter2D(self._frame, -1, kernel)
-            self._denoised = Frame(frm)
-            self._denoised.time = self._time
-
-        return self._denoised
 
     def get_resized_and_grayscaled(self) -> np.ndarray:
         """
