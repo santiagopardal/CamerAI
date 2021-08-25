@@ -50,7 +50,7 @@ class LiteObserver(Observer):
         self._results_from_process.acquire()
         movements = self._results.get()
 
-        for frame in frames:
+        for frame, _ in frames:
             frame.clean_cache()
 
         return [movement >= constants.MOVEMENT_SENSITIVITY for movement in movements]
