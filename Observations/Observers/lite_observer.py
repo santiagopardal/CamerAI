@@ -61,7 +61,6 @@ class LiteObserver(Observer):
         self._results_from_process.acquire()
         movement = self._results.get()[0]
 
-        previous_frame.clean_cache()
         del image
 
         return movement >= constants.MOVEMENT_SENSITIVITY
