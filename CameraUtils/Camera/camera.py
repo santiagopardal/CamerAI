@@ -114,13 +114,14 @@ class Camera(Publisher):
         """
         Starts thread to receive video.
         """
-        self._thread_pool.submit(self._receive_video)
-
-    def _receive_video(self):
-        """
-        Tries to get video.
-        """
+        self._prepare_connection()
         self._thread_pool.submit(self._receive_frames)
+
+    def _prepare_connection(self):
+        """
+        Prepares the connection to receive frames from camera
+        """
+        pass
 
     def record(self):
         """

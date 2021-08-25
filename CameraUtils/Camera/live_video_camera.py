@@ -33,19 +33,14 @@ class LiveVideoCamera(Camera):
         res.append("_live_video")
         return res
 
-    def _receive_video(self):
-        """
-        Tries to receive video.
-        """
-        while (not self._live_video) or (not self._live_video.isOpened()):      # While not connected or video is not
-            self.__connect()                                                    # opened, connect!
+    def _prepare_connection(self):
+        while (not self._live_video) or (not self._live_video.isOpened()):
+            self.__connect()
 
-        if self._record_thread:                                                 # If there was another thread running
-            self._kill_thread = True                                            # stop it,
-            self._record_thread.join()                                          # wait for it to finish
-            self._kill_thread = False                                           # reset variables.
-
-        super()._receive_video()
+        if self._record_thread:
+            self._kill_thread = True
+            self._record_thread.join()
+            self._kill_thread = False
 
     def stop_receiving_video(self):
         """
