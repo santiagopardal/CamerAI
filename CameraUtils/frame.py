@@ -84,4 +84,5 @@ class Frame(object):
             print(e)
 
     def clean_cache(self):
-        del self._resized_and_grayscale
+        if self._resized_and_grayscale is not None:
+            del self._resized_and_grayscale
