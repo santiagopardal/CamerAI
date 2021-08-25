@@ -9,17 +9,11 @@ import constants
 class Frame(object):
     __slots__ = "_time", "_frame", "_resized_and_grayscale", "_denoised", "_stored_in"
 
-    def __init__(self, frame, time=None):
-        if time:
-            self._time = time
-        else:
-            self._time = datetime.datetime.now().time()
-
+    def __init__(self, frame, time=datetime.datetime.now().time()):
+        self._time = time
         self._frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
-
         self._resized_and_grayscale = None
         self._denoised = None
-
         self._stored_in = []
 
     @property
