@@ -102,3 +102,7 @@ class Frame(object):
         except Exception as e:
             print("Error storing image from camera on {}".format(folder))
             print(e)
+
+    def clean_cache(self):
+        del self._resized_and_grayscale
+        del self._denoised

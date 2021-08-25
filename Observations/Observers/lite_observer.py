@@ -50,6 +50,9 @@ class LiteObserver(Observer):
         self._results_from_process.acquire()
         movements = self._results.get()
 
+        for frame in frames:
+            frame.clean_cache()
+
         return [movement >= constants.MOVEMENT_SENSITIVITY for movement in movements]
 
     def _movement(self, previous_frame: Frame, frame: Frame) -> bool:
@@ -60,5 +63,7 @@ class LiteObserver(Observer):
 
         self._results_from_process.acquire()
         movement = self._results.get()[0]
+
+        previous_frame.clean_cache()
 
         return movement >= constants.MOVEMENT_SENSITIVITY
