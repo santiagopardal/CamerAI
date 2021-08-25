@@ -1,15 +1,19 @@
 import pickle
 import os
-import time
 import threading
 from CameraUtils.Camera.camera import Camera
 from CameraUtils.deserializator import deserialize
 import constants
+from datetime import timedelta
 import datetime
 from threading import Semaphore
 import plotly.express as px
 import numpy as np
 import json
+import sched
+import time
+
+SECONDS_IN_A_DAY = 86400
 
 
 class System:
@@ -25,6 +29,26 @@ class System:
 
         if os.path.exists("cameras.json"):
             self._load_cams_from_json_file()
+
+        self.__scheduler = None
+        self.__schedule_video_transformation()
+
+    def __schedule_video_transformation(self):
+        if not self.__scheduler:
+            self.__scheduler = sched.scheduler(time.time, time.sleep)
+
+        now = datetime.datetime.now()
+        tomorrow_3_am = now + timedelta(days=1) - \
+                        timedelta(hours=now.hour) - \
+                        timedelta(minutes=now.minute) - \
+                        timedelta(seconds=now.second) - \
+                        timedelta(microseconds=now.microsecond) + \
+                        timedelta(hours=3)
+
+        time_until_3 = tomorrow_3_am - now
+        time_until_3 = time_until_3.total_seconds()
+
+        self.__scheduler.enter(time_until_3, 1, self._transform_yesterday_into_video)
 
     def _save_cams_as_json(self):
         """
@@ -68,6 +92,9 @@ class System:
             self.cameras.append(camera)
 
             self._save_cams_as_json()
+
+    def _transform_yesterday_into_video(self):
+        pass
 
     def remove_camera(self, camera: Camera):
         """
@@ -152,7 +179,7 @@ class System:
 
                         for file in os.listdir(day_path):
                             if file.endswith(".jpeg"):
-                                file = file[:len(file)-5]
+                                file = file[:len(file) - 5]
                                 hour = int(file[:2])
                                 minute = int(file[:5][3:])
                                 seconds = int(float(file[6:]))
@@ -196,7 +223,7 @@ class System:
                             ending_hour = date.hour
 
                         unit = (date - start_of_day).total_seconds() / divisor
-                        unit = round(unit*10)/10
+                        unit = round(unit * 10) / 10
                         if unit in data:
                             data[unit] = data[unit] + 1
                         else:
@@ -218,4 +245,4 @@ class System:
         """
         Displays statistics in web browser.
         """
-        System._display_statistics(60**2)
+        System._display_statistics(60 ** 2)
