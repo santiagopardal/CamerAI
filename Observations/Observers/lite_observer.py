@@ -39,7 +39,7 @@ class LiteObserver(Observer):
 
         return np.expand_dims(res, axis=0)
 
-    def _batch_movement_check(self, frames: list) -> list:
+    def batch_movement_check(self, frames: list) -> list:
         images = [self._prepare_for_cnn(pf, frm) for pf, frm in frames]
 
         self._frames_for_process_to_observe.put(images)
@@ -52,7 +52,7 @@ class LiteObserver(Observer):
 
         return [movement >= constants.MOVEMENT_SENSITIVITY for movement in movements]
 
-    def _movement(self, previous_frame: Frame, frame: Frame) -> bool:
+    def movement(self, previous_frame: Frame, frame: Frame) -> bool:
         image = self._prepare_for_cnn(previous_frame, frame)
 
         self._frames_for_process_to_observe.put([image])

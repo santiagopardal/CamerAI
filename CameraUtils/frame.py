@@ -10,7 +10,7 @@ class Frame(object):
 
     def __init__(self, frame, time=datetime.datetime.now().time()):
         self._time = time
-        self._frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
+        self._frame = frame
         self._resized_and_grayscale = None
         self._stored_in = []
 
