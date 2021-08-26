@@ -1,3 +1,4 @@
+import sys
 from threading import Thread, Semaphore
 import datetime
 import constants
@@ -151,6 +152,3 @@ class FrameHandler(Handler):
                     handler.handle(movement)
 
                 last_frame = lf
-
-                del frames
-                del movement
