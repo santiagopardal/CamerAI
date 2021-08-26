@@ -1,14 +1,6 @@
-import pickle
-
-import cv2
-
-from constants import STORING_PATH
-import os
 from Handlers.motion_handler import MotionHandler
 from collections import deque
 from threading import Thread, Semaphore
-import datetime
-import numpy as np
 
 
 class AsynchronousDiskStoreMotionHandler(MotionHandler):
@@ -29,11 +21,7 @@ class AsynchronousDiskStoreMotionHandler(MotionHandler):
 
         self._frames_ready = Semaphore(0)
         self._done = False
-        self._storing_path = os.path.join(STORING_PATH, storing_path)
-
-        if not os.path.exists(self._storing_path):
-            os.mkdir(self._storing_path)
-
+        self._storing_path = storing_path
         self._buffer_size = buffer_size
 
         self._background_thread = Thread(target=self._store, args=())
@@ -79,34 +67,15 @@ class AsynchronousDiskStoreMotionHandler(MotionHandler):
             if self._frames:
                 frames = self._frames.popleft()
 
-                if self._buffer_size:
-                    to_store = [cv2.imencode(".jpeg", frame.frame) for frame in frames]
-                    filename = "{}-{}.pck".format(frames[0].time, frames[-1].time)
-                    self._save_batch(np.array(to_store), filename)
-                else:
-                    frames[0].store(self._storing_path)
+                for frame in frames:
+                    frame.store(self._storing_path)
 
                 del frames
 
         while self._frames:
             frames = self._frames.popleft()
 
-            if self._buffer_size:
-                to_store = [frame.frame for frame in frames]
-                filename = "{}-{}.pck".format(frames[0].time, frames[-1].time)
-                self._save_batch(np.array(to_store), filename)
-            else:
-                frames[0].store(self._storing_path)
+            for frame in frames:
+                frame.store(self._storing_path)
 
             del frames
-
-    def _save_batch(self, to_store: np.ndarray, filename: str):
-        storing_path = os.path.join(self._storing_path, str(datetime.datetime.now().date()))
-
-        if not os.path.exists(storing_path):
-            os.mkdir(storing_path)
-
-        storing_path = os.path.join(storing_path, filename)
-
-        with open(storing_path, "wb") as file:
-            pickle.dump(to_store, file)
