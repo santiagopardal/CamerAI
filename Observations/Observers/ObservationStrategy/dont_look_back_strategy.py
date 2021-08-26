@@ -19,16 +19,16 @@ class DontLookBackObservationStrategy(ObservationStrategy):
         recording = False
 
         for i, result in enumerate(results):
-            if result != recording:
-                recording = not recording
-                frames_with_movement.append(frames[i])
-                frames_with_movement.append(frames[i+1])
+            if recording and i > 0:
+                last_element = (i - 1) * JUMP + 1
 
-                if i > 0:
-                    last_element = (i - 1) * JUMP + 1
-                    frames_with_movement.append(frames[last_element])
-                    frames_with_movement.append(frames[last_element - 1])
-                    for j in range(JUMP):
-                        frames_with_movement.append(frames[last_element + j])
+                for j in range(1, JUMP):
+                    frames_with_movement.append(frames[last_element + j])
+
+            if result or (not result and recording):
+                frames_with_movement.append(frames[i*JUMP])
+                frames_with_movement.append(frames[i*JUMP+1])
+
+            recording = result
 
         return frames_with_movement
