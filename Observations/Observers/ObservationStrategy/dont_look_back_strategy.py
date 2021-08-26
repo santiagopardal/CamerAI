@@ -19,7 +19,7 @@ class DontLookBackObservationStrategy(ObservationStrategy):
         recording = False
 
         for i, result in enumerate(results):
-            if recording and i > 0:
+            if (recording or result != recording) and i > 0:
                 last_element = (i - 1) * JUMP + 1
 
                 for j in range(1, JUMP):
