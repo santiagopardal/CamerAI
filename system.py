@@ -12,6 +12,8 @@ import numpy as np
 import json
 import sched
 import time
+import cv2
+import shutil
 
 
 class System:
@@ -26,7 +28,7 @@ class System:
             self._load_cams_from_json_file()
 
         self.__scheduler = None
-        #self.__schedule_video_transformation()
+        self.__schedule_video_transformation()
 
     def __schedule_video_transformation(self):
         if not self.__scheduler:
@@ -92,23 +94,46 @@ class System:
             if os.path.isdir(pth):
                 today = datetime.datetime.now()
 
-                day = today.day if today.day > 9 else "0{}".format(today.day)
+                day = today.day if today.day > 9 else "0{}".format(today.day - 1)
                 month = today.month if today.month > 9 else "0{}".format(today.month)
 
-                yesterday_path = os.path.join(pth, "{}-{}-{}".format(today.year, month, day-1))
+                yesterday_path = os.path.join(pth, "{}-{}-{}".format(today.year, month, day))
+                video_name = "{}/{} on {}-{}-{}.mp4".format(pth, place, today.year, month, day)
 
-                command = 'cat $(find . -maxdepth 1 -name "{}/*.jpeg" | sort -V) | ffmpeg -framerate 23 -i - "{}.mp4"'\
-                    .format(yesterday_path,
-                            "{}/{} on {}-{}-{}".format(yesterday_path, place, today.year, today.month, today.day - 1)
-                            )
+                self._folder_to_video(yesterday_path, video_name)
 
-                os.system(command)
+    @staticmethod
+    def _folder_to_video(folder_path: str, video_name: str):
+        print("Creating video on", folder_path, "name is", video_name)
+
+        for _, _, day in os.walk(folder_path):
+            frame = cv2.imread(os.path.join(folder_path, day[0]))
+            height, width, layers = frame.shape
+            video = cv2.VideoWriter(video_name, cv2.VideoWriter_fourcc(*'XVID'), 23, (width, height))
+
+            for image in day:
+                if image.endswith(".jpeg"):
+                    try:
+                        frm = cv2.imread(os.path.join(folder_path, image))
+                        video.write(frm)
+                    except:
+                        pass
+
+            video.release()
+            try:
+                shutil.rmtree(folder_path)
+            except OSError as e:
+                print("Error deleting folder %s - %s" % (e.filename, e.strerror))
+
+        print("Finished video on", folder_path)
+
 
     def remove_camera(self, camera: Camera):
         """
         Removes a camera from the system if present.
         :param camera: Camera to remove.
         """
+        import ffmpeg
         if camera in self.cameras:
             self.cameras.remove(camera)
 
