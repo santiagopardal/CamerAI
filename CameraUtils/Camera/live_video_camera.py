@@ -65,6 +65,9 @@ class LiveVideoCamera(Camera):
         Obtains live images from the camera, notifies subscribers and calls the frames handler to handle them.
         """
 
+        from guppy import hpy
+        h = hpy()
+
         while not self._kill_thread:
             try:
                 frame = self._acquire_frame()
@@ -72,6 +75,7 @@ class LiveVideoCamera(Camera):
                 self._last_frame = frame
                 self._notify_subscribed()
                 self._frames_handler.handle(frame)
+                h.heap()
             except Exception as e:
                 print("Error downloading image from camera {} on ip {}".format(self._place, self._ip))
                 print(e)
