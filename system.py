@@ -127,13 +127,11 @@ class System:
 
         print("Finished video on", folder_path)
 
-
     def remove_camera(self, camera: Camera):
         """
         Removes a camera from the system if present.
         :param camera: Camera to remove.
         """
-        import ffmpeg
         if camera in self.cameras:
             self.cameras.remove(camera)
 
