@@ -84,12 +84,11 @@ class FrameHandler(Handler):
         """
         if self._started and not self._kill_thread:
             self._current_buffer.append(frame)
-            current_buffer_length = len(self._current_buffer)
 
-            if current_buffer_length >= constants.DBS:
+            if len(self._current_buffer) >= constants.DBS:
                 end = time.time()
 
-                true_framerate = current_buffer_length / (end - self._current_buffer_started_receiving) \
+                true_framerate = len(self._current_buffer) / (end - self._current_buffer_started_receiving) \
                     if self._current_buffer_started_receiving else constants.FRAMERATE
 
                 self._frames_to_observe.append((self._current_buffer, true_framerate))
@@ -144,7 +143,7 @@ class FrameHandler(Handler):
                 lf = frames[-1]
 
                 if last_frame:
-                    frames = [last_frame] + frames[:len(frames) - 1]
+                    frames.insert(0, last_frame)
 
                 movement = self._observer.observe(frames)
 
