@@ -56,7 +56,7 @@ class LiveVideoCamera(Camera):
         while not grabbed:
             print("Reconnecting!")
             self.__connect()
-            self._acquire_frame()
+            grabbed, frame = self._live_video.read()
 
         return frame
 
