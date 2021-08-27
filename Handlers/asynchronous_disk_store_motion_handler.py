@@ -1,6 +1,10 @@
 from Handlers.motion_handler import MotionHandler
 from collections import deque
 from threading import Thread, Semaphore
+import os
+from constants import STORING_PATH
+import cv2
+import datetime
 
 
 class AsynchronousDiskStoreMotionHandler(MotionHandler):
@@ -21,7 +25,11 @@ class AsynchronousDiskStoreMotionHandler(MotionHandler):
 
         self._frames_ready = Semaphore(0)
         self._done = False
-        self._storing_path = storing_path
+        self._storing_path = os.path.join(STORING_PATH, storing_path)
+
+        if not os.path.exists(self._storing_path):
+            os.mkdir(self._storing_path)
+
         self._buffer_size = buffer_size
 
         self._background_thread = Thread(target=self._store, args=())
@@ -67,15 +75,43 @@ class AsynchronousDiskStoreMotionHandler(MotionHandler):
             if self._frames:
                 frames = self._frames.popleft()
 
-                for frame in frames:
-                    frame.store(self._storing_path)
+                if self._buffer_size:
+                    filename = "{}-{}.mp4".format(frames[0].time, frames[-1].time)
+
+                    self._store_video(frames, filename)
+                else:
+                    frames[0].store(self._storing_path)
 
                 del frames
 
         while self._frames:
             frames = self._frames.popleft()
 
-            for frame in frames:
-                frame.store(self._storing_path)
+            if self._buffer_size:
+                filename = "{}.mp4".format(frames[0].time, frames[-1].time)
+
+                self._store_video(frames, filename)
+            else:
+                frames[0].store(self._storing_path)
 
             del frames
+
+    def _store_video(self, frames, filename):
+        storing_path = os.path.join(self._storing_path, str(datetime.datetime.now().date()))
+        if not os.path.exists(storing_path):
+            os.mkdir(storing_path)
+
+        storing_path = os.path.join(storing_path, filename)
+        height, width, layers = frames[0].frame.shape
+
+        fourcc = cv2.VideoWriter_fourcc(*'MPEG')
+        video = cv2.VideoWriter(storing_path, fourcc, 23, (width, height))
+
+        for frame in frames:
+            try:
+                video.write(frame.frame)
+            except:
+                pass
+
+        video.release()
+        print("done")

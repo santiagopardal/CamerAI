@@ -107,23 +107,34 @@ class System:
         print("Creating video on", folder_path, "name is", video_name)
 
         for _, _, day in os.walk(folder_path):
-            frame = cv2.imread(os.path.join(folder_path, day[0]))
-            height, width, layers = frame.shape
-            video = cv2.VideoWriter(video_name, cv2.VideoWriter_fourcc(*'XVID'), 23, (width, height))
+            if len(day) > 0:
+                video = cv2.VideoCapture(os.path.join(folder_path, day[0]))
+                width = int(video.get(cv2.CAP_PROP_FRAME_WIDTH))
+                height = int(video.get(cv2.CAP_PROP_FRAME_HEIGHT))
 
-            for image in day:
-                if image.endswith(".jpeg"):
-                    try:
-                        frm = cv2.imread(os.path.join(folder_path, image))
-                        video.write(frm)
-                    except:
-                        pass
+                framerate = video.get(cv2.CAP_PROP_FPS)
 
-            video.release()
-            try:
-                shutil.rmtree(folder_path)
-            except OSError as e:
-                print("Error deleting folder %s - %s" % (e.filename, e.strerror))
+                fourcc = cv2.VideoWriter_fourcc(*'MPEG')
+                result = cv2.VideoWriter(video_name, fourcc, framerate, (width, height))
+
+                for video in day:
+                    if video.endswith(".mp4"):
+                        try:
+                            video = cv2.VideoCapture(os.path.join(folder_path, video))
+                            r = True
+
+                            while video.isOpened() and r:
+                                r, frame = video.read()
+                                if r:
+                                    result.write(frame)
+                        except:
+                            pass
+
+                result.release()
+                try:
+                    shutil.rmtree(folder_path, ignore_errors=True)
+                except OSError as e:
+                    print("Error deleting folder %s - %s" % (e.filename, e.strerror))
 
         print("Finished video on", folder_path)
 
@@ -188,92 +199,3 @@ class System:
         time.sleep(n)
         self._done_semaphore.release()
         thread.join()
-
-    @staticmethod
-    def create_statistics():
-        """
-        Creates binary file with statistics.
-        """
-        for place in os.listdir(constants.STORING_PATH):
-            place_path = os.path.join(constants.STORING_PATH, place)
-
-            if os.path.isdir(place_path):
-                for day in os.listdir(place_path):
-                    day_path = os.path.join(place_path, day)
-                    if os.path.isdir(day_path):
-
-                        year = int(day[:4])
-                        month = int(day[:7][5:])
-                        dei = int(day[8:])
-
-                        dates = []
-
-                        for file in os.listdir(day_path):
-                            if file.endswith(".jpeg"):
-                                file = file[:len(file) - 5]
-                                hour = int(file[:2])
-                                minute = int(file[:5][3:])
-                                seconds = int(float(file[6:]))
-                                date = datetime.datetime(year=year, month=month, day=dei,
-                                                         hour=hour, minute=minute, second=seconds)
-                                dates.append(date)
-
-                        with open(os.path.join(day_path, "statistics.pck"), "wb") as handle:
-                            pickle.dump(dates, handle)
-
-    @staticmethod
-    def _display_statistics(divisor):
-        """
-        Displays statistics in web browser.
-        """
-        for place in os.listdir(constants.STORING_PATH):
-            place_path = os.path.join(constants.STORING_PATH, place)
-
-            data = {}
-
-            if os.path.isdir(place_path):
-                for day in os.listdir(os.path.join(place_path)):
-                    day_path = os.path.join(place_path, day)
-                    dates = []
-
-                    if os.path.exists(os.path.join(day_path, "statistics.pck")):
-                        with open(os.path.join(day_path, "statistics.pck"), "rb") as handle:
-                            dates = pickle.load(handle)
-
-                    starting_hour = 25
-                    ending_hour = -1
-
-                    for date in dates:
-                        date: datetime.datetime
-                        start_of_day = datetime.datetime(date.year, date.month, date.day)
-
-                        if date.hour < starting_hour:
-                            starting_hour = date.hour
-
-                        if date.hour > ending_hour:
-                            ending_hour = date.hour
-
-                        unit = (date - start_of_day).total_seconds() / divisor
-                        unit = round(unit * 10) / 10
-                        if unit in data:
-                            data[unit] = data[unit] + 1
-                        else:
-                            data[unit] = 1
-
-                    ending_hour = ending_hour if ending_hour == 24 else ending_hour + 1
-
-                    for i in np.arange(starting_hour, ending_hour, 0.1):
-                        i = round(i, 3)
-                        if i not in data:
-                            data[i] = 0
-
-                vals = [val / len(os.listdir(os.path.join(place_path))) for val in data.values()]
-                fig = px.scatter(x=data.keys(), y=vals, title=place + " average")
-                fig.show()
-
-    @staticmethod
-    def show_statistics():
-        """
-        Displays statistics in web browser.
-        """
-        System._display_statistics(60 ** 2)
