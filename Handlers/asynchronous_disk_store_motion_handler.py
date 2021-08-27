@@ -104,7 +104,7 @@ class AsynchronousDiskStoreMotionHandler(MotionHandler):
         storing_path = os.path.join(storing_path, filename)
         height, width, layers = frames[0].frame.shape
 
-        fourcc = cv2.VideoWriter_fourcc(*'MP4V')
+        fourcc = cv2.VideoWriter_fourcc(*'mp4v')
         video = cv2.VideoWriter(storing_path, fourcc, 23, (width, height))
 
         for frame in frames:
