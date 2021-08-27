@@ -114,7 +114,7 @@ class System:
 
                 framerate = video.get(cv2.CAP_PROP_FPS)
 
-                fourcc = cv2.VideoWriter_fourcc(*'MPEG')
+                fourcc = cv2.VideoWriter_fourcc(*'MP4V')
                 result = cv2.VideoWriter(video_name, fourcc, framerate, (width, height))
 
                 for video in day:
