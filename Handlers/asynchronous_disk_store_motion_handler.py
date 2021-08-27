@@ -114,4 +114,3 @@ class AsynchronousDiskStoreMotionHandler(MotionHandler):
                 pass
 
         video.release()
-        print("done")
