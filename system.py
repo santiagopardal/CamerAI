@@ -1,4 +1,3 @@
-import pickle
 import os
 import threading
 from CameraUtils.Camera.camera import Camera
@@ -7,13 +6,11 @@ import constants
 from datetime import timedelta
 import datetime
 from threading import Semaphore
-import plotly.express as px
-import numpy as np
 import json
 import sched
 import time
-import cv2
 import shutil
+from VideoUtils.video_utils import *
 
 
 class System:
@@ -98,39 +95,26 @@ class System:
                 month = today.month if today.month > 9 else "0{}".format(today.month)
 
                 yesterday_path = os.path.join(pth, "{}-{}-{}".format(today.year, month, day))
-                video_name = "{}/{} on {}-{}-{}.mp4".format(pth, place, today.year, month, day)
+                video_path = "{}/{} on {}-{}-{}.mp4".format(pth, place, today.year, month, day)
 
-                self._folder_to_video(yesterday_path, video_name)
+                self._folder_to_video(yesterday_path, video_path)
 
     @staticmethod
-    def _folder_to_video(folder_path: str, video_name: str):
-        print("Creating video on", folder_path, "name is", video_name)
+    def _folder_to_video(folder_path: str, video_path: str):
+        print("Creating video on", folder_path, "name is", video_path)
 
         for _, _, day in os.walk(folder_path):
             if len(day) > 0:
-                video = cv2.VideoCapture(os.path.join(folder_path, day[0]))
-                width = int(video.get(cv2.CAP_PROP_FRAME_WIDTH))
-                height = int(video.get(cv2.CAP_PROP_FRAME_HEIGHT))
+                width, height, framerate = get_video_properties(os.path.join(folder_path, day[0]))
 
-                framerate = video.get(cv2.CAP_PROP_FPS)
-
-                fourcc = cv2.VideoWriter_fourcc(*'mp4v')
-                result = cv2.VideoWriter(video_name, fourcc, framerate, (width, height))
+                result = create_video_writer(video_path, width, height, framerate)
 
                 for video in day:
                     if video.endswith(".mp4"):
-                        try:
-                            video = cv2.VideoCapture(os.path.join(folder_path, video))
-                            r = True
-
-                            while video.isOpened() and r:
-                                r, frame = video.read()
-                                if r:
-                                    result.write(frame)
-                        except:
-                            pass
+                        append_to_video(result, os.path.join(folder_path, video))
 
                 result.release()
+
                 try:
                     shutil.rmtree(folder_path, ignore_errors=True)
                 except OSError as e:

@@ -76,7 +76,7 @@ class AsynchronousDiskStoreMotionHandler(MotionHandler):
                 frames = self._frames.popleft()
 
                 if self._buffer_size:
-                    filename = "{}-{}.mp4".format(frames[0].time, frames[-1].time)
+                    filename = "{}.mp4".format(frames[0].time)
 
                     self._store_video(frames, filename)
                 else:
