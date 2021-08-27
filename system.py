@@ -24,13 +24,11 @@ class System:
         if os.path.exists("cameras.json"):
             self._load_cams_from_json_file()
 
-        self.__scheduler = None
+        self.__scheduler = sched.scheduler(time.time, time.sleep)
         self.__schedule_video_transformation()
+        self.__scheduler.run(blocking=False)
 
     def __schedule_video_transformation(self):
-        if not self.__scheduler:
-            self.__scheduler = sched.scheduler(time.time, time.sleep)
-
         now = datetime.datetime.now()
         tomorrow_3_am = now + timedelta(days=1) - timedelta(hours=now.hour) - timedelta(minutes=now.minute) - \
                         timedelta(seconds=now.second) - timedelta(microseconds=now.microsecond) + timedelta(hours=3)
@@ -39,7 +37,7 @@ class System:
         time_until_3 = time_until_3.total_seconds()
 
         self.__scheduler.enter(time_until_3, 1, self._transform_yesterday_into_video)
-        self.__scheduler.run(blocking=False)
+        print("Scheduled video transformation in {} seconds!".format(time_until_3))
 
     def _save_cams_as_json(self):
         """
@@ -89,15 +87,17 @@ class System:
             pth = os.path.join(constants.STORING_PATH, place)
 
             if os.path.isdir(pth):
-                today = datetime.datetime.now()
+                yesterday = datetime.datetime.now() - timedelta(days=1)
 
-                day = today.day if today.day > 9 else "0{}".format(today.day - 1)
-                month = today.month if today.month > 9 else "0{}".format(today.month)
+                day = yesterday.day if yesterday.day > 9 else "0{}".format(yesterday.day)
+                month = yesterday.month if yesterday.month > 9 else "0{}".format(yesterday.month)
 
-                yesterday_path = os.path.join(pth, "{}-{}-{}".format(today.year, month, day))
-                video_path = "{}/{} on {}-{}-{}.mp4".format(pth, place, today.year, month, day)
+                yesterday_path = os.path.join(pth, "{}-{}-{}".format(yesterday.year, month, day))
+                video_path = "{}/{}-{}-{}.mp4".format(pth, place, yesterday.year, month, day)
 
                 self._folder_to_video(yesterday_path, video_path)
+
+                self.__schedule_video_transformation()
 
     @staticmethod
     def _folder_to_video(folder_path: str, video_path: str):
