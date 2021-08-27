@@ -1,3 +1,4 @@
+import constants
 from Observations.Observers.lite_observer import LiteObserver
 from Handlers.frame_handler import FrameHandler
 from Handlers.asynchronous_disk_store_motion_handler import AsynchronousDiskStoreMotionHandler
@@ -5,4 +6,5 @@ from Handlers.asynchronous_disk_store_motion_handler import AsynchronousDiskStor
 
 class MotionDetectorFrameHandler(FrameHandler):
     def __init__(self, camera):
-        super().__init__(LiteObserver(), [AsynchronousDiskStoreMotionHandler(camera.place, 30)])
+        super().__init__(LiteObserver(), [AsynchronousDiskStoreMotionHandler(camera.place,
+                                                                             constants.VIDEO_BUFFERS_SIZE)])
