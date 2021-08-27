@@ -1,4 +1,3 @@
-import sys
 from threading import Thread, Semaphore
 import datetime
 import constants

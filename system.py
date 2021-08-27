@@ -105,9 +105,9 @@ class System:
 
         for _, _, day in os.walk(folder_path):
             if len(day) > 0:
-                width, height, framerate = get_video_properties(os.path.join(folder_path, day[0]))
+                width, height, frame_rate = get_video_properties(os.path.join(folder_path, day[0]))
 
-                result = create_video_writer(video_path, width, height, framerate)
+                result = create_video_writer(video_path, width, height, frame_rate)
 
                 for video in day:
                     if video.endswith(".mp4"):

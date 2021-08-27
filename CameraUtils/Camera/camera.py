@@ -129,7 +129,8 @@ class Camera(Publisher):
         """
         self._frames_handler.set_observer(LiteObserver())
         self._frames_handler.add_motion_handler(AsynchronousDiskStoreMotionHandler(self._place,
-                                                                                   constants.VIDEO_BUFFERS_SIZE))
+                                                                                   constants.VIDEO_BUFFERS_SIZE,
+                                                                                   self.framerate))
         self._frames_handler.start()
 
     def stop_recording(self):

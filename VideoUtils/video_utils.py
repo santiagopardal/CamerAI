@@ -1,5 +1,4 @@
 import cv2
-import os
 
 
 def append_to_video(to: cv2.VideoWriter, to_append_path: str):
@@ -19,11 +18,11 @@ def get_video_properties(video_path: str):
     video = cv2.VideoCapture(video_path)
     width = int(video.get(cv2.CAP_PROP_FRAME_WIDTH))
     height = int(video.get(cv2.CAP_PROP_FRAME_HEIGHT))
-    framerate = video.get(cv2.CAP_PROP_FPS)
+    frame_rate = video.get(cv2.CAP_PROP_FPS)
 
-    return width, height, framerate
+    return width, height, frame_rate
 
 
-def create_video_writer(video_path, width, height, framerate):
+def create_video_writer(video_path, width, height, frame_rate):
     fourcc = cv2.VideoWriter_fourcc(*'mp4v')
-    return cv2.VideoWriter(video_path, fourcc, framerate, (width, height))
+    return cv2.VideoWriter(video_path, fourcc, frame_rate, (width, height))

@@ -11,7 +11,7 @@ class AsynchronousDiskStoreMotionHandler(MotionHandler):
     """
     Handles motion storing the frames on disk asynchronously.
     """
-    def __init__(self, storing_path: str, buffer_size: int = None):
+    def __init__(self, storing_path: str, buffer_size: int = None, frame_rate: int = 0):
         """
         Initializes the handler.
         :param storing_path: Folder name to which store the frames.
@@ -19,6 +19,7 @@ class AsynchronousDiskStoreMotionHandler(MotionHandler):
         if not set, the frames will be stored as soon as they arrive to the handler.
         """
         self._frames = deque()
+        self._frame_rate = frame_rate
 
         if buffer_size:
             self._frames.append([])
@@ -105,7 +106,7 @@ class AsynchronousDiskStoreMotionHandler(MotionHandler):
         height, width, layers = frames[0].frame.shape
 
         fourcc = cv2.VideoWriter_fourcc(*'mp4v')
-        video = cv2.VideoWriter(storing_path, fourcc, 23, (width, height))
+        video = cv2.VideoWriter(storing_path, fourcc, self._frame_rate, (width, height))
 
         for frame in frames:
             try:
