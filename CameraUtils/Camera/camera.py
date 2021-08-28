@@ -2,7 +2,6 @@ import urllib
 import io
 import time
 import cv2
-import constants
 import numpy as np
 import requests
 from PIL import Image
@@ -12,6 +11,7 @@ from Observations.Observers.observer import Observer
 from Observations.Observers.lite_observer import LiteObserver
 from concurrent.futures import ThreadPoolExecutor
 from Observer.observer import Publisher
+from constants import SECONDS_TO_BUFFER, FRAMERATE
 
 
 class Camera(Publisher):
@@ -128,9 +128,9 @@ class Camera(Publisher):
         Starts recording.
         """
         self._frames_handler.set_observer(LiteObserver())
-        self._frames_handler.add_motion_handler(AsynchronousDiskStoreMotionHandler(self._place,
-                                                                                   constants.VIDEO_BUFFERS_SIZE,
-                                                                                   self.framerate))
+        self._frames_handler.add_motion_handler(
+            AsynchronousDiskStoreMotionHandler(self._place, SECONDS_TO_BUFFER, self.framerate)
+        )
         self._frames_handler.start()
 
     def stop_recording(self):
@@ -166,7 +166,7 @@ class Camera(Publisher):
         previous_capture = 0
 
         while not self._kill_thread:
-            if time.perf_counter() - previous_capture >= 1 / constants.FRAMERATE:
+            if time.perf_counter() - previous_capture >= 1 / FRAMERATE:
 
                 try:
                     previous_capture = time.perf_counter()

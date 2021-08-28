@@ -11,7 +11,7 @@ class AsynchronousDiskStoreMotionHandler(MotionHandler):
     """
     Handles motion storing the frames on disk asynchronously.
     """
-    def __init__(self, storing_path: str, buffer_size: int = None, frame_rate: int = 0):
+    def __init__(self, storing_path: str, seconds_to_buffer: int = 0, frame_rate: int = 0):
         """
         Initializes the handler.
         :param storing_path: Folder name to which store the frames.
@@ -21,7 +21,7 @@ class AsynchronousDiskStoreMotionHandler(MotionHandler):
         self._frames = deque()
         self._frame_rate = frame_rate
 
-        if buffer_size:
+        if seconds_to_buffer:
             self._frames.append([])
 
         self._frames_ready = Semaphore(0)
@@ -31,7 +31,7 @@ class AsynchronousDiskStoreMotionHandler(MotionHandler):
         if not os.path.exists(self._storing_path):
             os.mkdir(self._storing_path)
 
-        self._buffer_size = buffer_size
+        self._buffer_size = seconds_to_buffer*frame_rate
 
         self._background_thread = Thread(target=self._store, args=())
         self._background_thread.start()

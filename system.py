@@ -5,7 +5,6 @@ from CameraUtils.deserializator import deserialize
 import constants
 from datetime import timedelta
 import datetime
-from threading import Semaphore
 import json
 import sched
 import time
@@ -16,7 +15,6 @@ from VideoUtils.video_utils import *
 class System:
     def __init__(self):
         self.cameras = []
-        self._done_semaphore = Semaphore(0)
 
         if not os.path.exists(constants.STORING_PATH):
             os.mkdir(constants.STORING_PATH)
@@ -26,7 +24,6 @@ class System:
 
         self.__scheduler = sched.scheduler(time.time, time.sleep)
         self.__schedule_video_transformation()
-        self.__scheduler.run(blocking=False)
 
     def __schedule_video_transformation(self):
         now = datetime.datetime.now()
@@ -83,6 +80,8 @@ class System:
             self._save_cams_as_json()
 
     def _transform_yesterday_into_video(self):
+        self.__schedule_video_transformation()
+
         for place in os.listdir(constants.STORING_PATH):
             pth = os.path.join(constants.STORING_PATH, place)
 
@@ -96,8 +95,6 @@ class System:
                 video_path = "{}/{}-{}-{}.mp4".format(pth, place, yesterday.year, month, day)
 
                 self._folder_to_video(yesterday_path, video_path)
-
-                self.__schedule_video_transformation()
 
     @staticmethod
     def _folder_to_video(folder_path: str, video_path: str):
@@ -154,12 +151,6 @@ class System:
         for camera in self.cameras:
             func(camera)
 
-    def terminate(self):
-        """
-        Exits the system.
-        """
-        self._done_semaphore.release()
-
     def run(self):
         """
         Runs the system without using GUI.
@@ -167,7 +158,7 @@ class System:
         for camera in self.cameras:
             camera.receive_video()
 
-        self._done_semaphore.acquire()
+        self.__scheduler.run()
 
         for camera in self.cameras:
             camera.stop_receiving_video()
@@ -181,5 +172,4 @@ class System:
         thread.start()
 
         time.sleep(n)
-        self._done_semaphore.release()
         thread.join()
