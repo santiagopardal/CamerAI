@@ -106,7 +106,7 @@ class System:
 
                 result = create_video_writer(video_path, width, height, frame_rate)
 
-                for video in day:
+                for video in sorted(day):
                     if video.endswith(".mp4"):
                         append_to_video(result, os.path.join(folder_path, video))
 
