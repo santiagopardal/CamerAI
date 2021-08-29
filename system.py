@@ -1,30 +1,40 @@
-import pickle
 import os
-import time
 import threading
 from CameraUtils.Camera.camera import Camera
 from CameraUtils.deserializator import deserialize
 import constants
+from datetime import timedelta
 import datetime
-from threading import Semaphore
-import plotly.express as px
-import numpy as np
 import json
+import sched
+import time
+import shutil
+from VideoUtils.video_utils import *
 
 
 class System:
     def __init__(self):
-        self._last_upload = -4
         self.cameras = []
-        self._gui = None
-
-        self._done_semaphore = Semaphore(0)
 
         if not os.path.exists(constants.STORING_PATH):
             os.mkdir(constants.STORING_PATH)
 
         if os.path.exists("cameras.json"):
             self._load_cams_from_json_file()
+
+        self.__scheduler = sched.scheduler(time.time, time.sleep)
+        self.__schedule_video_transformation()
+
+    def __schedule_video_transformation(self):
+        now = datetime.datetime.now()
+        tomorrow_3_am = now + timedelta(days=1) - timedelta(hours=now.hour) - timedelta(minutes=now.minute) - \
+                        timedelta(seconds=now.second) - timedelta(microseconds=now.microsecond) + timedelta(hours=3)
+
+        time_until_3 = tomorrow_3_am - now
+        time_until_3 = time_until_3.total_seconds()
+
+        self.__scheduler.enter(time_until_3, 1, self._transform_yesterday_into_video)
+        print("Scheduled video transformation in {} seconds!".format(time_until_3))
 
     def _save_cams_as_json(self):
         """
@@ -69,6 +79,46 @@ class System:
 
             self._save_cams_as_json()
 
+    def _transform_yesterday_into_video(self):
+        self.__schedule_video_transformation()
+
+        for place in os.listdir(constants.STORING_PATH):
+            pth = os.path.join(constants.STORING_PATH, place)
+
+            if os.path.isdir(pth):
+                yesterday = datetime.datetime.now() - timedelta(days=1)
+
+                day = yesterday.day if yesterday.day > 9 else "0{}".format(yesterday.day)
+                month = yesterday.month if yesterday.month > 9 else "0{}".format(yesterday.month)
+
+                yesterday_path = os.path.join(pth, "{}-{}-{}".format(yesterday.year, month, day))
+                video_path = "{}/{}-{}-{}.mp4".format(pth, yesterday.year, month, day)
+
+                self._folder_to_video(yesterday_path, video_path)
+
+    @staticmethod
+    def _folder_to_video(folder_path: str, video_path: str):
+        print("Creating video on", folder_path, "name is", video_path)
+
+        for _, _, day in os.walk(folder_path):
+            if len(day) > 0:
+                width, height, frame_rate = get_video_properties(os.path.join(folder_path, day[0]))
+
+                result = create_video_writer(video_path, width, height, frame_rate)
+
+                for video in day:
+                    if video.endswith(".mp4"):
+                        append_to_video(result, os.path.join(folder_path, video))
+
+                result.release()
+
+                try:
+                    shutil.rmtree(folder_path, ignore_errors=True)
+                except OSError as e:
+                    print("Error deleting folder %s - %s" % (e.filename, e.strerror))
+
+        print("Finished video on", folder_path)
+
     def remove_camera(self, camera: Camera):
         """
         Removes a camera from the system if present.
@@ -101,12 +151,6 @@ class System:
         for camera in self.cameras:
             func(camera)
 
-    def terminate(self):
-        """
-        Exits the system.
-        """
-        self._done_semaphore.release()
-
     def run(self):
         """
         Runs the system without using GUI.
@@ -114,7 +158,7 @@ class System:
         for camera in self.cameras:
             camera.receive_video()
 
-        self._done_semaphore.acquire()
+        self.__scheduler.run()
 
         for camera in self.cameras:
             camera.stop_receiving_video()
@@ -128,94 +172,4 @@ class System:
         thread.start()
 
         time.sleep(n)
-        self._done_semaphore.release()
         thread.join()
-
-    @staticmethod
-    def create_statistics():
-        """
-        Creates binary file with statistics.
-        """
-        for place in os.listdir(constants.STORING_PATH):
-            place_path = os.path.join(constants.STORING_PATH, place)
-
-            if os.path.isdir(place_path):
-                for day in os.listdir(place_path):
-                    day_path = os.path.join(place_path, day)
-                    if os.path.isdir(day_path):
-
-                        year = int(day[:4])
-                        month = int(day[:7][5:])
-                        dei = int(day[8:])
-
-                        dates = []
-
-                        for file in os.listdir(day_path):
-                            if file.endswith(".jpeg"):
-                                file = file[:len(file)-5]
-                                hour = int(file[:2])
-                                minute = int(file[:5][3:])
-                                seconds = int(float(file[6:]))
-                                date = datetime.datetime(year=year, month=month, day=dei,
-                                                         hour=hour, minute=minute, second=seconds)
-                                dates.append(date)
-
-                        with open(os.path.join(day_path, "statistics.pck"), "wb") as handle:
-                            pickle.dump(dates, handle)
-
-    @staticmethod
-    def _display_statistics(divisor):
-        """
-        Displays statistics in web browser.
-        """
-        for place in os.listdir(constants.STORING_PATH):
-            place_path = os.path.join(constants.STORING_PATH, place)
-
-            data = {}
-
-            if os.path.isdir(place_path):
-                for day in os.listdir(os.path.join(place_path)):
-                    day_path = os.path.join(place_path, day)
-                    dates = []
-
-                    if os.path.exists(os.path.join(day_path, "statistics.pck")):
-                        with open(os.path.join(day_path, "statistics.pck"), "rb") as handle:
-                            dates = pickle.load(handle)
-
-                    starting_hour = 25
-                    ending_hour = -1
-
-                    for date in dates:
-                        date: datetime.datetime
-                        start_of_day = datetime.datetime(date.year, date.month, date.day)
-
-                        if date.hour < starting_hour:
-                            starting_hour = date.hour
-
-                        if date.hour > ending_hour:
-                            ending_hour = date.hour
-
-                        unit = (date - start_of_day).total_seconds() / divisor
-                        unit = round(unit*10)/10
-                        if unit in data:
-                            data[unit] = data[unit] + 1
-                        else:
-                            data[unit] = 1
-
-                    ending_hour = ending_hour if ending_hour == 24 else ending_hour + 1
-
-                    for i in np.arange(starting_hour, ending_hour, 0.1):
-                        i = round(i, 3)
-                        if i not in data:
-                            data[i] = 0
-
-                vals = [val / len(os.listdir(os.path.join(place_path))) for val in data.values()]
-                fig = px.scatter(x=data.keys(), y=vals, title=place + " average")
-                fig.show()
-
-    @staticmethod
-    def show_statistics():
-        """
-        Displays statistics in web browser.
-        """
-        System._display_statistics(60**2)

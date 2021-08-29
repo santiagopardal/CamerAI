@@ -25,9 +25,7 @@ class FI89182(LiveVideoCamera):
         live_video_url = "http://{}:{}/{}".format(ip, port, "videostream.cgi?user={}&pwd={}")
         live_video_url = live_video_url.format(user, password)
 
-        super().__init__(ip, port, place,
-                         screenshot_url, live_video_url,
-                         640, 480, 15, frames_handler)
+        super().__init__(ip, port, place, screenshot_url, live_video_url, 640, 480, 15, frames_handler)
 
     def to_dict(self) -> dict:
         """

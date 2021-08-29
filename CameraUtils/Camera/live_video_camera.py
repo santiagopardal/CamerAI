@@ -33,19 +33,14 @@ class LiveVideoCamera(Camera):
         res.append("_live_video")
         return res
 
-    def _receive_video(self):
-        """
-        Tries to receive video.
-        """
-        while (not self._live_video) or (not self._live_video.isOpened()):      # While not connected or video is not
-            self.__connect()                                                    # opened, connect!
+    def _prepare_connection(self):
+        while (not self._live_video) or (not self._live_video.isOpened()):
+            self.__connect()
 
-        if self._record_thread:                                                 # If there was another thread running
-            self._kill_thread = True                                            # stop it,
-            self._record_thread.join()                                          # wait for it to finish
-            self._kill_thread = False                                           # reset variables.
-
-        super()._receive_video()
+        if self._record_thread:
+            self._kill_thread = True
+            self._record_thread.join()
+            self._kill_thread = False
 
     def stop_receiving_video(self):
         """
@@ -61,7 +56,7 @@ class LiveVideoCamera(Camera):
         while not grabbed:
             print("Reconnecting!")
             self.__connect()
-            self._acquire_frame()
+            grabbed, frame = self._live_video.read()
 
         return frame
 
@@ -97,7 +92,7 @@ class LiveVideoCamera(Camera):
                     self._live_video.release()
                     del self._live_video
 
-                self._live_video = cv2.VideoCapture(self._live_video_url)
+                self._live_video = cv2.VideoCapture(self._live_video_url, cv2.CAP_FFMPEG)
                 self._live_video.set(cv2.CAP_PROP_FPS, self._framerate)
                 self._live_video.set(cv2.CAP_PROP_FRAME_WIDTH, self._frame_width)
                 self._live_video.set(cv2.CAP_PROP_FRAME_HEIGHT, self._frame_height)

@@ -1,5 +1,4 @@
 import cv2
-from PIL import Image
 import datetime
 import os
 import numpy as np
@@ -7,19 +6,12 @@ import constants
 
 
 class Frame(object):
-    __slots__ = "_time", "_frame", "_resized_and_grayscale", "_denoised", "_stored_in"
+    __slots__ = "_date", "_frame", "_resized_and_grayscale", "_stored_in"
 
-    def __init__(self, frame, time=None):
-        if time:
-            self._time = time
-        else:
-            self._time = datetime.datetime.now().time()
-
-        self._frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
-
+    def __init__(self, frame, date=datetime.datetime.now()):
+        self._date = date
+        self._frame = frame
         self._resized_and_grayscale = None
-        self._denoised = None
-
         self._stored_in = []
 
     @property
@@ -27,29 +19,16 @@ class Frame(object):
         return self._frame
 
     @property
+    def date(self) -> datetime.datetime:
+        return self._date
+
+    @property
     def time(self) -> datetime.datetime.time:
-        return self._time
+        return self._date.time()
 
     @frame.setter
     def frame(self, frm: np.ndarray):
         self._frame = frm
-
-    @time.setter
-    def time(self, tme):
-        self._time = tme
-
-    def get_denoised_frame(self):
-        """
-        Denoises the frame and returns it.
-        :return: Frame denoised.
-        """
-        if not self._denoised:
-            kernel = np.ones((3, 3), np.float32) / 9
-            frm = cv2.filter2D(self._frame, -1, kernel)
-            self._denoised = Frame(frm)
-            self._denoised.time = self._time
-
-        return self._denoised
 
     def get_resized_and_grayscaled(self) -> np.ndarray:
         """
@@ -78,7 +57,7 @@ class Frame(object):
         :return: Path where the frame has been stored.
         """
         try:
-            filename = str(self._time).replace(":", "-") + ".jpeg"
+            filename = "{}.jpeg".format(str(self._time).replace(":", "-"))
 
             pth = constants.STORING_PATH
             for fold in folder.split("/"):
@@ -92,9 +71,7 @@ class Frame(object):
             if not os.path.exists(folder):
                 os.mkdir(folder)
 
-            frame = Image.fromarray(self._frame)
-            frame.save(file_path, optimize=True, quality=50)
-            frame.close()
+            cv2.imwrite(filename=file_path, img=self._frame)
 
             self._stored_in.append(folder)
 
@@ -102,3 +79,7 @@ class Frame(object):
         except Exception as e:
             print("Error storing image from camera on {}".format(folder))
             print(e)
+
+    def clean_cache(self):
+        if self._resized_and_grayscale is not None:
+            del self._resized_and_grayscale
