@@ -92,7 +92,7 @@ class System:
                 month = yesterday.month if yesterday.month > 9 else "0{}".format(yesterday.month)
 
                 yesterday_path = os.path.join(pth, "{}-{}-{}".format(yesterday.year, month, day))
-                video_path = "{}/{}-{}-{}.mp4".format(pth, place, yesterday.year, month, day)
+                video_path = "{}/{}-{}-{}.mp4".format(pth, yesterday.year, month, day)
 
                 self._folder_to_video(yesterday_path, video_path)
 
