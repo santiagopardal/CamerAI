@@ -82,7 +82,7 @@ class System:
     def _transform_yesterday_into_video(self):
         self.__schedule_video_transformation()
 
-        for place in os.listdir(constants.STORING_PATH):
+        for place in sorted(os.listdir(constants.STORING_PATH)):
             pth = os.path.join(constants.STORING_PATH, place)
 
             if os.path.isdir(pth):
