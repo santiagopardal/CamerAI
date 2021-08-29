@@ -1,15 +1,15 @@
 import os
 import threading
-from CameraUtils.Camera.camera import Camera
-from CameraUtils.deserializator import deserialize
-import constants
+from src.CameraUtils.Camera.camera import Camera
+from src.CameraUtils.deserializator import deserialize
+import src.constants as constants
 from datetime import timedelta
 import datetime
 import json
 import sched
 import time
 import shutil
-from VideoUtils.video_utils import *
+from src.VideoUtils.video_utils import *
 
 
 class System:

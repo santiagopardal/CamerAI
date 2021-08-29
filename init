@@ -1,5 +1,4 @@
 cd CamerAPI
 npm start &
 cd ..
-cd src
-python3 test.py
+python3 -m src.test.py

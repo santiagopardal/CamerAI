@@ -1,0 +1,6 @@
+pip install -r requirements.txt
+mkdir Images
+cd CamerAPI
+npm install express
+npm install morgan
+npm install cors
