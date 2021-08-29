@@ -33,7 +33,7 @@ class System:
         time_until_3 = tomorrow_3_am - now
         time_until_3 = time_until_3.total_seconds()
 
-        self.__scheduler.enter(time_until_3, 1, self._transform_yesterday_into_video)
+        self.__scheduler.enter(20, 1, self._transform_yesterday_into_video)
         print("Scheduled video transformation in {} seconds!".format(time_until_3))
 
     def _save_cams_as_json(self):
@@ -82,7 +82,7 @@ class System:
     def _transform_yesterday_into_video(self):
         self.__schedule_video_transformation()
 
-        for place in sorted(os.listdir(constants.STORING_PATH)):
+        for place in os.listdir(constants.STORING_PATH):
             pth = os.path.join(constants.STORING_PATH, place)
 
             if os.path.isdir(pth):
@@ -106,7 +106,7 @@ class System:
 
                 result = create_video_writer(video_path, width, height, frame_rate)
 
-                for video in day:
+                for video in sorted(day):
                     if video.endswith(".mp4"):
                         append_to_video(result, os.path.join(folder_path, video))
 
