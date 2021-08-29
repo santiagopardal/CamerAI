@@ -134,7 +134,7 @@ class FrameHandler(Handler):
                 if not last_time_stored:
                     last_time_stored = self._last_time_stored(frame_rate)
 
-                frames = [Frame(frame, self._calculate_time_taken(last_time_stored, frame_rate, i+1).time())
+                frames = [Frame(frame, self._calculate_time_taken(last_time_stored, frame_rate, i+1))
                           for i, frame in enumerate(frames)]
 
                 last_time_stored = self._calculate_time_taken(last_time_stored, frame_rate, len(frames))

@@ -6,10 +6,10 @@ import constants
 
 
 class Frame(object):
-    __slots__ = "_time", "_frame", "_resized_and_grayscale", "_stored_in"
+    __slots__ = "_date", "_frame", "_resized_and_grayscale", "_stored_in"
 
-    def __init__(self, frame, time=datetime.datetime.now().time()):
-        self._time = time
+    def __init__(self, frame, date=datetime.datetime.now()):
+        self._date = date
         self._frame = frame
         self._resized_and_grayscale = None
         self._stored_in = []
@@ -19,16 +19,16 @@ class Frame(object):
         return self._frame
 
     @property
+    def date(self) -> datetime.datetime:
+        return self._date
+
+    @property
     def time(self) -> datetime.datetime.time:
-        return self._time
+        return self._date.time()
 
     @frame.setter
     def frame(self, frm: np.ndarray):
         self._frame = frm
-
-    @time.setter
-    def time(self, tme):
-        self._time = tme
 
     def get_resized_and_grayscaled(self) -> np.ndarray:
         """

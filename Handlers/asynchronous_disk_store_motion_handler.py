@@ -98,7 +98,12 @@ class AsynchronousDiskStoreMotionHandler(MotionHandler):
             del frames
 
     def _store_video(self, frames, filename):
-        storing_path = os.path.join(self._storing_path, str(datetime.datetime.now().date()))
+        month = frames[0].date.month if frames[0].date.month > 9 else "0{}".format(frames[0].date.month)
+        day = frames[0].date.day if frames[0].date.day > 9 else "0{}".format(frames[0].date.day)
+        date_str = "{}-{}-{}".format(frames[0].date.year, month, day)
+
+        storing_path = os.path.join(self._storing_path, date_str)
+
         if not os.path.exists(storing_path):
             os.mkdir(storing_path)
 
