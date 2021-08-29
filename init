@@ -1,0 +1,4 @@
+cd npm start &
+cd ..
+cd src
+python3 test.py
