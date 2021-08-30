@@ -43,7 +43,9 @@ ABSOLUTE_PATH = os.path.abspath(os.path.curdir)
 
 STORING_PATH = os.path.join(ABSOLUTE_PATH, "Images")
 
-V3_MODEL_WEIGHTS = os.path.join(ABSOLUTE_PATH, "Neural Network")
+AI_PATH = os.path.join(ABSOLUTE_PATH, "ai")
+
+V3_MODEL_WEIGHTS = os.path.join(AI_PATH, "Neural Network")
 
 LITE_MODEL_PATH = os.path.join(V3_MODEL_WEIGHTS, "lite")
 LITE_MODEL_PATH = os.path.join(LITE_MODEL_PATH, "model.tflite")
@@ -55,8 +57,8 @@ V3_MODEL_WEIGHTS = os.path.join(V3_MODEL_WEIGHTS, "Second network")
 V3_MODEL_WEIGHTS = os.path.join(V3_MODEL_WEIGHTS, "v3")
 V3_MODEL_WEIGHTS = os.path.join(V3_MODEL_WEIGHTS, "model.h5")
 
-YOLO_V3_PATH = os.path.join(ABSOLUTE_PATH, "YOLO v3")
-YOLO_V4_PATH = os.path.join(ABSOLUTE_PATH, "YOLO v4")
+YOLO_V3_PATH = os.path.join(AI_PATH, "YOLO v3")
+YOLO_V4_PATH = os.path.join(AI_PATH, "YOLO v4")
 
 YOLO_V3_TINY_PATH = os.path.join(YOLO_V3_PATH, "tiny")
 YOLO_V3_TINY_WEIGHTS = os.path.join(YOLO_V3_TINY_PATH, "yolov3.weights")
