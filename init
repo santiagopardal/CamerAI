@@ -1,4 +1,4 @@
 cd CamerAPI
-npm start &
+./init &
 cd ..
 python3 -m src.test.py
