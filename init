@@ -1,0 +1,4 @@
+cd CamerAPI
+./init &
+cd ..
+python3 -m src.test.py
