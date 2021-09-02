@@ -14,7 +14,7 @@ class AsynchronousDiskStoreMotionHandler(MotionHandler):
         """
         Initializes the handler.
         :param storing_path: Folder name to which store the frames.
-        :param buffer_size: If set, the frames will be stored as soon as the buffer reaches this number of frames,
+        :param seconds_to_buffer: If set, the frames will be stored as soon as the buffer reaches this number of frames,
         if not set, the frames will be stored as soon as they arrive to the handler.
         """
         self._frames = deque()
