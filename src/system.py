@@ -1,15 +1,17 @@
 import os
 import threading
-from src.CameraUtils.Camera.camera import Camera
+import requests
 from src.CameraUtils.deserializator import deserialize
 import src.constants as constants
 from datetime import timedelta
 import datetime
-import json
 import sched
 import time
 import shutil
 from src.VideoUtils.video_utils import *
+
+
+API_URL = "http://192.168.0.126:8080/api"
 
 
 class System:
@@ -19,8 +21,7 @@ class System:
         if not os.path.exists(constants.STORING_PATH):
             os.mkdir(constants.STORING_PATH)
 
-        if os.path.exists("cameras.json"):
-            self._load_cams_from_json_file()
+        self._fetch_cameras_from_api()
 
         self.__scheduler = sched.scheduler(time.time, time.sleep)
         self.__schedule_video_transformation()
@@ -36,48 +37,12 @@ class System:
         self.__scheduler.enter(time_until_3, 1, self._transform_yesterday_into_video)
         print("Scheduled video transformation in {} seconds!".format(time_until_3))
 
-    def _save_cams_as_json(self):
-        """
-        Saves a json file with all the cameras.
-        """
-        cams = {"cameras": [cam.to_dict() for cam in self.cameras]}
-
-        with open("cameras.json", "w") as json_file:
-            json.dump(cams, sort_keys=True, indent=4, fp=json_file)
-
-    def _load_cams_from_json_file(self):
+    def _fetch_cameras_from_api(self):
         """
         Loads cameras from the json file.
         """
-        with open("cameras.json") as json_file:
-            data = json.load(json_file)
-            self.cameras = [deserialize(cam=cam) for cam in data["cameras"]]
-
-    def add_cameras(self, cameras: list):
-        """
-        Adds all the cameras in cameras to the system if they weren't present before.
-        :param cameras: CameraUtils to add.
-        """
-        added = False
-        for cam in cameras:
-            if cam not in self.cameras:
-                self.cameras.append(cam)
-                added = True
-            else:
-                cam.stop_receiving_video()
-
-        if added:
-            self._save_cams_as_json()
-
-    def add_camera(self, camera: Camera):
-        """
-        Adds a camera to the system if not present.
-        :param camera: Camera to add.
-        """
-        if camera not in self.cameras:
-            self.cameras.append(camera)
-
-            self._save_cams_as_json()
+        cameras = requests.get("{}/cameras".format(API_URL)).json()
+        self.cameras = [deserialize(cam=cam) for cam in cameras]
 
     def _transform_yesterday_into_video(self):
         self.__schedule_video_transformation()
@@ -118,16 +83,6 @@ class System:
                     print("Error deleting folder %s - %s" % (e.filename, e.strerror))
 
         print("Finished video on", folder_path)
-
-    def remove_camera(self, camera: Camera):
-        """
-        Removes a camera from the system if present.
-        :param camera: Camera to remove.
-        """
-        if camera in self.cameras:
-            self.cameras.remove(camera)
-
-            self._save_cams_as_json()
 
     def record(self):
         """

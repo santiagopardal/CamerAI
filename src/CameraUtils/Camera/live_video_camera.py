@@ -24,15 +24,6 @@ class LiveVideoCamera(Camera):
         self._frame_width = width
         self._frame_height = height
 
-    def _to_pop_from_dict(self) -> list:
-        """
-        Returns list of attributes to remove when transforming camera to dictionary.
-        :return: List of attributes to remove.
-        """
-        res = super()._to_pop_from_dict()
-        res.append("_live_video")
-        return res
-
     def _prepare_connection(self):
         while (not self._live_video) or (not self._live_video.isOpened()):
             self.__connect()

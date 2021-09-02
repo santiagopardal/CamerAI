@@ -30,29 +30,15 @@ class FI9803PV3(LiveVideoCamera):
 
         self._streaming_port = streaming_port
 
-    def to_dict(self) -> dict:
-        """
-        Transforms a camera into a dictionary for serialization.
-        :return: dictionary representing the camera.
-        """
-        res = self.__dict__.copy()
-
-        for key in self._to_pop_from_dict():
-            res.pop(key)
-
-        res["model"] = "FI9803PV3"
-
-        return res
-
     @classmethod
-    def from_dict(cls, json: dict) -> Camera:
+    def from_json(cls, json: dict) -> Camera:
         """
         Returns a Camera from a dictionary.
         :param json: Dictionary to transform into FI9803PV3 camera.
         :return: FI9803PV3 camera from the dictionary.
         """
-        return cls(json["_ip"], json["_port"], json["_streaming_port"],
-                   json["_place"], json["_user"], json["_password"])
+        return cls(json["ip"], json["http_port"], json["streaming_port"],
+                   json["name"], json["user"], json["password"])
 
     def __eq__(self, other):
         if isinstance(other, FI9803PV3):

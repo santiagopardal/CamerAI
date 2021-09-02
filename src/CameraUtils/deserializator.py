@@ -15,4 +15,4 @@ def deserialize(cam: dict) -> Camera:
     """
     model = _classes[cam["model"]]
 
-    return model.from_dict(cam)
+    return model.from_json(cam)

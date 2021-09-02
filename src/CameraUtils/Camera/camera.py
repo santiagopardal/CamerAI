@@ -40,27 +40,13 @@ class Camera(Publisher):
         self._thread_pool = ThreadPoolExecutor(max_workers=2)
 
     @classmethod
-    def from_dict(cls, json: dict):
+    def from_json(cls, json: dict):
         """
         Returns a Camera from a dictionary.
         :param json: Dictionary to transform into camera.
         :return: Camera from the dictionary.
         """
         pass
-
-    def to_dict(self) -> dict:
-        """
-        Transforms a camera into a dictionary for serialization.
-        :return: dictionary representing the camera.
-        """
-        pass
-
-    def _to_pop_from_dict(self) -> list:
-        """
-        Returns list of attributes to remove when transforming camera to dictionary.
-        :return: list of attributes to remove.
-        """
-        return ["_record_thread", "_kill_thread", "_last_frame", "_subscriptors", "_frames_handler"]
 
     @property
     def place(self) -> str:
