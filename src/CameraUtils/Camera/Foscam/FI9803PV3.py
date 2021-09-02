@@ -4,6 +4,13 @@ from src.CameraUtils.Camera.live_video_camera import LiveVideoCamera
 from src.CameraUtils.Camera.camera import Camera
 
 
+SCREENSHOT_URL = "http://{}:{}/cgi-bin/CGIProxy.fcgi?cmd=snapPicture2&usr={}&pwd={}"
+LIVE_VIDEO_URL = "rtsp://{}:{}@{}:{}/videoMain"
+WIDTH = 1280
+HEIGHT = 720
+FRAME_RATE = 23
+
+
 class FI9803PV3(LiveVideoCamera):
     def __init__(self, ip: str, port: int, streaming_port: int,
                  place: str, user: str, password: str,
@@ -20,13 +27,11 @@ class FI9803PV3(LiveVideoCamera):
         user = urllib.parse.quote(user)
         password = urllib.parse.quote(password)
 
-        screenshot_url = "http://{}:{}/{}".format(ip, str(port), "cgi-bin/CGIProxy.fcgi?cmd=snapPicture2&usr={}&pwd={}")
-        screenshot_url = screenshot_url.format(user, password)
+        screenshot_url = SCREENSHOT_URL.format(ip, port, user, password)
+        live_video_url = LIVE_VIDEO_URL.format(user, password, ip, streaming_port)
 
-        live_video_url = "{}@{}:{}/videoMain".format("rtsp://{}:{}", ip, str(streaming_port))
-        live_video_url = live_video_url.format(user, password)
-
-        super().__init__(ip, port, place, screenshot_url, live_video_url, 1280, 720, 23, frames_handler)
+        super().__init__(ip, port, place, screenshot_url, live_video_url,
+                         WIDTH, HEIGHT, FRAME_RATE, frames_handler)
 
         self._streaming_port = streaming_port
 

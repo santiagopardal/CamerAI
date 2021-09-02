@@ -1,6 +1,6 @@
 from src.system import System
 
-
-sys = System()
-sys.record()
-sys.run()
+if __name__ == '__main__':
+    sys = System()
+    sys.record()
+    sys.run()

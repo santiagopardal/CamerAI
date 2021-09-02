@@ -4,6 +4,13 @@ from src.CameraUtils.Camera.live_video_camera import LiveVideoCamera
 from src.CameraUtils.Camera.camera import Camera
 
 
+SCREENSHOT_URL = "http://{}:{}/cgi-bin/CGIProxy.fcgi?cmd=snapPicture2&usr={}&pwd={}"
+LIVE_VIDEO_URL = "http://{}:{}/videostream.cgi?user={}&pwd={}"
+WIDTH = 640
+HEIGHT = 480
+FRAME_RATE = 15
+
+
 class FI89182(LiveVideoCamera):
     def __init__(self, ip: str, port: int, place: str,
                  user: str, password: str,
@@ -19,13 +26,11 @@ class FI89182(LiveVideoCamera):
         user = urllib.parse.quote(user)
         password = urllib.parse.quote(password)
 
-        screenshot_url = "http://{}:{}/{}".format(ip, str(port), "cgi-bin/CGIProxy.fcgi?cmd=snapPicture2&usr={}&pwd={}")
-        screenshot_url = screenshot_url.format(user, password)
+        screenshot_url = SCREENSHOT_URL.format(ip, port, user, password)
+        live_video_url = LIVE_VIDEO_URL.format(ip, port, user, password)
 
-        live_video_url = "http://{}:{}/{}".format(ip, port, "videostream.cgi?user={}&pwd={}")
-        live_video_url = live_video_url.format(user, password)
-
-        super().__init__(ip, port, place, screenshot_url, live_video_url, 640, 480, 15, frames_handler)
+        super().__init__(ip, port, place, screenshot_url, live_video_url,
+                         WIDTH, HEIGHT, FRAME_RATE, frames_handler)
 
     @classmethod
     def from_json(cls, json: dict) -> Camera:

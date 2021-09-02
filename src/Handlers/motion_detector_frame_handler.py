@@ -8,4 +8,4 @@ class MotionDetectorFrameHandler(FrameHandler):
     def __init__(self, camera):
         super().__init__(LiteObserver(), [AsynchronousDiskStoreMotionHandler(camera.place,
                                                                              constants.SECONDS_TO_BUFFER,
-                                                                             camera.framerate)])
+                                                                             camera.frame_rate)])
