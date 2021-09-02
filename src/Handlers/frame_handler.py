@@ -88,7 +88,7 @@ class FrameHandler(Handler):
                 end = time.time()
 
                 true_framerate = len(self._current_buffer) / (end - self._current_buffer_started_receiving) \
-                    if self._current_buffer_started_receiving else constants.FRAMERATE
+                    if self._current_buffer_started_receiving else constants.FRAME_RATE
 
                 self._frames_to_observe.append((self._current_buffer, true_framerate))
                 self._observe_semaphore.release()

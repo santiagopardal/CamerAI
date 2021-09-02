@@ -11,7 +11,7 @@ from src.Observations.Observers.observer import Observer
 from src.Observations.Observers.lite_observer import LiteObserver
 from concurrent.futures import ThreadPoolExecutor
 from src.Observer.observer import Publisher
-from src.constants import SECONDS_TO_BUFFER, FRAMERATE
+from src.constants import SECONDS_TO_BUFFER, FRAME_RATE
 
 
 class Camera(Publisher):
@@ -23,7 +23,7 @@ class Camera(Publisher):
         :param place: Place where the camera is located, this will be the name of the folder where the frames will
         be stored.
         :param screenshot_url: URL to obtain screenshot from the CCTV camera.
-        :param framerate: Camera's framerate.
+        :param frame_rate: Camera's frame rate.
         :param frames_handler: Handler to handle new frames.
         """
 
@@ -152,7 +152,7 @@ class Camera(Publisher):
         previous_capture = 0
 
         while not self._kill_thread:
-            if time.perf_counter() - previous_capture >= 1 / FRAMERATE:
+            if time.perf_counter() - previous_capture >= 1 / FRAME_RATE:
 
                 try:
                     previous_capture = time.perf_counter()

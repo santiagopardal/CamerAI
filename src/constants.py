@@ -26,7 +26,7 @@ def calculate_dbs():
         return round(JUMP * round(DETECTION_BATCH_SIZE/JUMP)) + 2
 
 
-FRAMERATE = 23
+FRAME_RATE = 23
 
 MOVEMENT_SENSITIVITY = 0.84
 DETECTION_BATCH_SIZE = 92
