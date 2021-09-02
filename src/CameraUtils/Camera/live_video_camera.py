@@ -25,8 +25,16 @@ class LiveVideoCamera(Camera):
         self._frame_height = height
 
     def _prepare_connection(self):
+        i = 0
         while (not self._live_video) or (not self._live_video.isOpened()):
             self.__connect()
+
+            if (not self._live_video) or (not self._live_video.isOpened()):
+                if i < 6:
+                    i += 1
+                seconds = 2 ** i
+                print("Could not connect, retrying in {} seconds".format(seconds))
+                time.sleep(seconds)
 
         if self._record_thread:
             self._kill_thread = True
