@@ -41,8 +41,19 @@ class System:
         """
         Loads cameras from the json file.
         """
-        cameras = requests.get("{}/cameras".format(API_URL)).json()
-        self.cameras = [deserialize(cam=cam) for cam in cameras]
+        i = 0
+        cameras = None
+
+        while not cameras:
+            try:
+                cameras = requests.get("{}/cameras".format(API_URL)).json()
+                self.cameras = [deserialize(cam=cam) for cam in cameras]
+            except:
+                if i < 6:
+                    i += 1
+                seconds = 2 ** i
+                print("Could not fetch from API, retrying in {} seconds".format(seconds))
+                time.sleep(seconds)
 
     def _transform_yesterday_into_video(self):
         self.__schedule_video_transformation()
