@@ -11,7 +11,7 @@ import shutil
 from src.VideoUtils.video_utils import *
 
 
-API_URL = "http://192.168.0.126:8080/api"
+API_URL = "http://localhost:8080/api"
 
 
 class System:
@@ -48,7 +48,7 @@ class System:
             try:
                 cameras = requests.get("{}/cameras".format(API_URL)).json()
                 self.cameras = [deserialize(cam=cam) for cam in cameras]
-            except:
+            except Exception:
                 if i < 6:
                     i += 1
                 seconds = 2 ** i
@@ -74,7 +74,7 @@ class System:
 
     @staticmethod
     def _folder_to_video(folder_path: str, video_path: str):
-        print("Creating video on", folder_path, "name is", video_path)
+        print("Creating video on {} at {}, video's path is {}".format(folder_path, datetime.datetime.now().time(), video_path))
 
         for _, _, day in os.walk(folder_path):
             if len(day) > 0:
@@ -93,7 +93,7 @@ class System:
                 except OSError as e:
                     print("Error deleting folder %s - %s" % (e.filename, e.strerror))
 
-        print("Finished video on", folder_path)
+        print("Finished video on {} at {}".format(folder_path, datetime.datetime.now().time()))
 
     def record(self):
         """
