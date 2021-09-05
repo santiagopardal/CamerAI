@@ -44,11 +44,11 @@ class AsynchronousDiskStoreMotionHandler(MotionHandler):
                 if len(self._frames[0]) >= self._buffer_size:
                     to_store = self._frames.popleft()
                     self._frames.append([])
-                    self._test_store(to_store)
+                    self._store(to_store)
             else:
-                self._test_store([event])
+                self._store([event])
 
-    def _test_store(self, frames):
+    def _store(self, frames):
         if self._buffer_size:
             filename = "{}.mp4".format(frames[0].time)
 
