@@ -10,7 +10,7 @@ def append_to_video(to: cv2.VideoWriter, to_append_path: str):
             r, frame = video.read()
             if r:
                 to.write(frame)
-    except:
+    except Exception:
         pass
 
 

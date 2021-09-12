@@ -16,8 +16,6 @@ class LookBackObservationStrategy(ObservationStrategy):
         results = self._observer.batch_movement_check(to_observe)
 
         recording = False
-        bursts = 0
-        looked = len(results)
         frames_list_length = len(frames)
 
         frames_with_movement = []
@@ -25,7 +23,6 @@ class LookBackObservationStrategy(ObservationStrategy):
         for i, result in enumerate(results):
             if result:
                 if not recording:
-                    bursts += 1
                     recording = True
 
                     if i != 0:
@@ -37,7 +34,6 @@ class LookBackObservationStrategy(ObservationStrategy):
                         for j in range(j, last_element, -2):
                             frm = frames[j]
                             pframe = frames[j - 1]
-                            looked += 1
 
                             if self._observer.movement(pframe, frm):
                                 frames_with_movement.append(frm)
@@ -71,7 +67,6 @@ class LookBackObservationStrategy(ObservationStrategy):
                     for j in range(j, last_element + 1, -2):
                         frm = frames[j]
                         pframe = frames[j - 1]
-                        looked += 1
 
                         if self._observer.movement(pframe, frm):
                             store_all = True
