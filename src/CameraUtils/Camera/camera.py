@@ -15,7 +15,7 @@ from src.constants import SECONDS_TO_BUFFER, FRAME_RATE
 
 
 class Camera(Publisher):
-    def __init__(self, ip: str, port: int, place: str, screenshot_url: str, frame_rate: int,
+    def __init__(self, id: int, ip: str, port: int, place: str, screenshot_url: str, frame_rate: int,
                  frames_handler: FrameHandler = None):
         """
         :param ip: IP of the camera.
@@ -28,6 +28,7 @@ class Camera(Publisher):
         """
 
         super().__init__()
+        self._id = id
         self._ip = ip
         self._port = port
         self._place = place
@@ -47,6 +48,10 @@ class Camera(Publisher):
         :return: Camera from the dictionary.
         """
         pass
+
+    @property
+    def id(self) -> int:
+        return self._id
 
     @property
     def place(self) -> str:
@@ -115,7 +120,7 @@ class Camera(Publisher):
         """
         self._frames_handler.set_observer(LiteObserver())
         self._frames_handler.add_motion_handler(
-            AsynchronousDiskStoreMotionHandler(self._place, SECONDS_TO_BUFFER, self.frame_rate)
+            AsynchronousDiskStoreMotionHandler(self, SECONDS_TO_BUFFER, self.frame_rate)
         )
         self._frames_handler.start()
 

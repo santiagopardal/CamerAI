@@ -12,7 +12,7 @@ FRAME_RATE = 23
 
 
 class FI9803PV3(LiveVideoCamera):
-    def __init__(self, ip: str, port: int, streaming_port: int,
+    def __init__(self, id: int, ip: str, port: int, streaming_port: int,
                  place: str, user: str, password: str,
                  frames_handler: FrameHandler = None):
         """
@@ -30,7 +30,7 @@ class FI9803PV3(LiveVideoCamera):
         screenshot_url = SCREENSHOT_URL.format(ip, port, user, password)
         live_video_url = LIVE_VIDEO_URL.format(user, password, ip, streaming_port)
 
-        super().__init__(ip, port, place, screenshot_url, live_video_url,
+        super().__init__(id, ip, port, place, screenshot_url, live_video_url,
                          WIDTH, HEIGHT, FRAME_RATE, frames_handler)
 
         self._streaming_port = streaming_port
@@ -42,7 +42,7 @@ class FI9803PV3(LiveVideoCamera):
         :param json: Dictionary to transform into FI9803PV3 camera.
         :return: FI9803PV3 camera from the dictionary.
         """
-        return cls(json["ip"], json["http_port"], json["streaming_port"],
+        return cls(json["id"], json["ip"], json["http_port"], json["streaming_port"],
                    json["name"], json["user"], json["password"])
 
     def __eq__(self, other):

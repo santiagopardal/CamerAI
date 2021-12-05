@@ -12,7 +12,7 @@ FRAME_RATE = 15
 
 
 class FI89182(LiveVideoCamera):
-    def __init__(self, ip: str, port: int, place: str,
+    def __init__(self, id: int, ip: str, port: int, place: str,
                  user: str, password: str,
                  frames_handler: FrameHandler = None):
         """
@@ -29,7 +29,7 @@ class FI89182(LiveVideoCamera):
         screenshot_url = SCREENSHOT_URL.format(ip, port, user, password)
         live_video_url = LIVE_VIDEO_URL.format(ip, port, user, password)
 
-        super().__init__(ip, port, place, screenshot_url, live_video_url,
+        super().__init__(id, ip, port, place, screenshot_url, live_video_url,
                          WIDTH, HEIGHT, FRAME_RATE, frames_handler)
 
     @classmethod
@@ -39,7 +39,7 @@ class FI89182(LiveVideoCamera):
         :param json: Dictionary to transform into FI89182 camera.
         :return: FI89182 camera from the dictionary.
         """
-        return cls(json["ip"], json["http_port"], json["name"], json["user"], json["password"])
+        return cls(json["id"], json["ip"], json["http_port"], json["name"], json["user"], json["password"])
 
     def __eq__(self, other):
         if isinstance(other, FI89182):

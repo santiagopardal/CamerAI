@@ -5,7 +5,7 @@ from src.CameraUtils.Camera.camera import Camera
 
 
 class LiveVideoCamera(Camera):
-    def __init__(self, ip: str, port: int, place: str, screenshot_url: str,
+    def __init__(self, id: int, ip: str, port: int, place: str, screenshot_url: str,
                  live_video_url: str, width: int, height: int,
                  framerate: int, frames_handler: FrameHandler = None):
         """
@@ -17,7 +17,7 @@ class LiveVideoCamera(Camera):
         :param width: Width of frame.
         :param height: Height of frame.
         """
-        super().__init__(ip, port, place, screenshot_url, framerate, frames_handler)
+        super().__init__(id, ip, port, place, screenshot_url, framerate, frames_handler)
 
         self._live_video_url = live_video_url
         self._live_video = None

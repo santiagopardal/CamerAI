@@ -1,15 +1,16 @@
 from src.Handlers.motion_handler import MotionHandler
 from collections import deque
 import os
-from src.constants import STORING_PATH
+from src.constants import STORING_PATH, API_URL
 import cv2
+import requests
 
 
 class AsynchronousDiskStoreMotionHandler(MotionHandler):
     """
     Handles motion storing the frames on disk asynchronously.
     """
-    def __init__(self, storing_path: str, seconds_to_buffer: int = 0, frame_rate: int = 0):
+    def __init__(self, camera, seconds_to_buffer: int = 0, frame_rate: int = 0):
         """
         Initializes the handler.
         :param storing_path: Folder name to which store the frames.
@@ -23,7 +24,8 @@ class AsynchronousDiskStoreMotionHandler(MotionHandler):
             self._frames.append([])
 
         self._done = False
-        self._storing_path = os.path.join(STORING_PATH, storing_path)
+        self._camera = camera
+        self._storing_path = os.path.join(STORING_PATH, camera.place)
 
         if not os.path.exists(self._storing_path):
             os.mkdir(self._storing_path)
@@ -79,3 +81,11 @@ class AsynchronousDiskStoreMotionHandler(MotionHandler):
                 pass
 
         video.release()
+
+        try:
+            api_endpoint = "{}/temporal_videos/{}/{}-{}-{}?path={}".format(API_URL, self._camera.id,
+                                                                           day, month, frames[0].date.year,
+                                                                           storing_path)
+            requests.post(api_endpoint)
+        except Exception as e:
+            print(e)

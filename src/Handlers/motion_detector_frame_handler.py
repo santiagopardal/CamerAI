@@ -6,6 +6,6 @@ from src.Handlers.asynchronous_disk_store_motion_handler import AsynchronousDisk
 
 class MotionDetectorFrameHandler(FrameHandler):
     def __init__(self, camera):
-        super().__init__(LiteObserver(), [AsynchronousDiskStoreMotionHandler(camera.place,
+        super().__init__(LiteObserver(), [AsynchronousDiskStoreMotionHandler(camera,
                                                                              constants.SECONDS_TO_BUFFER,
                                                                              camera.frame_rate)])

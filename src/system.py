@@ -3,15 +3,13 @@ import threading
 import requests
 from src.CameraUtils.deserializator import deserialize
 import src.constants as constants
+from src.constants import API_URL
 from datetime import timedelta
 import datetime
 import sched
 import time
 import shutil
 from src.VideoUtils.video_utils import *
-
-
-API_URL = "http://localhost:8080/api"
 
 
 class System:
@@ -58,42 +56,54 @@ class System:
     def _transform_yesterday_into_video(self):
         self.__schedule_video_transformation()
 
-        for place in os.listdir(constants.STORING_PATH):
-            pth = os.path.join(constants.STORING_PATH, place)
+        yesterday = datetime.datetime.now() - timedelta(days=1)
+        day = yesterday.day if yesterday.day > 9 else "0{}".format(yesterday.day)
+        month = yesterday.month if yesterday.month > 9 else "0{}".format(yesterday.month)
 
-            if os.path.isdir(pth):
-                yesterday = datetime.datetime.now() - timedelta(days=1)
+        for camera in self.cameras:
+            try:
+                self._merge_cameras_video(camera, day, month, yesterday.year)
+            except Exception as e:
+                print("Error merging videos:", e)
 
-                day = yesterday.day if yesterday.day > 9 else "0{}".format(yesterday.day)
-                month = yesterday.month if yesterday.month > 9 else "0{}".format(yesterday.month)
+    def _merge_cameras_video(self, camera, day, month, year):
+        temporal_videos_endpoint = "{}/temporal_videos/{}/{}-{}-{}".format(API_URL, camera.id, day, month, year)
+        temporal_videos = requests.get(temporal_videos_endpoint).json()
 
-                yesterday_path = os.path.join(pth, "{}-{}-{}".format(yesterday.year, month, day))
-                video_path = "{}/{}-{}-{}.mp4".format(pth, yesterday.year, month, day)
+        pth = os.path.join(constants.STORING_PATH, camera.place)
+        video_path = "{}/{}-{}-{}.mp4".format(pth, year, month, day)
+        self._merge_videos(temporal_videos, video_path)
 
-                self._folder_to_video(yesterday_path, video_path)
+        self._clean_temporal_videos(camera, day, month, year)
+
+        register_new_video_endpoint = "{}/videos/{}/{}-{}-{}?path={}".format(API_URL, camera.id,
+                                                                             day, month, year, video_path)
+        requests.post(register_new_video_endpoint)
 
     @staticmethod
-    def _folder_to_video(folder_path: str, video_path: str):
-        print("Creating video on {} at {}, video's path is {}".format(folder_path, datetime.datetime.now().time(), video_path))
+    def _clean_temporal_videos(camera, day, month, year):
+        pth = os.path.join(constants.STORING_PATH, camera.place)
+        pth = os.path.join(pth, "{}-{}-{}".format(year, month, day))
+        shutil.rmtree(pth, ignore_errors=True)
 
-        for _, _, day in os.walk(folder_path):
-            if len(day) > 0:
-                width, height, frame_rate = get_video_properties(os.path.join(folder_path, day[0]))
+        api_endpoint = "{}/temporal_videos/{}/{}-{}-{}".format(API_URL, camera.id, day, month, year)
+        requests.delete(api_endpoint)
 
-                result = create_video_writer(video_path, width, height, frame_rate)
+    @staticmethod
+    def _merge_videos(videos: list, video_path: str):
+        if videos:
+            print("Creating video at {}, video's path is {}".format(datetime.datetime.now().time(), video_path))
 
-                for video in sorted(day):
-                    if video.endswith(".mp4"):
-                        append_to_video(result, os.path.join(folder_path, video))
+            width, height, frame_rate = get_video_properties(videos[0])
 
-                result.release()
+            result = create_video_writer(video_path, width, height, frame_rate)
 
-                try:
-                    shutil.rmtree(folder_path, ignore_errors=True)
-                except OSError as e:
-                    print("Error deleting folder %s - %s" % (e.filename, e.strerror))
+            for video in sorted(videos):
+                append_to_video(result, video)
 
-        print("Finished video on {} at {}".format(folder_path, datetime.datetime.now().time()))
+            result.release()
+
+            print("Finished video creation at {}".format(datetime.datetime.now().time()))
 
     def record(self):
         """
