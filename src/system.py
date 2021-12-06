@@ -1,15 +1,15 @@
 import os
 import threading
-import requests
 from src.CameraUtils.deserializator import deserialize
 import src.constants as constants
-from src.constants import API_URL
+from src.date_helper import get_numbers_as_string
 from datetime import timedelta
 import datetime
 import sched
 import time
 import shutil
 from src.VideoUtils.video_utils import *
+from API import get_cameras, get_temporal_videos, remove_temporal_videos, register_new_video
 
 
 class System:
@@ -44,7 +44,7 @@ class System:
 
         while not cameras:
             try:
-                cameras = requests.get("{}/cameras".format(API_URL)).json()
+                cameras = get_cameras()
                 self.cameras = [deserialize(cam=cam) for cam in cameras]
             except Exception:
                 if i < 6:
@@ -57,37 +57,34 @@ class System:
         self.__schedule_video_transformation()
 
         yesterday = datetime.datetime.now() - timedelta(days=1)
-        day = yesterday.day if yesterday.day > 9 else "0{}".format(yesterday.day)
-        month = yesterday.month if yesterday.month > 9 else "0{}".format(yesterday.month)
 
         for camera in self.cameras:
             try:
-                self._merge_cameras_video(camera, day, month, yesterday.year)
+                self._merge_cameras_video(camera, yesterday)
             except Exception as e:
                 print("Error merging videos:", e)
 
-    def _merge_cameras_video(self, camera, day, month, year):
-        temporal_videos_endpoint = "{}/temporal_videos/{}/{}-{}-{}".format(API_URL, camera.id, day, month, year)
-        temporal_videos = requests.get(temporal_videos_endpoint).json()
+    def _merge_cameras_video(self, camera, date: datetime.datetime):
+        temporal_videos = get_temporal_videos(camera.id, date)
 
         pth = os.path.join(constants.STORING_PATH, camera.place)
+
+        day, month, year = get_numbers_as_string(date)
         video_path = "{}/{}-{}-{}.mp4".format(pth, year, month, day)
         self._merge_videos(temporal_videos, video_path)
 
-        self._clean_temporal_videos(camera, day, month, year)
+        self._clean_temporal_videos(camera, date)
 
-        register_new_video_endpoint = "{}/videos/{}/{}-{}-{}?path={}".format(API_URL, camera.id,
-                                                                             day, month, year, video_path)
-        requests.post(register_new_video_endpoint)
+        register_new_video(camera.id, date, video_path)
 
     @staticmethod
-    def _clean_temporal_videos(camera, day, month, year):
+    def _clean_temporal_videos(camera, date: datetime.datetime):
         pth = os.path.join(constants.STORING_PATH, camera.place)
+        day, month, year = get_numbers_as_string(date)
         pth = os.path.join(pth, "{}-{}-{}".format(year, month, day))
         shutil.rmtree(pth, ignore_errors=True)
 
-        api_endpoint = "{}/temporal_videos/{}/{}-{}-{}".format(API_URL, camera.id, day, month, year)
-        requests.delete(api_endpoint)
+        remove_temporal_videos(camera.id, date)
 
     @staticmethod
     def _merge_videos(videos: list, video_path: str):
