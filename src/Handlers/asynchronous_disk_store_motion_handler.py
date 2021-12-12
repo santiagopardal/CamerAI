@@ -1,9 +1,10 @@
 from src.Handlers.motion_handler import MotionHandler
 from collections import deque
 import os
-from src.constants import STORING_PATH, API_URL
+from src.constants import STORING_PATH
 import cv2
-import requests
+from src.date_helper import get_numbers_as_string
+from src.API import add_temporal_video
 
 
 class AsynchronousDiskStoreMotionHandler(MotionHandler):
@@ -59,9 +60,9 @@ class AsynchronousDiskStoreMotionHandler(MotionHandler):
             frames[0].store(self._storing_path)
 
     def _store_video(self, frames, filename):
-        month = frames[0].date.month if frames[0].date.month > 9 else "0{}".format(frames[0].date.month)
-        day = frames[0].date.day if frames[0].date.day > 9 else "0{}".format(frames[0].date.day)
-        date_str = "{}-{}-{}".format(frames[0].date.year, month, day)
+        day, month, year = get_numbers_as_string(frames[0].date)
+
+        date_str = "{}-{}-{}".format(year, month, day)
 
         storing_path = os.path.join(self._storing_path, date_str)
 
@@ -83,9 +84,6 @@ class AsynchronousDiskStoreMotionHandler(MotionHandler):
         video.release()
 
         try:
-            api_endpoint = "{}/temporal_videos/{}/{}-{}-{}?path={}".format(API_URL, self._camera.id,
-                                                                           day, month, frames[0].date.year,
-                                                                           storing_path)
-            requests.post(api_endpoint)
+            add_temporal_video(self._camera.id, frames[0].date, storing_path)
         except Exception as e:
             print(e)
