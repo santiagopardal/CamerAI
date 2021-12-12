@@ -9,7 +9,7 @@ import sched
 import time
 import shutil
 from src.VideoUtils.video_utils import *
-from API import get_cameras, get_temporal_videos, remove_temporal_videos, register_new_video
+from src.API import get_cameras, get_temporal_videos, remove_temporal_videos, register_new_video
 
 
 class System:
