@@ -37,7 +37,7 @@ class System:
 
     def _fetch_cameras_from_api(self):
         """
-        Loads cameras from the json file.
+        Loads cameras from the API.
         """
         i = 0
         cameras = None
@@ -129,7 +129,7 @@ class System:
 
     def run(self):
         """
-        Runs the system without using GUI.
+        Runs the system.
         """
         for camera in self.cameras:
             camera.receive_video()
@@ -141,7 +141,7 @@ class System:
 
     def run_n_seconds(self, n):
         """
-        Runs without GUI for n seconds.
+        Runs for n seconds.
         :param n: Number of seconds to run.
         """
         thread = threading.Thread(target=self.run, args=())
