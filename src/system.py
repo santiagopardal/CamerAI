@@ -8,8 +8,8 @@ import datetime
 import sched
 import time
 import shutil
-from src.VideoUtils.video_utils import *
 import src.API as API
+import src.Media.VideoUtils.video_utils as video_utils
 
 
 class System:
@@ -91,12 +91,12 @@ class System:
         if videos:
             print("Creating video at {}, video's path is {}".format(datetime.datetime.now().time(), video_path))
 
-            width, height, frame_rate = get_video_properties(videos[0])
+            width, height, frame_rate = video_utils.get_video_properties(videos[0])
 
-            result = create_video_writer(video_path, width, height, frame_rate)
+            result = video_utils.create_video_writer(video_path, width, height, frame_rate)
 
             for video in sorted(videos):
-                append_to_video(result, video)
+                video_utils.append_to_video(result, video)
 
             result.release()
 

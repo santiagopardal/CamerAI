@@ -39,7 +39,7 @@ class Observer:
     def batch_movement_check(self, frames: list) -> list:
         """
         Returns a list with the results of checking for all difference in frames if there has been movement or not. By
-        difference I mean what _prepare_for_cnn returns.
+        difference, I mean what _prepare_for_cnn returns.
         :param frames: List of frames to analyse.
         :return: List with boolean values representing whether there has been movement or not.
         """
@@ -54,7 +54,7 @@ class Observer:
         Determines whether there has been movement between two frames.
         :param previous_frame: Frame more distant in time.
         :param frame: Frame nearest in time.
-        :return: True if there is movement, False if there is not movement.
+        :return: True if there is movement, False if there is no movement.
         """
         image = self._prepare_for_cnn(previous_frame, frame)
 
@@ -62,7 +62,7 @@ class Observer:
 
     def observe(self, frames: list) -> list:
         """
-        Receives a list of frames and stores those in which there has been movement. Brace yourself.
+        Receives a list of frames and stores those in which there has been movement.
         :param frames: Frames to analyse.
         """
         return self._observation_strategy.observe(frames)
