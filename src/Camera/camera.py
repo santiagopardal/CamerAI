@@ -172,7 +172,7 @@ class Camera(Publisher):
                     print(e)
 
     def __hash__(self):
-        return (self.ip + str(self._port) + self._place).__hash__()
+        return "{}:{}@{}".format(self.ip, self.port, self.place).__hash__()
 
     def __eq__(self, other):
         if isinstance(other, Camera):
