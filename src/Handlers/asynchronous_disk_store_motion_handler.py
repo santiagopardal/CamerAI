@@ -11,7 +11,7 @@ class AsynchronousDiskStoreMotionHandler(MotionHandler):
     """
     Handles motion storing the frames on disk asynchronously.
     """
-    def __init__(self, camera, seconds_to_buffer: int = 0, frame_rate: int = 0):
+    def __init__(self, camera, seconds_to_buffer: int = 2, frame_rate: int = 23):
         """
         Initializes the handler.
         :param storing_path: Folder name to which store the frames.
@@ -41,23 +41,16 @@ class AsynchronousDiskStoreMotionHandler(MotionHandler):
         :param event: List of frames in which there has been movement.
         """
         if event:
-            if self._buffer_size:
-                self._frames[0] = self._frames[0] + event
+            self._frames[0] = self._frames[0] + event
 
-                if len(self._frames[0]) >= self._buffer_size:
-                    to_store = self._frames.popleft()
-                    self._frames.append([])
-                    self._store(to_store)
-            else:
-                self._store([event])
+            if len(self._frames[0]) >= self._buffer_size:
+                to_store = self._frames.popleft()
+                self._frames.append([])
+                self._store(to_store)
 
     def _store(self, frames):
-        if self._buffer_size:
-            filename = "{}.mp4".format(frames[0].time)
-
-            self._store_video(frames, filename)
-        else:
-            frames[0].store(self._storing_path)
+        filename = "{}.mp4".format(frames[0].time)
+        self._store_video(frames, filename)
 
     def _store_video(self, frames, filename):
         day, month, year = get_numbers_as_string(frames[0].date)
