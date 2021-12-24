@@ -15,7 +15,7 @@ class LocalVideoSaver(MediaSaver):
 
     def save(self, frames: List[Frame]):
         filename = "{}.mp4".format(frames[0].time)
-        self._store_video(frames, filename)
+        return self._store_video(frames, filename)
 
     def _store_video(self, frames, filename):
         day, month, year = get_numbers_as_string(frames[0].date)
@@ -41,7 +41,4 @@ class LocalVideoSaver(MediaSaver):
 
         video.release()
 
-        #try:
-        #    add_temporal_video(self._camera.id, frames[0].date, storing_path)
-        #except Exception as e:
-        #    print(e)
+        return storing_path
