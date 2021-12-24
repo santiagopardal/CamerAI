@@ -1,6 +1,10 @@
 import numpy as np
 from numpy import sqrt
 import os
+from dotenv import load_dotenv
+
+
+load_dotenv()
 
 
 def cost_function(b):
@@ -39,7 +43,7 @@ DBS = calculate_dbs()
 RESOLUTION = (180, 180)
 CNN_INPUT_SHAPE = (180, 180, 1)
 
-ABSOLUTE_PATH = os.path.abspath(os.path.curdir)
+ABSOLUTE_PATH = os.environ["ABSOLUTE_PATH"]
 
 STORING_PATH = os.path.join(ABSOLUTE_PATH, "Images")
 

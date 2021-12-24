@@ -1,6 +1,6 @@
 import os
 import threading
-from src.Camera.deserializator import deserialize
+from src.Camera.serializer import deserialize
 import src.constants as constants
 from src.date_helper import get_numbers_as_string
 from datetime import timedelta

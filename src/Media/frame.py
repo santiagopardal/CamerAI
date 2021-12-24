@@ -1,5 +1,5 @@
 import cv2
-import datetime
+from datetime import datetime
 import numpy as np
 from src import constants
 
@@ -7,7 +7,7 @@ from src import constants
 class Frame(object):
     __slots__ = "_date", "_frame", "_resized_and_grayscale", "_stored_in"
 
-    def __init__(self, frame, date=datetime.datetime.now()):
+    def __init__(self, frame, date=datetime.now()):
         self._date = date
         self._frame = frame
         self._resized_and_grayscale = None
@@ -18,11 +18,11 @@ class Frame(object):
         return self._frame
 
     @property
-    def date(self) -> datetime.datetime:
+    def date(self) -> datetime:
         return self._date
 
     @property
-    def time(self) -> datetime.datetime.time:
+    def time(self) -> datetime.time:
         return self._date.time()
 
     @frame.setter
