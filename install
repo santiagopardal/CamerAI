@@ -1,5 +1,5 @@
 touch .env
-echo ABSOLUTE_PATH="$(pwd)"/Images >> ./.env
+echo ABSOLUTE_PATH="$(pwd)" >> ./.env
 
 pip install -r requirements.txt
 mkdir Images
