@@ -1,7 +1,7 @@
 import time
 import cv2
 from src.Handlers.frame_handler import FrameHandler
-from src.CameraUtils.Camera.camera import Camera
+from src.Camera.camera import Camera
 
 
 class LiveVideoCamera(Camera):
