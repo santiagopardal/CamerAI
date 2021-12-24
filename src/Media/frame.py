@@ -1,6 +1,5 @@
 import cv2
 import datetime
-import os
 import numpy as np
 from src import constants
 

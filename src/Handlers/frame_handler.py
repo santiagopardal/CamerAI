@@ -4,7 +4,7 @@ from src import constants
 import numpy as np
 import time
 from collections import deque
-from src.Frames.frame import Frame
+from src.Media.frame import Frame
 from src.Observations.Observers.observer import Observer
 from src.Handlers.handler import Handler
 from src.Observations.Observers.lite_observer import LiteObserver

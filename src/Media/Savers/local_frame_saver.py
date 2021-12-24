@@ -1,12 +1,12 @@
 import os
 from datetime import datetime
 import cv2
-from src.Frames.Savers.frame_saver import FrameSaver
-from src.Frames.frame import Frame
+from src.Media.Savers.media_saver import MediaSaver
+from src.Media.frame import Frame
 from src.constants import STORING_PATH
 
 
-class LocalFrameSaver(FrameSaver):
+class LocalFrameSaver(MediaSaver):
     def __init__(self, folder: str):
         self._folder = folder
 

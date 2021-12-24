@@ -1,6 +1,6 @@
 from src.Observations.Observers.observer import Observer
 import numpy as np
-from src.Frames.frame import Frame
+from src.Media.frame import Frame
 from threading import Lock
 from src.Observations.Models.TFLiteMovementDetector import TFLiteModelDetector
 

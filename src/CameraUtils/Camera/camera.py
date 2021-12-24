@@ -6,7 +6,7 @@ import numpy as np
 import requests
 from PIL import Image
 from src.Handlers.frame_handler import FrameHandler
-from src.Handlers.asynchronous_disk_store_motion_handler import AsynchronousDiskStoreMotionHandler
+from src.Handlers.buffered_motion_handler import BufferedMotionHandler
 from src.Observations.Observers.observer import Observer
 from src.Observations.Observers.lite_observer import LiteObserver
 from concurrent.futures import ThreadPoolExecutor
@@ -119,9 +119,7 @@ class Camera(Publisher):
         Starts recording.
         """
         self._frames_handler.set_observer(LiteObserver())
-        self._frames_handler.add_motion_handler(
-            AsynchronousDiskStoreMotionHandler(self, SECONDS_TO_BUFFER, self.frame_rate)
-        )
+        self._frames_handler.add_motion_handler(BufferedMotionHandler(self, SECONDS_TO_BUFFER))
         self._frames_handler.start()
 
     def stop_recording(self):

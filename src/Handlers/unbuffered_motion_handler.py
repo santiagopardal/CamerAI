@@ -1,15 +1,15 @@
 from collections import deque
 from src.Handlers.motion_handler import MotionHandler
-from src.Frames.Savers.frame_saver import FrameSaver
-from src.Frames.Savers.local_frame_saver import LocalFrameSaver
+from src.Media.Savers.media_saver import MediaSaver
+from src.Media.Savers.local_frame_saver import LocalFrameSaver
 
 
-class SynchronousDiskStoreMotionHandler(MotionHandler):
+class UnbufferedMotionHandler(MotionHandler):
     """
     Handles motion storing the frames on disk synchronously.
     """
 
-    def __init__(self, storing_path: str, frame_saver: FrameSaver = None):
+    def __init__(self, storing_path: str, frame_saver: MediaSaver = None):
         """
         Initializes the handler.
         :param storing_path: Folder name to which store the frames.
