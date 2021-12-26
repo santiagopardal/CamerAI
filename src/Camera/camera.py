@@ -1,10 +1,7 @@
-import urllib
-import io
 import time
 import cv2
 import numpy as np
 import requests
-from PIL import Image
 from src.Handlers.frame_handler import FrameHandler
 from src.Handlers.buffered_motion_handler import BufferedMotionHandler
 from src.Observations.Observers.observer import Observer
@@ -90,16 +87,14 @@ class Camera(Publisher):
         self._frames_handler = frames_handler
         self._frames_handler.start()
 
-    def screenshot(self) -> Image.Image:
+    def screenshot(self):
         """
         :return: A screenshot from the camera.
         """
-        with urllib.request.urlopen(self._screenshot_url) as url:
-            f = io.BytesIO(url.read())
+        response = requests.get(self._screenshot_url, stream=True).raw
+        frame = np.asarray(bytearray(response.read()), dtype="uint8")
 
-        image = Image.open(f)
-
-        return image
+        return cv2.imdecode(frame, cv2.IMREAD_COLOR)
 
     def receive_video(self):
         """
@@ -142,12 +137,6 @@ class Camera(Publisher):
 
         self._frames_handler.stop()
 
-    def _acquire_frame(self):
-        response = requests.get(self._screenshot_url, stream=True).raw
-        frame = np.asarray(bytearray(response.read()), dtype="uint8")
-
-        return cv2.imdecode(frame, cv2.IMREAD_COLOR)
-
     def _receive_frames(self):
         """
         Obtains live images from the camera, notifies subscribers and calls the frames handler to handle them.
@@ -160,7 +149,7 @@ class Camera(Publisher):
                 try:
                     previous_capture = time.perf_counter()
 
-                    frame = self._acquire_frame()
+                    frame = self.screenshot()
 
                     if frame:
                         self._last_frame = frame
