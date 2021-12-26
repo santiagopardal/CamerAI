@@ -1,5 +1,8 @@
 from src.Observations.Models.model import Model
-from tflite_runtime.interpreter import Interpreter
+try:
+    from tensorflow.lite.python.interpreter import Interpreter
+except:
+    from tflite_runtime.interpreter import Interpreter
 from src import constants
 import numpy as np
 
