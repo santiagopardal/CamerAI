@@ -7,11 +7,10 @@ from src.Handlers.buffered_motion_handler import BufferedMotionHandler
 from src.Observations.Observers.observer import Observer
 from src.Observations.Observers.lite_observer import LiteObserver
 from concurrent.futures import ThreadPoolExecutor
-from src.Observer.observer import Publisher
 from src.constants import SECONDS_TO_BUFFER, FRAME_RATE
 
 
-class Camera(Publisher):
+class Camera:
     def __init__(self, id: int, ip: str, port: int, place: str, screenshot_url: str, frame_rate: int,
                  frames_handler: FrameHandler = None):
         """
@@ -139,7 +138,7 @@ class Camera(Publisher):
 
     def _receive_frames(self):
         """
-        Obtains live images from the camera, notifies subscribers and calls the frames handler to handle them.
+        Obtains live images from the camera and calls the frames handler to handle them.
         """
         previous_capture = 0
 
@@ -153,7 +152,6 @@ class Camera(Publisher):
 
                     if frame:
                         self._last_frame = frame
-                        self._notify_subscribed()
                         self._frames_handler.handle(frame)
 
                 except Exception as e:

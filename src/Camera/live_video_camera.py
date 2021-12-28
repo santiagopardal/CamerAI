@@ -61,7 +61,7 @@ class LiveVideoCamera(Camera):
 
     def _receive_frames(self):
         """
-        Obtains live images from the camera, notifies subscribers and calls the frames handler to handle them.
+        Obtains live images from the camera and calls the frames handler to handle them.
         """
 
         while not self._kill_thread:
@@ -69,7 +69,6 @@ class LiveVideoCamera(Camera):
                 frame = self._acquire_frame()
 
                 self._last_frame = frame
-                self._notify_subscribed()
                 self._frames_handler.handle(frame)
             except Exception as e:
                 print("Error downloading image from camera {} on ip {}".format(self._place, self._ip))
