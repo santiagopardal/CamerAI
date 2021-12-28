@@ -2,7 +2,7 @@ from src.Handlers.motion_handler import MotionHandler
 from collections import deque
 import os
 from src.constants import STORING_PATH
-import src.API as API
+import src.API.temporal_videos as temporal_videos_api
 from src.Media.Savers.media_saver import MediaSaver
 from src.Media.Savers.local_video_saver import LocalVideoSaver
 
@@ -39,6 +39,6 @@ class BufferedMotionHandler(MotionHandler):
                 self._frames.append([])
                 path = self._media_saver.save(to_store)
                 try:
-                    API.add_temporal_video(self._camera.id, to_store[0].date, path)
+                    temporal_videos_api.add_temporal_video(self._camera.id, to_store[0].date, path)
                 except Exception as e:
                     print(e)

@@ -8,7 +8,9 @@ import datetime
 import sched
 import time
 import shutil
-import src.API as API
+import src.API.videos as videos_api
+import src.API.cameras as cameras_api
+import src.API.temporal_videos as temporal_videos_api
 import src.Media.VideoUtils.video_utils as video_utils
 
 
@@ -44,7 +46,7 @@ class System:
 
         while not cameras:
             try:
-                cameras = API.get_cameras()
+                cameras = cameras_api.get_cameras()
                 self.cameras = [deserialize(cam=cam) for cam in cameras]
             except Exception:
                 if i < 6:
@@ -65,7 +67,7 @@ class System:
                 print("Error merging videos:", e)
 
     def _merge_cameras_video(self, camera, date: datetime.datetime):
-        temporal_videos = API.get_temporal_videos(camera.id, date)
+        temporal_videos = temporal_videos_api.get_temporal_videos(camera.id, date)
 
         pth = os.path.join(constants.STORING_PATH, camera.place)
 
@@ -75,7 +77,7 @@ class System:
 
         self._clean_temporal_videos(camera, date)
 
-        API.register_new_video(camera.id, date, video_path)
+        videos_api.register_new_video(camera.id, date, video_path)
 
     @staticmethod
     def _clean_temporal_videos(camera, date: datetime.datetime):
@@ -84,7 +86,7 @@ class System:
         pth = os.path.join(pth, "{}-{}-{}".format(year, month, day))
         shutil.rmtree(pth, ignore_errors=True)
 
-        API.remove_temporal_videos(camera.id, date)
+        temporal_videos_api.remove_temporal_videos(camera.id, date)
 
     @staticmethod
     def _merge_videos(videos: list, video_path: str):
