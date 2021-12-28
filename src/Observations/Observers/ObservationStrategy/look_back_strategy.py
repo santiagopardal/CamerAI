@@ -78,7 +78,4 @@ class LookBackObservationStrategy(ObservationStrategy):
                             frames_with_movement.append(frames[j])
                             frames_with_movement.append(frames[j - 1])
 
-        del to_observe
-        del results
-
         return frames_with_movement

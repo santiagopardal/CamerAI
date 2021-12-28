@@ -32,8 +32,6 @@ class Observer:
         frm = self._frame_manipulation(frm)
         frm = frm.get_resized_and_grayscaled()
 
-        pf.clean_cache()
-
         return np.array(cv2.absdiff(p_frame, frm) / 255, dtype="float32").reshape(constants.CNN_INPUT_SHAPE)
 
     def batch_movement_check(self, frames: list) -> list:

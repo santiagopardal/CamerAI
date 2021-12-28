@@ -39,7 +39,3 @@ class Frame(object):
             self._resized_and_grayscale = cv2.cvtColor(self._resized_and_grayscale, cv2.COLOR_RGB2GRAY)
 
         return self._resized_and_grayscale
-
-    def clean_cache(self):
-        if self._resized_and_grayscale is not None:
-            del self._resized_and_grayscale
