@@ -1,7 +1,7 @@
 from src import constants
-from src.Observations.Observers.lite_observer import LiteObserver
-from src.Handlers.frame_handler import FrameHandler
-from src.Handlers.buffered_motion_handler import BufferedMotionHandler
+from src.observations.observers.lite_observer import LiteObserver
+from src.handlers.frame_handler import FrameHandler
+from src.handlers.buffered_motion_handler import BufferedMotionHandler
 
 
 class MotionDetectorFrameHandler(FrameHandler):

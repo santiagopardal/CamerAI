@@ -1,8 +1,8 @@
 import os
 import cv2
 from typing import List
-from src.Media.Savers.media_saver import MediaSaver
-from src.Media.frame import Frame
+from src.media.savers.media_saver import MediaSaver
+from src.media.frame import Frame
 from src.date_helper import get_numbers_as_string
 
 

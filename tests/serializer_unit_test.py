@@ -1,7 +1,7 @@
 import unittest
-import src.Camera.serializer as serializer
-from src.Camera.Foscam.FI9803PV3 import FI9803PV3
-from src.Camera.Foscam.FI89182 import FI89182
+import src.cameras.serializer as serializer
+from src.cameras.foscam.FI9803PV3 import FI9803PV3
+from src.cameras.foscam.FI89182 import FI89182
 
 
 class SerializerUnitTest(unittest.TestCase):

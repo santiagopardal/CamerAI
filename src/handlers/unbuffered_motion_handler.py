@@ -1,7 +1,7 @@
 from collections import deque
-from src.Handlers.motion_handler import MotionHandler
-from src.Media.Savers.media_saver import MediaSaver
-from src.Media.Savers.local_frame_saver import LocalFrameSaver
+from src.handlers.motion_handler import MotionHandler
+from src.media.savers.media_saver import MediaSaver
+from src.media.savers.local_frame_saver import LocalFrameSaver
 
 
 class UnbufferedMotionHandler(MotionHandler):

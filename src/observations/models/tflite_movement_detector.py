@@ -1,4 +1,4 @@
-from src.Observations.Models.model import Model
+from src.observations.models.model import Model
 try:
     from tensorflow.lite.python.interpreter import Interpreter
 except:

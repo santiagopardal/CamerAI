@@ -1,7 +1,7 @@
 import urllib
-from src.Handlers.frame_handler import FrameHandler
-from src.Camera.live_video_camera import LiveVideoCamera
-from src.Camera.camera import Camera
+from src.handlers.frame_handler import FrameHandler
+from src.cameras.live_video_camera import LiveVideoCamera
+from src.cameras.camera import Camera
 
 
 SCREENSHOT_URL = "http://{}:{}/cgi-bin/CGIProxy.fcgi?cmd=snapPicture2&usr={}&pwd={}"

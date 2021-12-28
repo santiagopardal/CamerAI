@@ -1,4 +1,4 @@
-from src.Observations.Models.model import Model
+from src.observations.models.model import Model
 from src import constants
 import numpy as np
 import tensorflow as tf

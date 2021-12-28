@@ -4,11 +4,11 @@ from src import constants
 import numpy as np
 import time
 from collections import deque
-from src.Media.frame import Frame
-from src.Observations.Observers.observer import Observer
-from src.Handlers.handler import Handler
-from src.Observations.Observers.lite_observer import LiteObserver
-from src.Handlers.motion_handler import MotionHandler
+from src.media.frame import Frame
+from src.observations.observers.observer import Observer
+from src.handlers.handler import Handler
+from src.observations.observers.lite_observer import LiteObserver
+from src.handlers.motion_handler import MotionHandler
 
 
 class FrameHandler(Handler):

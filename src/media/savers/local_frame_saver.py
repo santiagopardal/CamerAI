@@ -1,8 +1,8 @@
 import os
 from datetime import datetime
 import cv2
-from src.Media.Savers.media_saver import MediaSaver
-from src.Media.frame import Frame
+from src.media.savers.media_saver import MediaSaver
+from src.media.frame import Frame
 from src.constants import STORING_PATH
 
 

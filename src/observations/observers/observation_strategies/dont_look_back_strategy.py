@@ -1,4 +1,4 @@
-from src.Observations.Observers.ObservationStrategy.observation_strategy import ObservationStrategy
+from src.observations.observers.observation_strategies.observation_strategy import ObservationStrategy
 from src.constants import JUMP
 
 

@@ -2,10 +2,10 @@ import time
 import cv2
 import numpy as np
 import requests
-from src.Handlers.frame_handler import FrameHandler
-from src.Handlers.buffered_motion_handler import BufferedMotionHandler
-from src.Observations.Observers.observer import Observer
-from src.Observations.Observers.lite_observer import LiteObserver
+from src.handlers.frame_handler import FrameHandler
+from src.handlers.buffered_motion_handler import BufferedMotionHandler
+from src.observations.observers.observer import Observer
+from src.observations.observers.lite_observer import LiteObserver
 from concurrent.futures import ThreadPoolExecutor
 from src.constants import SECONDS_TO_BUFFER, FRAME_RATE
 

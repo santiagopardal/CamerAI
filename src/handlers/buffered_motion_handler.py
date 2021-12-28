@@ -1,10 +1,10 @@
-from src.Handlers.motion_handler import MotionHandler
+from src.handlers.motion_handler import MotionHandler
 from collections import deque
 import os
 from src.constants import STORING_PATH
-import src.API.temporal_videos as temporal_videos_api
-from src.Media.Savers.media_saver import MediaSaver
-from src.Media.Savers.local_video_saver import LocalVideoSaver
+import src.api.temporal_videos as temporal_videos_api
+from src.media.savers.media_saver import MediaSaver
+from src.media.savers.local_video_saver import LocalVideoSaver
 
 
 class BufferedMotionHandler(MotionHandler):

@@ -1,7 +1,7 @@
 import unittest
 from unittest.mock import MagicMock
-from src.Camera.camera import Camera
-from src.Handlers.frame_handler import FrameHandler
+from src.cameras.camera import Camera
+from src.handlers.frame_handler import FrameHandler
 
 
 class CameraUnitTest(unittest.TestCase):

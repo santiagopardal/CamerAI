@@ -1,9 +1,9 @@
 import cv2
-from src.Media.frame import Frame
+from src.media.frame import Frame
 from src import constants
 import numpy as np
-from src.Observations.Models.model import Model
-from src.Observations.Observers.ObservationStrategy.dont_look_back_strategy import DontLookBackObservationStrategy
+from src.observations.models.model import Model
+from src.observations.observers.observation_strategies.dont_look_back_strategy import DontLookBackObservationStrategy
 
 
 class Observer:

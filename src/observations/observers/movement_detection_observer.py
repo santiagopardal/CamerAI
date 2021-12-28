@@ -1,5 +1,5 @@
-from src.Observations.Observers.observer import Observer
-from src.Observations.Models.V3ModelMotionDetector import V3MotionDetector
+from src.observations.observers.observer import Observer
+from src.observations.models.v3_model_motion_detector import V3MotionDetector
 
 
 class MovementDetectionObserver(Observer):

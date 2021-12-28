@@ -1,8 +1,8 @@
-from src.Observations.Observers.observer import Observer
+from src.observations.observers.observer import Observer
 import numpy as np
-from src.Media.frame import Frame
+from src.media.frame import Frame
 from threading import Lock
-from src.Observations.Models.TFLiteMovementDetector import TFLiteModelDetector
+from src.observations.models.tflite_movement_detector import TFLiteModelDetector
 
 
 class LiteObserver(Observer):

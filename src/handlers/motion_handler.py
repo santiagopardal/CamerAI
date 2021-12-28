@@ -1,4 +1,4 @@
-from src.Handlers.handler import Handler
+from src.handlers.handler import Handler
 
 
 class MotionHandler(Handler):

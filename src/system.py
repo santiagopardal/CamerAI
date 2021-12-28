@@ -1,6 +1,6 @@
 import os
 import threading
-from src.Camera.serializer import deserialize
+from src.cameras.serializer import deserialize
 import src.constants as constants
 from src.date_helper import get_numbers_as_string
 from datetime import timedelta
@@ -8,10 +8,10 @@ import datetime
 import sched
 import time
 import shutil
-import src.API.videos as videos_api
-import src.API.cameras as cameras_api
-import src.API.temporal_videos as temporal_videos_api
-import src.Media.VideoUtils.video_utils as video_utils
+import src.api.videos as videos_api
+import src.api.cameras as cameras_api
+import src.api.temporal_videos as temporal_videos_api
+import src.media.video_utils.video_utils as video_utils
 
 
 class System:
