@@ -1,7 +1,7 @@
 import requests
 from src.constants import API_URL
 from datetime import datetime
-from src.date_helper import get_numbers_as_string
+from src.utils.date_utils import get_numbers_as_string
 
 
 def register_new_video(camera_id: int, date: datetime, video_path: str):

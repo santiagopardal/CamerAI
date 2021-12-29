@@ -2,7 +2,7 @@ import os
 import threading
 from src.cameras.serializer import deserialize
 import src.constants as constants
-from src.date_helper import get_numbers_as_string
+from src.utils.date_utils import get_numbers_as_string
 from datetime import timedelta
 import datetime
 import sched
@@ -11,7 +11,7 @@ import shutil
 import src.api.videos as videos_api
 import src.api.cameras as cameras_api
 import src.api.temporal_videos as temporal_videos_api
-import src.media.video_utils.video_utils as video_utils
+import src.utils.video_utils as video_utils
 
 
 class System:
