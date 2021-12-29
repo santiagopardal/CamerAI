@@ -19,10 +19,10 @@ def add_temporal_video(camera_id: int, date: datetime, path: str):
     return requests.post(api_endpoint)
 
 
-def upload(video_id: int, camera_id: int, date: datetime, path: str):
+def upload(camera_id: int, date: datetime, path: str):
     day, month, year = get_numbers_as_string(date)
 
-    api_endpoint = "{}/temporal_videos/{}/{}-{}-{}?video_id={}".format(API_URL, camera_id, day, month, year, video_id)
+    api_endpoint = "{}/temporal_videos/{}/{}-{}-{}?old_path={}".format(API_URL, camera_id, day, month, year, path)
 
     filename = path.split("/")[-1]
 

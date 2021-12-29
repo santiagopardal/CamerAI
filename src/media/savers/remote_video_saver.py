@@ -10,6 +10,6 @@ class RemoteVideoSaver(LocalVideoSaver):
         filename = "{}.mp4".format(frames[0].time)
         path = self._store_video(frames, filename)
 
-        response = temporal_videos_api.add_temporal_video(self._camera_id, frames[0].date, path).json()
-        temporal_videos_api.upload(response["id"], self._camera_id, frames[0].date, path)
+        temporal_videos_api.add_temporal_video(self._camera_id, frames[0].date, path).json()
+        temporal_videos_api.upload(self._camera_id, frames[0].date, path)
         os.remove(path)
