@@ -3,19 +3,24 @@ import cv2
 from typing import List
 from src.media.savers.media_saver import MediaSaver
 from src.media.frame import Frame
+import src.api.temporal_videos as temporal_videos_api
 from src.utils.date_utils import get_numbers_as_string
 
 
 class LocalVideoSaver(MediaSaver):
-    def __init__(self, folder: str, frame_rate: int):
+    def __init__(self, camera_id: int, folder: str, frame_rate: int):
         self._folder = folder
         self._frame_rate = frame_rate
+        self._camera_id = camera_id
         if not os.path.exists(self._folder):
             os.mkdir(self._folder)
 
     def save(self, frames: List[Frame]):
         filename = "{}.mp4".format(frames[0].time)
-        return self._store_video(frames, filename)
+        path = self._store_video(frames, filename)
+        temporal_videos_api.add_temporal_video(self._camera_id, frames[0].date, path)
+
+        return path
 
     def _store_video(self, frames, filename):
         day, month, year = get_numbers_as_string(frames[0].date)

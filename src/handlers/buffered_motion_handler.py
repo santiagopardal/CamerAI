@@ -38,8 +38,4 @@ class BufferedMotionHandler(MotionHandler):
             if len(self._frames[0]) >= self._buffer_size:
                 to_store = self._frames.popleft()
                 self._frames.append([])
-                path = self._media_saver.save(to_store)
-                try:
-                    temporal_videos_api.add_temporal_video(self._camera.id, to_store[0].date, path)
-                except Exception as e:
-                    print(e)
+                self._media_saver.save(to_store)

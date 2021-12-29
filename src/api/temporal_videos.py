@@ -12,26 +12,31 @@ def get_temporal_videos(camera_id: int, date: datetime) -> list:
     return requests.get(temporal_videos_endpoint).json()
 
 
-def add_temporal_video(camera_id: int, date: datetime, path: str, send: bool = False):
+def add_temporal_video(camera_id: int, date: datetime, path: str):
     day, month, year = get_numbers_as_string(date)
 
-    if not send:
-        api_endpoint = "{}/temporal_videos/{}/{}-{}-{}?path={}".format(API_URL, camera_id, day, month, year, path)
-        requests.post(api_endpoint)
-    else:
-        api_endpoint = "{}/temporal_videos/{}/{}-{}-{}?path={}".format(API_URL, camera_id, day, month, year, path)
-        filename = path.split("/")[-1]
-        with open(path, 'rb') as file:
-            size = os.path.getsize(path)
-            parts = int(size/(1024*1024)) + 1
-            for part in range(parts):
-                chunk = file.read(1024*1024)
-                chunk = base64.b64encode(chunk)
-                requests.put(api_endpoint, data={"filename": filename, "chunk": chunk, "part": part, "parts": parts})
-                part += 1
+    api_endpoint = "{}/temporal_videos/{}/{}-{}-{}?path={}".format(API_URL, camera_id, day, month, year, path)
+    return requests.post(api_endpoint)
+
+
+def upload(video_id: int, camera_id: int, date: datetime, path: str):
+    day, month, year = get_numbers_as_string(date)
+
+    api_endpoint = "{}/temporal_videos/{}/{}-{}-{}?video_id={}".format(API_URL, camera_id, day, month, year, video_id)
+
+    filename = path.split("/")[-1]
+
+    with open(path, 'rb') as file:
+        size = os.path.getsize(path)
+        parts = int(size / (1024 * 1024)) + 1
+        for part in range(parts):
+            chunk = file.read(1024 * 1024)
+            chunk = base64.b64encode(chunk)
+            requests.put(api_endpoint, data={"filename": filename, "chunk": chunk, "part": part, "parts": parts})
+            part += 1
 
 
 def remove_temporal_videos(camera_id: int, date: datetime):
     day, month, year = get_numbers_as_string(date)
     api_endpoint = "{}/temporal_videos/{}/{}-{}-{}".format(API_URL, camera_id, day, month, year)
-    requests.delete(api_endpoint)
+    return requests.delete(api_endpoint)
