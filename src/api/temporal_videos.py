@@ -1,4 +1,3 @@
-from src.constants import API_URL
 from datetime import datetime
 import src.api.api as api
 from src.utils.date_utils import get_numbers_as_string
