@@ -1,6 +1,5 @@
-import requests
-from src.constants import API_URL
+import src.api.api as api
 
 
 def get_cameras() -> list:
-    return requests.get("{}/cameras".format(API_URL)).json()
+    return api.get("cameras").json()
