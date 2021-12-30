@@ -25,14 +25,13 @@ def upload(camera_id: int, date: datetime, path: str):
 
     api_endpoint = "temporal_videos/{}/{}-{}-{}?old_path={}".format(camera_id, day, month, year, path)
 
-    filename = path.split("/")[-1]
-    size = os.path.getsize(path)
-
     with open(path, 'rb') as file:
-        _upload_parts(file, size, filename, api_endpoint)
+        _upload_parts(file, api_endpoint)
 
 
-def _upload_parts(file, size, filename, api_endpoint):
+def _upload_parts(file, api_endpoint):
+    filename = file.name.split("/")[-1]
+    size = os.path.getsize(file.name)
     parts = int(size / (1024 * 1024)) + 1
 
     for part in range(parts):
