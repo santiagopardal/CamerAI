@@ -15,5 +15,6 @@ class VideoMerger:
         for video in self._videos:
             for frame in video:
                 writer.write(frame)
+            video.delete()
 
         writer.release()

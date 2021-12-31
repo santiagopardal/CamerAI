@@ -6,7 +6,6 @@ from src.utils.date_utils import get_numbers_as_string
 from datetime import timedelta, datetime
 import sched
 import time
-import shutil
 import src.api.videos as videos_api
 import src.api.cameras as cameras_api
 import src.api.temporal_videos as temporal_videos_api
@@ -78,18 +77,7 @@ class System:
         merger = VideoMerger(temporal_videos)
         merger.merge(video_path)
 
-        self._clean_temporal_videos(camera, date)
-
         videos_api.register_new_video(camera.id, date, video_path)
-
-    @staticmethod
-    def _clean_temporal_videos(camera, date: datetime):
-        pth = os.path.join(constants.STORING_PATH, camera.place)
-        day, month, year = get_numbers_as_string(date)
-        pth = os.path.join(pth, "{}-{}-{}".format(year, month, day))
-        shutil.rmtree(pth, ignore_errors=True)
-
-        temporal_videos_api.remove_temporal_videos(camera.id, date)
 
     def record(self):
         """
