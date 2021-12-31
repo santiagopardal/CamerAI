@@ -8,11 +8,16 @@ class Video:
         self._path = path
 
     def __iter__(self):
-        while self._video.isOpened():
-            _, frame = self._video.read()
-            yield frame
+        return self
 
-        self._video.release()
+    def __next__(self):
+        ret, frame = self._video.read()
+
+        if ret:
+            return frame
+        else:
+            self._video.release()
+            raise StopIteration
 
     @property
     def width(self):
