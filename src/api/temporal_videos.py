@@ -42,6 +42,12 @@ def _upload_parts(file, api_endpoint):
         api.put(api_endpoint, {"filename": filename, "chunk": chunk, "part": part, "parts": parts})
 
 
+def remove_video(id: int):
+    api_endpoint = "temporal_videos/{}".format(id)
+
+    return api.delete(api_endpoint)
+
+
 def remove_temporal_videos(camera_id: int, date: datetime):
     day, month, year = get_numbers_as_string(date)
     api_endpoint = "temporal_videos/camera/{}/{}-{}-{}".format(camera_id, day, month, year)
