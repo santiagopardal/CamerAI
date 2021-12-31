@@ -3,15 +3,15 @@ import threading
 from src.cameras.serializer import deserialize
 import src.constants as constants
 from src.utils.date_utils import get_numbers_as_string
-from datetime import timedelta
-import datetime
+from datetime import timedelta, datetime
 import sched
 import time
 import shutil
 import src.api.videos as videos_api
 import src.api.cameras as cameras_api
 import src.api.temporal_videos as temporal_videos_api
-import src.utils.video_utils as video_utils
+from src.media.video.merger import VideoMerger
+import src.media.video.serializer as video_serializer
 
 
 class System:
@@ -27,7 +27,7 @@ class System:
         self.__schedule_video_transformation()
 
     def __schedule_video_transformation(self):
-        now = datetime.datetime.now()
+        now = datetime.now()
         tomorrow_3_am = now + timedelta(days=1) - timedelta(hours=now.hour) - timedelta(minutes=now.minute) - \
                         timedelta(seconds=now.second) - timedelta(microseconds=now.microsecond) + timedelta(hours=3)
 
@@ -58,7 +58,7 @@ class System:
     def _transform_yesterday_into_video(self):
         self.__schedule_video_transformation()
 
-        yesterday = datetime.datetime.now() - timedelta(days=1)
+        yesterday = datetime.now() - timedelta(days=1)
 
         for camera in self.cameras:
             try:
@@ -66,43 +66,30 @@ class System:
             except Exception as e:
                 print("Error merging videos:", e)
 
-    def _merge_cameras_video(self, camera, date: datetime.datetime):
+    def _merge_cameras_video(self, camera, date: datetime):
         temporal_videos = temporal_videos_api.get_temporal_videos(camera.id, date)
+        temporal_videos = [video_serializer.deserialize(video) for video in temporal_videos]
 
         pth = os.path.join(constants.STORING_PATH, camera.place)
 
         day, month, year = get_numbers_as_string(date)
         video_path = "{}/{}-{}-{}.mp4".format(pth, year, month, day)
-        self._merge_videos(temporal_videos, video_path)
+
+        merger = VideoMerger(temporal_videos)
+        merger.merge(video_path)
 
         self._clean_temporal_videos(camera, date)
 
         videos_api.register_new_video(camera.id, date, video_path)
 
     @staticmethod
-    def _clean_temporal_videos(camera, date: datetime.datetime):
+    def _clean_temporal_videos(camera, date: datetime):
         pth = os.path.join(constants.STORING_PATH, camera.place)
         day, month, year = get_numbers_as_string(date)
         pth = os.path.join(pth, "{}-{}-{}".format(year, month, day))
         shutil.rmtree(pth, ignore_errors=True)
 
         temporal_videos_api.remove_temporal_videos(camera.id, date)
-
-    @staticmethod
-    def _merge_videos(videos: list, video_path: str):
-        if videos:
-            print("Creating video at {}, video's path is {}".format(datetime.datetime.now().time(), video_path))
-
-            width, height, frame_rate = video_utils.get_video_properties(videos[0])
-
-            result = video_utils.create_video_writer(video_path, width, height, frame_rate)
-
-            for video in sorted(videos):
-                video_utils.append_to_video(result, video)
-
-            result.release()
-
-            print("Finished video creation at {}".format(datetime.datetime.now().time()))
 
     def record(self):
         """

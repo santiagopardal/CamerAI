@@ -8,7 +8,7 @@ import base64
 
 def get_temporal_videos(camera_id: int, date: datetime) -> list:
     day, month, year = get_numbers_as_string(date)
-    temporal_videos_endpoint = "temporal_videos/{}/{}-{}-{}".format(camera_id, day, month, year)
+    temporal_videos_endpoint = "temporal_videos/camera/{}/{}-{}-{}".format(camera_id, day, month, year)
 
     return api.get(temporal_videos_endpoint).json()
 
@@ -16,7 +16,7 @@ def get_temporal_videos(camera_id: int, date: datetime) -> list:
 def add_temporal_video(camera_id: int, date: datetime, path: str):
     day, month, year = get_numbers_as_string(date)
 
-    api_endpoint = "temporal_videos/{}/{}-{}-{}?path={}".format(camera_id, day, month, year, path)
+    api_endpoint = "temporal_videos/camera/{}/{}-{}-{}?path={}".format(camera_id, day, month, year, path)
 
     return api.post(api_endpoint)
 
@@ -24,7 +24,7 @@ def add_temporal_video(camera_id: int, date: datetime, path: str):
 def upload(camera_id: int, date: datetime, path: str):
     day, month, year = get_numbers_as_string(date)
 
-    api_endpoint = "temporal_videos/{}/{}-{}-{}?old_path={}".format(camera_id, day, month, year, path)
+    api_endpoint = "temporal_videos/camera/{}/{}-{}-{}?old_path={}".format(camera_id, day, month, year, path)
 
     with open(path, 'rb') as file:
         _upload_parts(file, api_endpoint)
@@ -44,6 +44,6 @@ def _upload_parts(file, api_endpoint):
 
 def remove_temporal_videos(camera_id: int, date: datetime):
     day, month, year = get_numbers_as_string(date)
-    api_endpoint = "temporal_videos/{}/{}-{}-{}".format(camera_id, day, month, year)
+    api_endpoint = "temporal_videos/camera/{}/{}-{}-{}".format(camera_id, day, month, year)
 
     return api.delete(api_endpoint)
