@@ -3,7 +3,7 @@ import numpy as np
 import urllib
 import concurrent.futures
 from src.observations.models.v3_model_motion_detector import V3MotionDetector
-from src.constants import CNN_INPUT_SHAPE
+from src.constants import CNN_INPUT_SHAPE, MOVEMENT_SENSITIVITY
 
 
 MODEL = V3MotionDetector()
@@ -34,7 +34,7 @@ def detect_movement(diff):
 
     movement = MODEL.predict(images)
 
-    if movement >= 0.6:
+    if movement >= MOVEMENT_SENSITIVITY:
         print(movement)
 
 
