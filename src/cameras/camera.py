@@ -5,7 +5,7 @@ import requests
 from src.handlers.frame_handler import FrameHandler
 from src.handlers.buffered_motion_handler import BufferedMotionHandler
 from src.observations.observers.observer import Observer
-from src.observations.observers.lite_observer import LiteObserver
+from src.observations.observers.dynamic_movement_detection_observer import DynamicMovementDetectionObserver
 from concurrent.futures import ThreadPoolExecutor
 from src.constants import SECONDS_TO_BUFFER, FRAME_RATE
 
@@ -112,7 +112,7 @@ class Camera:
         """
         Starts recording.
         """
-        self._frames_handler.set_observer(LiteObserver())
+        self._frames_handler.set_observer(DynamicMovementDetectionObserver())
         self._frames_handler.add_motion_handler(BufferedMotionHandler(self, SECONDS_TO_BUFFER))
         self._frames_handler.start()
 

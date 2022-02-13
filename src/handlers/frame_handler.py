@@ -7,7 +7,7 @@ from collections import deque
 from src.media.frame import Frame
 from src.observations.observers.observer import Observer
 from src.handlers.handler import Handler
-from src.observations.observers.lite_observer import LiteObserver
+from src.observations.observers.dynamic_movement_detection_observer import DynamicMovementDetectionObserver
 from src.handlers.motion_handler import MotionHandler
 
 
@@ -15,7 +15,7 @@ class FrameHandler(Handler):
     def __init__(self, observer: Observer = None, motion_handlers: list = None):
         super().__init__()
 
-        self._observer = LiteObserver() if observer is None else observer
+        self._observer = DynamicMovementDetectionObserver() if observer is None else observer
         self._motion_handlers = [] if motion_handlers is None else motion_handlers
         self._thread = None
         self._kill_thread = False
