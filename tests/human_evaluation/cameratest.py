@@ -23,17 +23,13 @@ def resize_and_grayscale(frame):
 def get_diff(previous_frame, frame):
     previous_frame = resize_and_grayscale(previous_frame)
     img = resize_and_grayscale(frame)
-
     return cv2.absdiff(img, previous_frame)
 
 
 def detect_movement(diff):
     diff = np.array(diff / 255, dtype="float32")
-
     images = np.array([diff]).reshape(CNN_INPUT_SHAPE)
-
     movement = MODEL.predict(images)
-
     if movement >= MOVEMENT_SENSITIVITY:
         print(movement)
 
