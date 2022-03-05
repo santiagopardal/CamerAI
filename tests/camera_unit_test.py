@@ -38,6 +38,5 @@ class CameraUnitTest(unittest.TestCase):
         self.assertNotEqual(self.camera, camera_2)
 
 
-
 if __name__ == '__main__':
     unittest.main()

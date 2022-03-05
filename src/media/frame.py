@@ -34,7 +34,7 @@ class Frame(object):
         Resizes and grayscales the frame if it has not been already and returns it.
         :return: Frame grayscaled and resized.
         """
-        if self._resized_and_grayscale is None:
+        if not self._resized_and_grayscale:
             self._resized_and_grayscale = cv2.resize(self._frame, constants.RESOLUTION, interpolation=cv2.INTER_AREA)
             self._resized_and_grayscale = cv2.cvtColor(self._resized_and_grayscale, cv2.COLOR_RGB2GRAY)
 

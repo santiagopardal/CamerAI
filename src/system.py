@@ -1,5 +1,5 @@
 import os
-import threading
+from threading import Thread
 from src.cameras.serializer import deserialize
 import src.constants as constants
 from src.utils.date_utils import get_numbers_as_string
@@ -83,14 +83,14 @@ class System:
         """
         Starts recording.
         """
-        thread = threading.Thread(target=self._apply_to_all_cameras, args=(lambda cam: cam.record(),))
+        thread = Thread(target=self._apply_to_all_cameras, args=(lambda cam: cam.record(),))
         thread.start()
 
     def stop_recording(self):
         """
         Stops recording.
         """
-        thread = threading.Thread(target=self._apply_to_all_cameras, args=(lambda cam: cam.stop_recording(),))
+        thread = Thread(target=self._apply_to_all_cameras, args=(lambda cam: cam.stop_recording(),))
         thread.start()
 
     def _apply_to_all_cameras(self, func):
@@ -118,7 +118,7 @@ class System:
         Runs for n seconds.
         :param n: Number of seconds to run.
         """
-        thread = threading.Thread(target=self.run, args=())
+        thread = Thread(target=self.run, args=())
         thread.start()
 
         time.sleep(n)
