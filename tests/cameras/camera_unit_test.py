@@ -36,6 +36,10 @@ class CameraUnitTest(unittest.TestCase):
         self.assertEqual(frame_handler_2, self.camera.frame_handler)
 
     def test_screenshot_receive_and_stop_video(self):
+        """
+        Tests that the screenshot method returs the correct value, that receive updates that value and send that frame
+        to the frame handler, and finally that if we stop receiving video, the correct procedure is executed.
+        """
         self.assertIsNone(self.camera.screenshot())
 
         self.retrieval_strategy.connect = MagicMock()
@@ -59,6 +63,9 @@ class CameraUnitTest(unittest.TestCase):
         self.frame_handler.stop.assert_called_once()
 
     def test_record_and_stop_recording(self):
+        """
+        Tests that the correct procedure is executed when we start and stop recording.
+        """
         self.frame_handler.set_observer = MagicMock()
         self.frame_handler.add_motion_handler = MagicMock()
         self.frame_handler.start = MagicMock()
@@ -76,6 +83,9 @@ class CameraUnitTest(unittest.TestCase):
         self.frame_handler.stop.assert_called_once()
 
     def test_receive_frame_does_not_crash_on_exception_thrown_by_strategy_or_frame_handler(self):
+        """
+        Tests that if retrieve crashes, the retrieval of frames will not crash.
+        """
         self.retrieval_strategy.connect = MagicMock()
         self.retrieval_strategy.retrieve = MagicMock()
         self.retrieval_strategy.retrieve.side_effect = Exception("Error retrieving frames")
@@ -94,25 +104,40 @@ class CameraUnitTest(unittest.TestCase):
         self.frame_handler.stop.assert_called_once()
 
     def test_cameras_equal(self):
+        """
+        Test that __equal__ works as expected when two cameras are equal.
+        """
         camera_2 = Camera(1, "192.168.0.130", 80, "Camera 1", "http://camera1.screenshot.local", 30)
         self.assertEqual(self.camera, camera_2)
 
     def test_cameras_not_equal(self):
+        """
+        Test that __equal__ works as expected when two cameras are not equal.
+        """
         camera_2 = Camera(1, "192.168.0.133", 80, "Camera 1", "http://camera1.screenshot.local", 30)
         self.assertNotEqual(self.camera, camera_2)
 
     def test_setters(self):
+        """
+        Tests that the setters and getters work as expected.
+        """
         self.camera.ip = "123.456.789.101"
         self.camera.port = 9999
         self.assertEqual(self.camera.ip, "123.456.789.101")
         self.assertEqual(self.camera.port, 9999)
 
     def test_camera_is_hashable(self):
+        """
+        Tests that the camera is hashable by adding it to a dictionary.
+        """
         my_map = {}
         my_map[self.camera] = self.camera.name
         self.assertEqual(self.camera.name, my_map[self.camera])
 
     def test_from_json(self):
+        """
+        Tests that we can deserialize a camera from a JSON.
+        """
         json = {
             "id": 1,
             "ip": "192.168.0.133",

@@ -7,12 +7,8 @@ import numpy as np
 
 class ScreenshotRetrievalStrategy(RetrievalStrategy):
 
-    def __init__(self, url: str, frame_rate: int, frame_width: int, frame_height: int):
+    def __init__(self, url: str):
         self._url = url
-        self._frame_rate = frame_rate
-        self._frame_width = frame_width
-        self._frame_height = frame_height
-        self._live_video = None
 
     def retrieve(self) -> ndarray:
         response = requests.get(self._url, stream=True).raw
