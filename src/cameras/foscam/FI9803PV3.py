@@ -1,6 +1,7 @@
 import urllib
 from src.handlers.frame_handler import FrameHandler
 from src.cameras.camera import Camera
+from src.cameras.retrieval_strategy.retrieval_strategy import RetrievalStrategy
 from src.cameras.retrieval_strategy.live_retrieval_strategy import LiveRetrievalStrategy
 
 
@@ -14,7 +15,7 @@ FRAME_RATE = 23
 class FI9803PV3(Camera):
     def __init__(self, id: int, ip: str, port: int, streaming_port: int,
                  place: str, user: str, password: str,
-                 frames_handler: FrameHandler = None):
+                 retrieval_strategy: RetrievalStrategy = None, frames_handler: FrameHandler = None):
         """
         :param ip: IP where the camera is located.
         :param port: Port to connect to camera.
@@ -28,7 +29,8 @@ class FI9803PV3(Camera):
         password = urllib.parse.quote(password)
 
         live_video_url = LIVE_VIDEO_URL.format(user, password, ip, streaming_port)
-        retrieval_strategy = LiveRetrievalStrategy(live_video_url, FRAME_RATE, WIDTH, HEIGHT)
+        retrieval_strategy = retrieval_strategy if retrieval_strategy \
+            else LiveRetrievalStrategy(live_video_url, FRAME_RATE, WIDTH, HEIGHT)
 
         super().__init__(id, ip, port, place, FRAME_RATE, retrieval_strategy, frames_handler)
 

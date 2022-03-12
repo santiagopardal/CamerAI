@@ -1,3 +1,6 @@
+from numpy import ndarray
+
+
 class RetrievalStrategy:
     def connect(self):
         """
@@ -5,7 +8,7 @@ class RetrievalStrategy:
         """
         pass
 
-    def retrieve(self):
+    def retrieve(self) -> ndarray:
         """
         Retrieves a frame from the camera
         """
