@@ -1,40 +1,46 @@
-import time
-import cv2
-import numpy as np
-import requests
 from src.handlers.frame_handler import FrameHandler
 from src.handlers.buffered_motion_handler import BufferedMotionHandler
 from src.observations.observers.observer import Observer
 from src.observations.observers.dynamic_movement_detection_observer import DynamicMovementDetectionObserver
 from concurrent.futures import ThreadPoolExecutor
-from src.constants import SECONDS_TO_BUFFER, FRAME_RATE
+from src.constants import SECONDS_TO_BUFFER
+from src.cameras.retrieval_strategy.retrieval_strategy import RetrievalStrategy
+from numpy import ndarray
 
 
 class Camera:
-    def __init__(self, id: int, ip: str, port: int, place: str, screenshot_url: str, frame_rate: int,
-                 frames_handler: FrameHandler = None):
+
+    _retrieval_strategy: RetrievalStrategy
+    _id: int
+    _ip: str
+    _port: int
+    _place: str
+    _frame_rate: int
+    _kill_thread: bool
+    _last_frame: ndarray
+    _frames_handler: FrameHandler
+    _thread_pool: ThreadPoolExecutor
+
+    def __init__(self, id: int, ip: str, port: int, place: str, frame_rate: int,
+                 retrieval_strategy: RetrievalStrategy, frames_handler: FrameHandler = None):
         """
         :param ip: IP of the camera.
         :param port: Port for the camera's IP.
         :param place: Place where the camera is located, this will be the name of the folder where the frames will
         be stored.
-        :param screenshot_url: URL to obtain screenshot from the CCTV camera.
         :param frame_rate: Camera's frame rate.
         :param frames_handler: Handler to handle new frames.
         """
-
-        super().__init__()
         self._id = id
         self._ip = ip
         self._port = port
         self._place = place
-        self._screenshot_url = screenshot_url
         self._frame_rate = frame_rate
-        self._record_thread = None
         self._kill_thread = False
         self._last_frame = None
         self._frames_handler = FrameHandler() if frames_handler is None else frames_handler
-        self._thread_pool = ThreadPoolExecutor(max_workers=2)
+        self._retrieval_strategy = retrieval_strategy
+        self._thread_pool = ThreadPoolExecutor(max_workers=1)
 
     @classmethod
     def from_json(cls, json: dict):
@@ -62,10 +68,6 @@ class Camera:
         return self._port
 
     @property
-    def last_frame(self) -> np.ndarray:
-        return self._last_frame
-
-    @property
     def frame_rate(self) -> int:
         return self._frame_rate
 
@@ -90,23 +92,13 @@ class Camera:
         """
         :return: A screenshot from the camera.
         """
-        response = requests.get(self._screenshot_url, stream=True).raw
-        frame = np.asarray(bytearray(response.read()), dtype="uint8")
-
-        return cv2.imdecode(frame, cv2.IMREAD_COLOR)
+        return self._last_frame
 
     def receive_video(self):
         """
         Starts thread to receive video.
         """
-        self._prepare_connection()
         self._thread_pool.submit(self._receive_frames)
-
-    def _prepare_connection(self):
-        """
-        Prepares the connection to receive frames from camera
-        """
-        pass
 
     def record(self):
         """
@@ -128,35 +120,28 @@ class Camera:
         """
         Stops receiving video.
         """
-        if self._record_thread:
-            self._kill_thread = True
-            self._record_thread.join()
-            self._record_thread = None
-            self._kill_thread = False
-
+        self._kill_thread = True
         self._frames_handler.stop()
 
     def _receive_frames(self):
         """
         Obtains live images from the camera and calls the frames handler to handle them.
         """
-        previous_capture = 0
+        self._retrieval_strategy.connect()
 
         while not self._kill_thread:
-            if time.perf_counter() - previous_capture >= 1 / FRAME_RATE:
+            try:
+                frame = self._retrieval_strategy.retrieve()
 
-                try:
-                    previous_capture = time.perf_counter()
+                self._last_frame = frame
+                self._frames_handler.handle(frame)
+            except Exception as e:
+                print("Error downloading image from camera {} on ip {}".format(self._place, self._ip))
+                print(e)
 
-                    frame = self.screenshot()
-
-                    if frame:
-                        self._last_frame = frame
-                        self._frames_handler.handle(frame)
-
-                except Exception as e:
-                    print("Error downloading image from camera {} on ip {}".format(self._place, self._ip))
-                    print(e)
+        self._retrieval_strategy.disconnect()
+        self._frames_handler.stop()
+        self._kill_thread = False
 
     def __hash__(self):
         return "{}:{}@{}".format(self.ip, self.port, self.place).__hash__()
