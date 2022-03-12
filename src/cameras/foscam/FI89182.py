@@ -13,13 +13,13 @@ FRAME_RATE = 15
 
 
 class FI89182(Camera):
-    def __init__(self, id: int, ip: str, port: int, place: str,
+    def __init__(self, id: int, ip: str, port: int, name: str,
                  user: str, password: str,
                  retrieval_strategy: RetrievalStrategy = None, frames_handler: FrameHandler = None):
         """
         :param ip: IP where the camera is located.
         :param port: Port to connect to camera.
-        :param place: Place where the camera is located.
+        :param name: name where the camera is located.
         :param user: Username to connect.
         :param password: Password.
         :param frames_handler: Handler to handle new frames, if set to None will use default.
@@ -31,7 +31,7 @@ class FI89182(Camera):
         retrieval_strategy = retrieval_strategy if retrieval_strategy \
             else LiveRetrievalStrategy(live_video_url, FRAME_RATE, WIDTH, HEIGHT)
 
-        super().__init__(id, ip, port, place, FRAME_RATE, retrieval_strategy, frames_handler)
+        super().__init__(id, ip, port, name, FRAME_RATE, retrieval_strategy, frames_handler)
 
     @classmethod
     def from_json(cls, json: dict) -> Camera:

@@ -69,7 +69,7 @@ class System:
         temporal_videos = temporal_videos_api.get_temporal_videos(camera.id, date)
         temporal_videos = [video_serializer.deserialize(video) for video in temporal_videos]
 
-        pth = os.path.join(constants.STORING_PATH, camera.place)
+        pth = os.path.join(constants.STORING_PATH, camera.name)
 
         day, month, year = get_numbers_as_string(date)
         video_path = "{}/{}-{}-{}.mp4".format(pth, year, month, day)

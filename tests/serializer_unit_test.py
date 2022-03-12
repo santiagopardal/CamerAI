@@ -19,7 +19,7 @@ class SerializerUnitTest(unittest.TestCase):
         self.assertEqual(camera.id, 1)
         self.assertEqual(camera.ip, "192.168.0.130")
         self.assertEqual(camera.port, 80)
-        self.assertEqual(camera.place, "Camera 1")
+        self.assertEqual(camera.name, "Camera 1")
 
     def test_deserialization_to_FI9803PV3(self):
         camera = serializer.deserialize({
@@ -36,7 +36,7 @@ class SerializerUnitTest(unittest.TestCase):
         self.assertEqual(camera.id, 1)
         self.assertEqual(camera.ip, "192.168.0.130")
         self.assertEqual(camera.port, 80)
-        self.assertEqual(camera.place, "Camera 1")
+        self.assertEqual(camera.name, "Camera 1")
 
 
 if __name__ == '__main__':

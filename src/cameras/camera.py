@@ -14,19 +14,19 @@ class Camera:
     _id: int
     _ip: str
     _port: int
-    _place: str
+    _name: str
     _frame_rate: int
     _kill_thread: bool
     _last_frame: ndarray
-    _frames_handler: FrameHandler
+    _frame_handler: FrameHandler
     _thread_pool: ThreadPoolExecutor
 
-    def __init__(self, id: int, ip: str, port: int, place: str, frame_rate: int,
+    def __init__(self, id: int, ip: str, port: int, name: str, frame_rate: int,
                  retrieval_strategy: RetrievalStrategy, frames_handler: FrameHandler = None):
         """
         :param ip: IP of the camera.
         :param port: Port for the camera's IP.
-        :param place: Place where the camera is located, this will be the name of the folder where the frames will
+        :param name: name where the camera is located, this will be the name of the folder where the frames will
         be stored.
         :param frame_rate: Camera's frame rate.
         :param frames_handler: Handler to handle new frames.
@@ -34,11 +34,11 @@ class Camera:
         self._id = id
         self._ip = ip
         self._port = port
-        self._place = place
+        self._name = name
         self._frame_rate = frame_rate
         self._kill_thread = False
         self._last_frame = None
-        self._frames_handler = FrameHandler() if frames_handler is None else frames_handler
+        self._frame_handler = FrameHandler() if frames_handler is None else frames_handler
         self._retrieval_strategy = retrieval_strategy
         self._thread_pool = ThreadPoolExecutor(max_workers=1)
 
@@ -49,15 +49,18 @@ class Camera:
         :param json: Dictionary to transform into camera.
         :return: Camera from the dictionary.
         """
-        pass
+        return cls(
+            json["id"], json["ip"], json["http_port"],
+            json["name"], json["frame_rate"], json["retrieval_strategy"]
+        )
 
     @property
     def id(self) -> int:
         return self._id
 
     @property
-    def place(self) -> str:
-        return self._place
+    def name(self) -> str:
+        return self._name
 
     @property
     def ip(self) -> str:
@@ -71,6 +74,10 @@ class Camera:
     def frame_rate(self) -> int:
         return self._frame_rate
 
+    @property
+    def frame_handler(self) -> FrameHandler:
+        return self._frame_handler
+
     @ip.setter
     def ip(self, ip: str):
         self._ip = ip
@@ -79,16 +86,17 @@ class Camera:
     def port(self, port: int):
         self._port = port
 
-    def set_frames_handler(self, frames_handler: FrameHandler):
+    @frame_handler.setter
+    def frame_handler(self, frames_handler: FrameHandler):
         """
         Changes the frames handler.
         :param frames_handler: New frames handler.
         """
-        self._frames_handler.stop()
-        self._frames_handler = frames_handler
-        self._frames_handler.start()
+        self._frame_handler.stop()
+        self._frame_handler = frames_handler
+        self._frame_handler.start()
 
-    def screenshot(self):
+    def screenshot(self) -> ndarray:
         """
         :return: A screenshot from the camera.
         """
@@ -104,24 +112,23 @@ class Camera:
         """
         Starts recording.
         """
-        self._frames_handler.set_observer(DynamicMovementDetectionObserver())
-        self._frames_handler.add_motion_handler(BufferedMotionHandler(self, SECONDS_TO_BUFFER))
-        self._frames_handler.start()
+        self._frame_handler.set_observer(DynamicMovementDetectionObserver())
+        self._frame_handler.add_motion_handler(BufferedMotionHandler(self, SECONDS_TO_BUFFER))
+        self._frame_handler.start()
 
     def stop_recording(self):
         """
         Stops recording.
         """
-        self._frames_handler.stop()
-        self._frames_handler.set_observer(Observer())
-        self._frames_handler.set_motion_handlers([])
+        self._frame_handler.stop()
+        self._frame_handler.set_observer(Observer())
+        self._frame_handler.set_motion_handlers([])
 
     def stop_receiving_video(self):
         """
         Stops receiving video.
         """
         self._kill_thread = True
-        self._frames_handler.stop()
 
     def _receive_frames(self):
         """
@@ -134,20 +141,17 @@ class Camera:
                 frame = self._retrieval_strategy.retrieve()
 
                 self._last_frame = frame
-                self._frames_handler.handle(frame)
+                self._frame_handler.handle(frame)
             except Exception as e:
-                print("Error downloading image from camera {} on ip {}".format(self._place, self._ip))
+                print("Error downloading image from camera {} on ip {}".format(self._name, self._ip))
                 print(e)
 
         self._retrieval_strategy.disconnect()
-        self._frames_handler.stop()
+        self._frame_handler.stop()
         self._kill_thread = False
 
     def __hash__(self):
-        return "{}:{}@{}".format(self.ip, self.port, self.place).__hash__()
+        return "{}:{}@{}".format(self.ip, self.port, self.name).__hash__()
 
     def __eq__(self, other):
-        if isinstance(other, Camera):
-            return other.ip == self._ip and other.port == self._port
-
-        return False
+        return isinstance(other, Camera) and other.ip == self._ip and other.port == self._port
