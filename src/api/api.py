@@ -36,6 +36,7 @@ def put(endpoint: str, body: dict):
         try:
             return requests.put(api_endpoint, data=body)
         except Exception as e:
+            print(e)
             if i == 5:
                 raise e
 
