@@ -31,7 +31,7 @@ class System:
                         timedelta(seconds=now.second) - timedelta(microseconds=now.microsecond) + timedelta(hours=3)
 
         time_until_3 = tomorrow_3_am - now
-        time_until_3 = 0 #time_until_3.total_seconds()
+        time_until_3 = time_until_3.total_seconds()
 
         self.__scheduler.enter(time_until_3, 1, self._transform_yesterday_into_video)
         print("Scheduled video transformation in {} seconds!".format(time_until_3))
@@ -57,7 +57,7 @@ class System:
     def _transform_yesterday_into_video(self):
         self.__schedule_video_transformation()
 
-        yesterday = datetime.now() - timedelta(days=0)#1)
+        yesterday = datetime.now() - timedelta(days=1)
 
         for camera in self.cameras:
             try:
