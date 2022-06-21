@@ -5,6 +5,4 @@ opencv-python>=4.4.0.46
 tensorflow>=2.3.1
 urllib3>=1.26.2
 scipy>=1.5.4
-kivy>=2.0.0
-plotly>=4.14.3
-pandas>=1.2.3
+
