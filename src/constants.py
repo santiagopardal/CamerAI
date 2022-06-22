@@ -49,19 +49,19 @@ STORING_PATH = os.path.join(ABSOLUTE_PATH, "Images")
 
 AI_PATH = os.path.join(ABSOLUTE_PATH, "ai")
 
-V3_MODEL_WEIGHTS = os.path.join(AI_PATH, "Neural Network")
+NEURAL_NETWORKS_FOLDER = os.path.join(AI_PATH, "Neural Network")
 
-LITE_MODEL_PATH = os.path.join(V3_MODEL_WEIGHTS, "lite")
+LITE_MODEL_PATH = os.path.join(NEURAL_NETWORKS_FOLDER, "lite")
 LITE_MODEL_PATH = os.path.join(LITE_MODEL_PATH, "model.tflite")
 
-TINY_MODEL_WEIGHTS = os.path.join(V3_MODEL_WEIGHTS, "tiny")
+TINY_MODEL_WEIGHTS = os.path.join(NEURAL_NETWORKS_FOLDER, "tiny")
 TINY_MODEL_WEIGHTS = os.path.join(TINY_MODEL_WEIGHTS, "model")
 
-V3_MODEL_WEIGHTS = os.path.join(V3_MODEL_WEIGHTS, "Second network")
+V3_MODEL_WEIGHTS = os.path.join(NEURAL_NETWORKS_FOLDER, "Second network")
 V3_MODEL_WEIGHTS = os.path.join(V3_MODEL_WEIGHTS, "v3")
 V3_MODEL_WEIGHTS = os.path.join(V3_MODEL_WEIGHTS, "model.h5")
 
-TATIANA = os.path.join(AI_PATH, "Tatiana")
+TATIANA = os.path.join(NEURAL_NETWORKS_FOLDER, "Tatiana")
 
 YOLO_V3_PATH = os.path.join(AI_PATH, "YOLO v3")
 YOLO_V4_PATH = os.path.join(AI_PATH, "YOLO v4")
