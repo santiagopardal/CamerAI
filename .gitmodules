@@ -1,3 +1,3 @@
 [submodule "CamerAPI"]
 	path = CamerAPI
-	url = https://github.com/santiagopardal/CamerAPI
+	url = git@github.com:santiagopardal/CamerAPI.git
