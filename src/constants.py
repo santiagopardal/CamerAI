@@ -32,7 +32,7 @@ def calculate_dbs():
 
 FRAME_RATE = 23
 
-MOVEMENT_SENSITIVITY = 0.84
+MOVEMENT_SENSITIVITY = 0.5
 DETECTION_BATCH_SIZE = 92
 MOVEMENT_BURSTS = 2
 SECONDS_TO_BUFFER = 2
@@ -60,6 +60,8 @@ TINY_MODEL_WEIGHTS = os.path.join(TINY_MODEL_WEIGHTS, "model")
 V3_MODEL_WEIGHTS = os.path.join(V3_MODEL_WEIGHTS, "Second network")
 V3_MODEL_WEIGHTS = os.path.join(V3_MODEL_WEIGHTS, "v3")
 V3_MODEL_WEIGHTS = os.path.join(V3_MODEL_WEIGHTS, "model.h5")
+
+TATIANA = os.path.join(AI_PATH, "Tatiana")
 
 YOLO_V3_PATH = os.path.join(AI_PATH, "YOLO v3")
 YOLO_V4_PATH = os.path.join(AI_PATH, "YOLO v4")

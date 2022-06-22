@@ -2,11 +2,11 @@ import cv2
 import numpy as np
 import urllib
 import concurrent.futures
-from src.observations.models.v3_model_motion_detector import V3MotionDetector
+from src.observations.models.tatiana import Tatiana
 from src.constants import CNN_INPUT_SHAPE, MOVEMENT_SENSITIVITY
 
 
-MODEL = V3MotionDetector()
+MODEL = Tatiana()
 POOL = concurrent.futures.ThreadPoolExecutor(5)
 CAMERA_URL = "rtsp://{}:{}@192.168.0.131:554/videoMain".format(urllib.parse.quote("admin"), urllib.parse.quote("*{-4s#aG*_>2"))
 
@@ -30,7 +30,7 @@ def detect_movement(diff):
     diff = np.array(diff / 255, dtype="float32")
     images = np.array([diff]).reshape(CNN_INPUT_SHAPE)
     movement = MODEL.predict(images)
-    if movement >= MOVEMENT_SENSITIVITY:
+    if movement >= 0.5:
         print(movement)
 
 
