@@ -14,21 +14,22 @@ class DontLookBackObservationStrategy(ObservationStrategy):
         to_observe = [(frame, frames[i + 1]) for i, frame in enumerate(frames) if i % JUMP == 0]
 
         results = self._observer.batch_movement_check(to_observe)
+        results = list(enumerate(results))
 
         frames_with_movement = []
         recording = False
 
-        for i, result in enumerate(results):
-            if (recording or result != recording) and i > 0:
-                last_element = (i - 1) * JUMP + 1
+        for i, movement in results[1:]:
+            if movement:
+                for j in range(JUMP):
+                    frames_with_movement.append(frames[(i - 1) * JUMP + j])
 
-                for j in range(1, JUMP):
-                    frames_with_movement.append(frames[last_element + j])
+                recording = True
+            else:
+                if recording:
+                    for j in range(JUMP):
+                        frames_with_movement.append(frames[(i - 1) * JUMP + j])
 
-            if result or (not result and recording):
-                frames_with_movement.append(frames[i*JUMP])
-                frames_with_movement.append(frames[i*JUMP+1])
-
-            recording = result
+                    recording = False
 
         return frames_with_movement
