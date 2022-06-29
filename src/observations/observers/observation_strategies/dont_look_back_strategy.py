@@ -5,6 +5,7 @@ from src.constants import JUMP
 class DontLookBackObservationStrategy(ObservationStrategy):
     def __init__(self, observer):
         super().__init__(observer)
+        self._recording = False
 
     def observe(self, frames: list) -> list:
         """
@@ -17,19 +18,18 @@ class DontLookBackObservationStrategy(ObservationStrategy):
         results = list(enumerate(results))
 
         frames_with_movement = []
-        recording = False
 
         for i, movement in results[1:]:
             if movement:
                 for j in range(JUMP):
                     frames_with_movement.append(frames[(i - 1) * JUMP + j])
 
-                recording = True
+                self._recording = True
             else:
-                if recording:
+                if self._recording:
                     for j in range(JUMP):
                         frames_with_movement.append(frames[(i - 1) * JUMP + j])
 
-                    recording = False
+                    self._recording = False
 
         return frames_with_movement
