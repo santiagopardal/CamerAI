@@ -75,8 +75,8 @@ class FrameHandler(Handler):
                 if self._current_buffer_started_receiving else constants.FRAME_RATE
 
             self._thread_pool.submit(self._check_movement, self._current_buffer, true_framerate)
-            self._current_buffer = [self._current_buffer[-2], self._current_buffer[-1]]
             self._current_buffer_started_receiving = end
+
         self._lock.release()
 
     @staticmethod
