@@ -4,7 +4,7 @@ from src.media.video.remote_video import RemoteVideo
 from src.constants import API_URL
 
 
-def deserialize(video: dict) -> Video:
+def create(video: dict) -> Video:
     if video['locally_stored']:
         endpoint = '{}/temporal_videos/{}/stream'.format(API_URL, video['id'])
         return RemoteVideo(video['id'], video['path'], endpoint)

@@ -9,8 +9,9 @@ import time
 import src.api.videos as videos_api
 import src.api.cameras as cameras_api
 import src.api.temporal_videos as temporal_videos_api
-from src.media.video.merger import VideoMerger
-import src.media.video.serializer as video_serializer
+from libs.VideosMerger.merger import VideoMerger
+from libs.VideosMerger.videos_iterator import VideosIterator
+import src.media.video.video_factory as video_factory
 
 
 class System:
@@ -67,15 +68,15 @@ class System:
 
     def _merge_cameras_video(self, camera, date: datetime):
         temporal_videos = temporal_videos_api.get_temporal_videos(camera.id, date)
-        temporal_videos = [video_serializer.deserialize(video) for video in temporal_videos]
 
         pth = os.path.join(constants.STORING_PATH, camera.name)
 
         day, month, year = get_numbers_as_string(date)
         video_path = "{}/{}-{}-{}.mp4".format(pth, year, month, day)
 
-        merger = VideoMerger(temporal_videos)
-        merger.merge(video_path)
+        videos = VideosIterator(temporal_videos, video_factory)
+        merger = VideoMerger(videos)
+        merger.merge(video_path, True)
 
         videos_api.register_new_video(camera.id, date, video_path)
 
