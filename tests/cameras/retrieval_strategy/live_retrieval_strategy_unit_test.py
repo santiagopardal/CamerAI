@@ -1,6 +1,7 @@
 import unittest
 from unittest.mock import patch, MagicMock, call
 from src.cameras.retrieval_strategy.live_retrieval_strategy import LiveRetrievalStrategy
+from src.cameras.camera import Camera
 
 
 def create(*args):
@@ -21,7 +22,17 @@ class LiveRetrievalUnitTest(unittest.TestCase):
     mock = None
 
     def setUp(self) -> None:
-        self.strategy = LiveRetrievalStrategy("http://camera.local/live_video", 30, 1920, 1080)
+        camera = Camera(
+            id=1,
+            ip="192.168.0.130",
+            port=80,
+            frame_width=192,
+            frame_height=1080,
+            video_url="http://camera.local/live_video",
+            name="Camera 1",
+            frame_rate=30
+        )
+        self.strategy = LiveRetrievalStrategy(camera)
 
     @patch("cv2.VideoCapture.__new__", create)
     def test_connect_and_retrieve(self):
@@ -31,6 +42,7 @@ class LiveRetrievalUnitTest(unittest.TestCase):
 
     @patch("cv2.VideoCapture.__new__", create)
     def test_retrieve_raises_exception(self):
+        create()
         self.strategy.connect()
         LiveRetrievalUnitTest.mock.read.side_effect = Exception("Error")
         with self.assertRaises(Exception):

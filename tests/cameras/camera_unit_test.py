@@ -9,8 +9,19 @@ from time import sleep
 class CameraUnitTest(unittest.TestCase):
     def setUp(self) -> None:
         self.frame_handler = FrameHandler()
-        self.retrieval_strategy = LiveRetrievalStrategy("rtsp://camera1.com/live_video", 30, 1920, 1080)
-        self.camera = Camera(1, "192.168.0.130", 80, "Camera 1", 30, self.retrieval_strategy, self.frame_handler)
+        self.camera = Camera(
+            id=1,
+            ip="192.168.0.130",
+            port=80,
+            frame_width=1080,
+            frame_height=1920,
+            video_url='https://video.url',
+            name="Camera 1",
+            frame_rate=30,
+            frames_handler=self.frame_handler
+        )
+        self.retrieval_strategy = LiveRetrievalStrategy(self.camera)
+        self.camera.retrieval_strategy = self.retrieval_strategy
 
     def test_construction_and_getters(self):
         """
@@ -107,14 +118,34 @@ class CameraUnitTest(unittest.TestCase):
         """
         Test that __equal__ works as expected when two cameras are equal.
         """
-        camera_2 = Camera(1, "192.168.0.130", 80, "Camera 1", "http://camera1.screenshot.local", 30)
+        camera_2 = Camera(
+            id=1,
+            ip="192.168.0.130",
+            port=80,
+            frame_width=1080,
+            frame_height=1920,
+            video_url='https://video.url',
+            name="Camera 1",
+            frame_rate=30,
+            frames_handler=self.frame_handler
+        )
         self.assertEqual(self.camera, camera_2)
 
     def test_cameras_not_equal(self):
         """
         Test that __equal__ works as expected when two cameras are not equal.
         """
-        camera_2 = Camera(1, "192.168.0.133", 80, "Camera 1", "http://camera1.screenshot.local", 30)
+        camera_2 = Camera(
+            id=1,
+            ip="192.168.0.133",
+            port=80,
+            frame_width=1080,
+            frame_height=1920,
+            video_url="http://camera1.screenshot.local",
+            name="Camera 1",
+            frame_rate=30,
+            frames_handler=self.frame_handler
+        )
         self.assertNotEqual(self.camera, camera_2)
 
     def test_setters(self):

@@ -25,7 +25,7 @@ class Camera:
     _thread_pool: ThreadPoolExecutor
 
     def __init__(self, id: int, ip: str, port: int, video_url: str, name: str, frame_rate: int, frame_width: int,
-                 frame_height: int, retrieval_strategy: RetrievalStrategy, frames_handler: FrameHandler = None):
+                 frame_height: int, retrieval_strategy: RetrievalStrategy = None, frames_handler: FrameHandler = None):
         """
         :param ip: IP of the camera.
         :param port: Port for the camera's IP.
@@ -96,6 +96,10 @@ class Camera:
     def frame_handler(self) -> FrameHandler:
         return self._frame_handler
 
+    @property
+    def retrieval_strategy(self) -> RetrievalStrategy:
+        return self._retrieval_strategy
+
     @ip.setter
     def ip(self, ip: str):
         self._ip = ip
@@ -113,6 +117,10 @@ class Camera:
         self._frame_handler.stop()
         self._frame_handler = frames_handler
         self._frame_handler.start()
+
+    @retrieval_strategy.setter
+    def retrieval_strategy(self, retrieval_strategy: RetrievalStrategy):
+        self._retrieval_strategy = retrieval_strategy
 
     def screenshot(self) -> ndarray:
         """
