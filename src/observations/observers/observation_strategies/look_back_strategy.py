@@ -1,5 +1,5 @@
 from src.observations.observers.observation_strategies.observation_strategy import ObservationStrategy
-from src.constants import JUMP
+from src.constants import JUMP, DBS
 
 
 class LookBackObservationStrategy(ObservationStrategy):
@@ -79,3 +79,6 @@ class LookBackObservationStrategy(ObservationStrategy):
                             frames_with_movement.append(frames[j - 1])
 
         return frames_with_movement
+
+    def frames_to_buffer(self) -> int:
+        return DBS

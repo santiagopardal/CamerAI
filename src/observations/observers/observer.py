@@ -64,3 +64,6 @@ class Observer:
         :param frames: Frames to analyse.
         """
         return self._observation_strategy.observe(frames)
+
+    def frames_to_buffer(self) -> int:
+        return self._observation_strategy.frames_to_buffer()

@@ -8,3 +8,9 @@ class ObservationStrategy:
         :param frames: Frames to analyse.
         """
         pass
+
+    def frames_to_buffer(self) -> int:
+        """
+        Returns the number of frames to buffer.
+        """
+        pass

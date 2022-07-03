@@ -68,7 +68,7 @@ class FrameHandler(Handler):
         self._lock.acquire()
         self._current_buffer.append(frame)
 
-        if len(self._current_buffer) >= constants.DBS:
+        if len(self._current_buffer) >= self._observer.frames_to_buffer():
             end = time.time()
 
             true_framerate = len(self._current_buffer) / (end - self._current_buffer_started_receiving) \
@@ -91,8 +91,8 @@ class FrameHandler(Handler):
         return tme + datetime.timedelta(seconds=i / frame_rate)
 
     @staticmethod
-    def _last_time_stored(frame_rate):
-        return datetime.datetime.now() - datetime.timedelta(seconds=(constants.DBS + 1) / frame_rate)
+    def _last_time_stored(frame_rate: int, number_of_frames: int):
+        return datetime.datetime.now() - datetime.timedelta(seconds=(number_of_frames + 1) / frame_rate)
 
     def _check_movement(self, frames, frame_rate):
         """
@@ -106,7 +106,7 @@ class FrameHandler(Handler):
         batch. This does not occur on the first run, in which all the frames will be analysed and the last one
         will be analysed twice, on the first run and on the second one, but will be stored only once if needed.
         """
-        last_time_stored = self._last_time_stored(frame_rate)
+        last_time_stored = self._last_time_stored(frame_rate, len(frames))
 
         frames = [Frame(frame, self._calculate_time_taken(last_time_stored, frame_rate, i + 1))
                   for i, frame in enumerate(frames)]
