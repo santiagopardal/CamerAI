@@ -1,4 +1,6 @@
+from datetime import datetime
 from src.cameras.retrieval_strategy.retrieval_strategy import RetrievalStrategy
+import src.api.cameras as api
 from cv2 import VideoCapture, CAP_PROP_FPS, CAP_PROP_FRAME_WIDTH, CAP_PROP_FRAME_HEIGHT, CAP_PROP_BUFFERSIZE, CAP_FFMPEG
 from numpy import ndarray
 from time import sleep
@@ -12,11 +14,8 @@ class LiveRetrievalStrategy(RetrievalStrategy):
     _frame_width: int
     _frame_height: int
 
-    def __init__(self, url: str, frame_rate: int, frame_width: int, frame_height: int):
-        self._url = url
-        self._frame_rate = frame_rate
-        self._frame_width = frame_width
-        self._frame_height = frame_height
+    def __init__(self, camera):
+        self._camera = camera
         self._live_video = None
 
     def connect(self):
@@ -27,28 +26,32 @@ class LiveRetrievalStrategy(RetrievalStrategy):
                 if self._live_video:
                     self._live_video.release()
 
-                self._live_video = VideoCapture(self._url, CAP_FFMPEG)
-                self._live_video.set(CAP_PROP_FPS, self._frame_rate)
-                self._live_video.set(CAP_PROP_FRAME_WIDTH, self._frame_width)
-                self._live_video.set(CAP_PROP_FRAME_HEIGHT, self._frame_height)
+                self._live_video = VideoCapture(self._camera.video_url, CAP_FFMPEG)
+                self._live_video.set(CAP_PROP_FPS, self._camera.frame_rate)
+                self._live_video.set(CAP_PROP_FRAME_WIDTH, self._camera.frame_width)
+                self._live_video.set(CAP_PROP_FRAME_HEIGHT, self._camera.frame_height)
                 self._live_video.set(CAP_PROP_BUFFERSIZE, 3)
 
-                connected = True
-            except Exception as e:
-                if i < 6:
-                    i += 1
-                seconds = 2 ** i
-                print(e)
-                print("Could not connect, retrying in {} seconds".format(seconds))
-                sleep(seconds)
+                connected, frame = self._live_video.read()
 
-        print("Connected!")
+                if not connected:
+                    api.log_connection_status(self._camera.id, f"Connection failed", datetime.now())
+            except Exception as e:
+                api.log_connection_status(self._camera.id, f"Connection failed: {e}", datetime.now())
+
+            if not connected:
+                seconds = 2 ** i
+                sleep(seconds)
+                if i < 10:
+                    i += 1
+
+        api.log_connection_status(self._camera.id, "Connected", datetime.now())
 
     def retrieve(self) -> ndarray:
         grabbed, frame = self._live_video.read()
 
         while not grabbed:
-            print("Reconnecting!")
+            api.log_connection_status(self._camera.id, "Lost connection to camera, reconnecting...", datetime.now())
             self.connect()
             grabbed, frame = self._live_video.read()
 

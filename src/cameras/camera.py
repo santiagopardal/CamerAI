@@ -14,15 +14,18 @@ class Camera:
     _id: int
     _ip: str
     _port: int
+    _video_url: str
     _name: str
     _frame_rate: int
+    _frame_width: int
+    _frame_height: int
     _kill_thread: bool
     _last_frame: ndarray
     _frame_handler: FrameHandler
     _thread_pool: ThreadPoolExecutor
 
-    def __init__(self, id: int, ip: str, port: int, name: str, frame_rate: int,
-                 retrieval_strategy: RetrievalStrategy, frames_handler: FrameHandler = None):
+    def __init__(self, id: int, ip: str, port: int, video_url: str, name: str, frame_rate: int, frame_width: int,
+                 frame_height: int, retrieval_strategy: RetrievalStrategy, frames_handler: FrameHandler = None):
         """
         :param ip: IP of the camera.
         :param port: Port for the camera's IP.
@@ -34,6 +37,9 @@ class Camera:
         self._id = id
         self._ip = ip
         self._port = port
+        self._video_url = video_url
+        self._frame_width = frame_width
+        self._frame_height = frame_height
         self._name = name
         self._frame_rate = frame_rate
         self._kill_thread = False
@@ -71,8 +77,20 @@ class Camera:
         return self._port
 
     @property
+    def video_url(self) -> str:
+        return self._video_url
+
+    @property
     def frame_rate(self) -> int:
         return self._frame_rate
+
+    @property
+    def frame_width(self) -> int:
+        return self._frame_width
+
+    @property
+    def frame_height(self) -> int:
+        return self._frame_width
 
     @property
     def frame_handler(self) -> FrameHandler:

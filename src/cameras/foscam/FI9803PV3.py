@@ -28,11 +28,10 @@ class FI9803PV3(Camera):
         user = urllib.parse.quote(user)
         password = urllib.parse.quote(password)
 
-        live_video_url = LIVE_VIDEO_URL.format(user, password, ip, streaming_port)
-        retrieval_strategy = retrieval_strategy if retrieval_strategy \
-            else LiveRetrievalStrategy(live_video_url, FRAME_RATE, WIDTH, HEIGHT)
+        video_url = LIVE_VIDEO_URL.format(user, password, ip, streaming_port)
+        retrieval_strategy = retrieval_strategy if retrieval_strategy else LiveRetrievalStrategy(self)
 
-        super().__init__(id, ip, port, name, FRAME_RATE, retrieval_strategy, frames_handler)
+        super().__init__(id, ip, port, video_url, name, FRAME_RATE, WIDTH, HEIGHT, retrieval_strategy, frames_handler)
 
         self._streaming_port = streaming_port
 

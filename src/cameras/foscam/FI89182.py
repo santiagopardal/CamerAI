@@ -27,11 +27,10 @@ class FI89182(Camera):
         user = urllib.parse.quote(user)
         password = urllib.parse.quote(password)
 
-        live_video_url = LIVE_VIDEO_URL.format(ip, port, user, password)
-        retrieval_strategy = retrieval_strategy if retrieval_strategy \
-            else LiveRetrievalStrategy(live_video_url, FRAME_RATE, WIDTH, HEIGHT)
+        video_url = LIVE_VIDEO_URL.format(ip, port, user, password)
+        retrieval_strategy = retrieval_strategy if retrieval_strategy else LiveRetrievalStrategy(self)
 
-        super().__init__(id, ip, port, name, FRAME_RATE, retrieval_strategy, frames_handler)
+        super().__init__(id, ip, port, video_url, name, FRAME_RATE, WIDTH, HEIGHT, retrieval_strategy, frames_handler)
 
     @classmethod
     def from_json(cls, json: dict) -> Camera:
