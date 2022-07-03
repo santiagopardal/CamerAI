@@ -16,7 +16,7 @@ class LocalVideoSaver(MediaSaver):
             os.mkdir(self._folder)
 
     def save(self, frames: List[Frame]):
-        filename = "{}.mp4".format(frames[0].time)
+        filename = "{}.mp4".format(frames[0].time).replace(':', '-')
         path = self._store_video(frames, filename)
         temporal_videos_api.add_temporal_video(self._camera_id, frames[0].date, path)
 
