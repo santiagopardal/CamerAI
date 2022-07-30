@@ -5,7 +5,6 @@ from src.media.savers.media_saver import MediaSaver
 from src.media.frame import Frame
 import src.api.temporal_videos as temporal_videos_api
 from src.utils.date_utils import get_numbers_as_string
-import subprocess
 
 
 class LocalVideoSaver(MediaSaver):
@@ -24,7 +23,6 @@ class LocalVideoSaver(MediaSaver):
         return path
 
     def _store_video(self, frames, filename):
-        filename = filename.replace('.mp4', '-temp.mp4')
         day, month, year = get_numbers_as_string(frames[0].date)
 
         date_str = "{}-{}-{}".format(year, month, day)
@@ -47,8 +45,5 @@ class LocalVideoSaver(MediaSaver):
                 pass
 
         video.release()
-        command = f"ffmpeg -i \"{storing_path}\" -vf scale=out_range=full -color_range 2 -pix_fmt yuvj420p \"{storing_path.replace('-temp', '')}\""
-        subprocess.run([command], capture_output=True, shell=True)
-        os.remove(storing_path)
 
-        return storing_path.replace('-temp.mp4', '.mp4')
+        return storing_path
