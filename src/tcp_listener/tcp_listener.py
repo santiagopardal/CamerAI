@@ -32,7 +32,6 @@ class TCPListener:
     def _decode_and_execute(self, client_socket):
         request_type = int.from_bytes(client_socket.recv(1), 'little')
         if request_type == 1:
-            print('stopping')
             self._node.stop()
         content_length = int.from_bytes(client_socket.recv(8), 'little')
         raw_data = client_socket.recv(content_length).decode('utf-8')
