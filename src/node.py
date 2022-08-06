@@ -43,6 +43,9 @@ class Node:
     def stop(self):
         self.waiter.release()
 
+    def handle_message(self, request_type: int, message: dict):
+        pass
+
     def _fetch_cameras_from_api(self):
         i = 0
         cameras = None
