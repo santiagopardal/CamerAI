@@ -6,5 +6,7 @@ mkdir Images
 git submodule init
 git submodule update
 
+echo "* 3 * * * $(which python3) $(pwd)/src/merger/merge.py" | crontab -
+
 cd CamerAPI
 ./install
