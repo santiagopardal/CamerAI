@@ -10,20 +10,6 @@ import src.observations.models.factory as model_factory
 
 class Camera:
 
-    _retrieval_strategy: RetrievalStrategy
-    _id: int
-    _ip: str
-    _port: int
-    _video_url: str
-    _name: str
-    _frame_rate: int
-    _frame_width: int
-    _frame_height: int
-    _kill_thread: bool
-    _last_frame: ndarray
-    _frame_handler: FrameHandler
-    _thread_pool: ThreadPoolExecutor
-
     def __init__(self, id: int, ip: str, port: int, video_url: str, name: str, frame_rate: int, frame_width: int,
                  frame_height: int, retrieval_strategy: RetrievalStrategy = None, frames_handler: FrameHandler = None):
         """
@@ -42,7 +28,7 @@ class Camera:
         self._frame_height = frame_height
         self._name = name
         self._frame_rate = frame_rate
-        self._kill_thread = False
+        self._receive_frames = False
         self._last_frame = None
         self._frame_handler = FrameHandler() if frames_handler is None else frames_handler
         self._retrieval_strategy = retrieval_strategy
@@ -55,10 +41,7 @@ class Camera:
         :param json: Dictionary to transform into camera.
         :return: Camera from the dictionary.
         """
-        return cls(
-            json["id"], json["ip"], json["http_port"],
-            json["name"], json["frame_rate"], json["retrieval_strategy"]
-        )
+        pass
 
     @property
     def id(self) -> int:
@@ -132,6 +115,7 @@ class Camera:
         """
         Starts thread to receive video.
         """
+        self._receive_frames = True
         self._thread_pool.submit(self._receive_frames)
 
     def record(self):
@@ -153,7 +137,7 @@ class Camera:
         """
         Stops receiving video.
         """
-        self._kill_thread = True
+        self._receive_frames = False
 
     def _receive_frames(self):
         """
@@ -161,7 +145,7 @@ class Camera:
         """
         self._retrieval_strategy.connect()
 
-        while not self._kill_thread:
+        while self._receive_frames:
             try:
                 frame = self._retrieval_strategy.retrieve()
 
@@ -173,7 +157,6 @@ class Camera:
 
         self._retrieval_strategy.disconnect()
         self._frame_handler.stop()
-        self._kill_thread = False
 
     def __hash__(self):
         return "{}:{}@{}".format(self.ip, self.port, self.name).__hash__()

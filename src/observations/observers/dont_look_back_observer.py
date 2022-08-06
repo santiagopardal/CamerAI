@@ -18,7 +18,7 @@ class DontLookBackObserver(Observer):
 
         self._last_two_frames = [frames[-2], frames[-1]]
 
-        results = self.batch_movement_check(to_observe)
+        results = self._batch_movement_check(to_observe)
         results = list(enumerate(results))
 
         frames_with_movement = []

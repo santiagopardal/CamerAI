@@ -10,7 +10,7 @@ class LookBackObserver(Observer):
         """
         to_observe = [(frame, frames[i + 1]) for i, frame in enumerate(frames) if i % JUMP == 0]
 
-        results = self.batch_movement_check(to_observe)
+        results = self._batch_movement_check(to_observe)
 
         recording = False
         frames_list_length = len(frames)
@@ -32,7 +32,7 @@ class LookBackObserver(Observer):
                             frm = frames[j]
                             pframe = frames[j - 1]
 
-                            if self.movement(pframe, frm):
+                            if self._movement(pframe, frm):
                                 frames_with_movement.append(frm)
                                 frames_with_movement.append(pframe)
                             else:
@@ -65,7 +65,7 @@ class LookBackObserver(Observer):
                         frm = frames[j]
                         pframe = frames[j - 1]
 
-                        if self.movement(pframe, frm):
+                        if self._movement(pframe, frm):
                             store_all = True
                             break
 

@@ -14,12 +14,6 @@ from src.handlers.motion_handler import MotionHandler
 
 class FrameHandler(Handler):
 
-    _observer: Observer
-    _motion_handlers: list
-    _thread_pool: ThreadPoolExecutor
-    _current_buffer: list
-    _current_buffer_started_receiving: float
-
     def __init__(self, observer: Observer = None, motion_handlers: list = None):
         super().__init__()
         self._observer = DontLookBackObserver(model_factory) if observer is None else observer

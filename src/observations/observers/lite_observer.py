@@ -1,11 +1,11 @@
-from src.observations.observers.observer import Observer
+from src.observations.observers.dont_look_back_observer import DontLookBackObserver
 import numpy as np
 from src.media.frame import Frame
 from threading import Lock
 from src.observations.models.tflite_movement_detector import TFLiteModelDetector
 
 
-class LiteObserver(Observer):
+class LiteObserver(DontLookBackObserver):
     _instance = None
     _model_process = None
 
@@ -21,19 +21,18 @@ class LiteObserver(Observer):
 
     def _prepare_for_cnn(self, previous_frame, frame):
         res = super()._prepare_for_cnn(previous_frame, frame)
-
         return np.expand_dims(res, axis=0)
 
-    def batch_movement_check(self, frames: list) -> list:
+    def _batch_movement_check(self, frames: list) -> list:
         self._mutex.acquire()
-        res = super().batch_movement_check(frames)
+        res = super()._batch_movement_check(frames)
         self._mutex.release()
 
         return res
 
-    def movement(self, previous_frame: Frame, frame: Frame) -> bool:
+    def _movement(self, previous_frame: Frame, frame: Frame) -> bool:
         self._mutex.acquire()
-        res = super().movement(previous_frame, frame)
+        res = super()._movement(previous_frame, frame)
         self._mutex.release()
 
         return res
