@@ -1,10 +1,10 @@
-from src.observations.observers.observation_strategies.observation_strategy import ObservationStrategy
+from src.observations.observers.observer import Observer
 from src.constants import JUMP, DBS
 
 
-class DontLookBackObservationStrategy(ObservationStrategy):
-    def __init__(self, observer):
-        super().__init__(observer)
+class DontLookBackObserver(Observer):
+    def __init__(self, model_factory):
+        super().__init__(model_factory)
         self._recording = False
         self._last_two_frames = []
 
@@ -18,7 +18,7 @@ class DontLookBackObservationStrategy(ObservationStrategy):
 
         self._last_two_frames = [frames[-2], frames[-1]]
 
-        results = self._observer.batch_movement_check(to_observe)
+        results = self.batch_movement_check(to_observe)
         results = list(enumerate(results))
 
         frames_with_movement = []

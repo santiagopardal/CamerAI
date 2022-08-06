@@ -6,6 +6,7 @@ import numpy as np
 import time
 from src.media.frame import Frame
 from src.observations.observers.observer import Observer
+from src.observations.observers.dont_look_back_observer import DontLookBackObserver
 from src.handlers.handler import Handler
 import src.observations.models.factory as model_factory
 from src.handlers.motion_handler import MotionHandler
@@ -21,7 +22,7 @@ class FrameHandler(Handler):
 
     def __init__(self, observer: Observer = None, motion_handlers: list = None):
         super().__init__()
-        self._observer = Observer(model_factory) if observer is None else observer
+        self._observer = DontLookBackObserver(model_factory) if observer is None else observer
         self._motion_handlers = [] if motion_handlers is None else motion_handlers
         self._thread_pool = ThreadPoolExecutor(1)
         self._current_buffer = []

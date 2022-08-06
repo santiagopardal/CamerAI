@@ -2,14 +2,11 @@ import cv2
 from src.media.frame import Frame
 from src import constants
 import numpy as np
-from src.observations.observers.observation_strategies.dont_look_back_strategy import DontLookBackObservationStrategy
-from src.observations.observers.observation_strategies.observation_strategy import ObservationStrategy
 
 
 class Observer:
-    def __init__(self, model_factory, observation_strategy: ObservationStrategy = None):
+    def __init__(self, model_factory):
         self._model = model_factory.create_model()
-        self._observation_strategy = DontLookBackObservationStrategy(self) if not observation_strategy else observation_strategy
 
     def _frame_manipulation(self, frame: Frame) -> Frame:
         """
@@ -63,7 +60,7 @@ class Observer:
         Receives a list of frames and stores those in which there has been movement.
         :param frames: Frames to analyse.
         """
-        return self._observation_strategy.observe(frames)
+        pass
 
     def frames_to_buffer(self) -> int:
-        return self._observation_strategy.frames_to_buffer()
+        pass

@@ -1,6 +1,6 @@
 from src.handlers.frame_handler import FrameHandler
 from src.handlers.buffered_motion_handler import BufferedMotionHandler
-from src.observations.observers.observer import Observer
+from src.observations.observers.dont_look_back_observer import DontLookBackObserver
 from concurrent.futures import ThreadPoolExecutor
 from src.constants import SECONDS_TO_BUFFER
 from src.cameras.retrieval_strategy.retrieval_strategy import RetrievalStrategy
@@ -138,7 +138,7 @@ class Camera:
         """
         Starts recording.
         """
-        self._frame_handler.set_observer(Observer(model_factory))
+        self._frame_handler.set_observer(DontLookBackObserver(model_factory))
         self._frame_handler.add_motion_handler(BufferedMotionHandler(self, SECONDS_TO_BUFFER))
         self._frame_handler.start()
 
