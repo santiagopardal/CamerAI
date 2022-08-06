@@ -1,11 +1,11 @@
 from src.handlers.frame_handler import FrameHandler
 from src.handlers.buffered_motion_handler import BufferedMotionHandler
 from src.observations.observers.observer import Observer
-from src.observations.observers.dynamic_movement_detection_observer import DynamicMovementDetectionObserver
 from concurrent.futures import ThreadPoolExecutor
 from src.constants import SECONDS_TO_BUFFER
 from src.cameras.retrieval_strategy.retrieval_strategy import RetrievalStrategy
 from numpy import ndarray
+import src.observations.models.factory as model_factory
 
 
 class Camera:
@@ -138,7 +138,7 @@ class Camera:
         """
         Starts recording.
         """
-        self._frame_handler.set_observer(DynamicMovementDetectionObserver())
+        self._frame_handler.set_observer(Observer(model_factory))
         self._frame_handler.add_motion_handler(BufferedMotionHandler(self, SECONDS_TO_BUFFER))
         self._frame_handler.start()
 
@@ -147,7 +147,6 @@ class Camera:
         Stops recording.
         """
         self._frame_handler.stop()
-        self._frame_handler.set_observer(Observer())
         self._frame_handler.set_motion_handlers([])
 
     def stop_receiving_video(self):
