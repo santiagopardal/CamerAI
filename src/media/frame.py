@@ -1,7 +1,5 @@
-import cv2
 from datetime import datetime
 import numpy as np
-from src import constants
 
 
 class Frame(object):
@@ -28,10 +26,3 @@ class Frame(object):
     @frame.setter
     def frame(self, frm: np.ndarray):
         self._frame = frm
-
-    def get_resized_and_grayscaled(self) -> np.ndarray:
-        if not self._resized_and_grayscale:
-            self._resized_and_grayscale = cv2.resize(self._frame, constants.RESOLUTION, interpolation=cv2.INTER_AREA)
-            self._resized_and_grayscale = cv2.cvtColor(self._resized_and_grayscale, cv2.COLOR_RGB2GRAY)
-
-        return self._resized_and_grayscale

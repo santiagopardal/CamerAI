@@ -9,7 +9,6 @@ import src.observations.models.factory as model_factory
 
 
 class Camera:
-
     def __init__(self, id: int, ip: str, port: int, video_url: str, name: str, frame_rate: int, frame_width: int,
                  frame_height: int, retrieval_strategy: RetrievalStrategy = None, frames_handler: FrameHandler = None):
         self._id = id

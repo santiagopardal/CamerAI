@@ -2,6 +2,7 @@ import cv2
 from src.media.frame import Frame
 from src import constants
 import numpy as np
+from src.media.frame_editor import resize_frame, black_and_white
 
 
 class Observer:
@@ -19,10 +20,10 @@ class Observer:
 
     def _prepare_for_cnn(self, pf: Frame, frm: Frame) -> np.ndarray:
         p_frame = self._frame_manipulation(pf)
-        p_frame = p_frame.get_resized_and_grayscaled()
+        p_frame = black_and_white(resize_frame(p_frame.frame, constants.RESOLUTION))
 
         frm = self._frame_manipulation(frm)
-        frm = frm.get_resized_and_grayscaled()
+        frm = black_and_white(resize_frame(frm.frame, constants.RESOLUTION))
 
         return np.array(cv2.absdiff(p_frame, frm) / 255, dtype="float32").reshape(constants.CNN_INPUT_SHAPE)
 

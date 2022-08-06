@@ -6,7 +6,6 @@ import numpy as np
 
 
 class ScreenshotRetrievalStrategy(RetrievalStrategy):
-
     def __init__(self, url: str):
         self._url = url
 

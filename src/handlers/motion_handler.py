@@ -1,3 +1,3 @@
 class MotionHandler:
-    def handle(self, fames: list):
+    def handle(self, frames: list):
         pass

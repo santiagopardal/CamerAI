@@ -7,7 +7,6 @@ from time import sleep
 
 
 class LiveRetrievalStrategy(RetrievalStrategy):
-
     def __init__(self, camera):
         self._camera = camera
         self._live_video = None
