@@ -14,7 +14,7 @@ from libs.VideosMerger.videos_iterator import VideosIterator
 import src.media.video.video_factory as video_factory
 
 
-class System:
+class Node:
     def __init__(self):
         self.cameras = []
 

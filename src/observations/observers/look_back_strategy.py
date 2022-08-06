@@ -1,11 +1,8 @@
-from src.observations.observers.observation_strategies.observation_strategy import ObservationStrategy
+from src.observations.observers.observer import Observer
 from src.constants import JUMP, DBS
 
 
-class LookBackObservationStrategy(ObservationStrategy):
-    def __init__(self, observer):
-        super().__init__(observer)
-
+class LookBackObserver(Observer):
     def observe(self, frames: list) -> list:
         """
         Receives a list of frames and determines those in which there has been movement. Brace yourself.
@@ -13,7 +10,7 @@ class LookBackObservationStrategy(ObservationStrategy):
         """
         to_observe = [(frame, frames[i + 1]) for i, frame in enumerate(frames) if i % JUMP == 0]
 
-        results = self._observer.batch_movement_check(to_observe)
+        results = self._batch_movement_check(to_observe)
 
         recording = False
         frames_list_length = len(frames)
@@ -35,7 +32,7 @@ class LookBackObservationStrategy(ObservationStrategy):
                             frm = frames[j]
                             pframe = frames[j - 1]
 
-                            if self._observer.movement(pframe, frm):
+                            if self._movement(pframe, frm):
                                 frames_with_movement.append(frm)
                                 frames_with_movement.append(pframe)
                             else:
@@ -68,7 +65,7 @@ class LookBackObservationStrategy(ObservationStrategy):
                         frm = frames[j]
                         pframe = frames[j - 1]
 
-                        if self._observer.movement(pframe, frm):
+                        if self._movement(pframe, frm):
                             store_all = True
                             break
 

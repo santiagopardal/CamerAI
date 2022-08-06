@@ -1,28 +1,14 @@
 from src.handlers.frame_handler import FrameHandler
 from src.handlers.buffered_motion_handler import BufferedMotionHandler
-from src.observations.observers.observer import Observer
-from src.observations.observers.dynamic_movement_detection_observer import DynamicMovementDetectionObserver
+from src.observations.observers.dont_look_back_observer import DontLookBackObserver
 from concurrent.futures import ThreadPoolExecutor
 from src.constants import SECONDS_TO_BUFFER
 from src.cameras.retrieval_strategy.retrieval_strategy import RetrievalStrategy
 from numpy import ndarray
+import src.observations.models.factory as model_factory
 
 
 class Camera:
-
-    _retrieval_strategy: RetrievalStrategy
-    _id: int
-    _ip: str
-    _port: int
-    _video_url: str
-    _name: str
-    _frame_rate: int
-    _frame_width: int
-    _frame_height: int
-    _kill_thread: bool
-    _last_frame: ndarray
-    _frame_handler: FrameHandler
-    _thread_pool: ThreadPoolExecutor
 
     def __init__(self, id: int, ip: str, port: int, video_url: str, name: str, frame_rate: int, frame_width: int,
                  frame_height: int, retrieval_strategy: RetrievalStrategy = None, frames_handler: FrameHandler = None):
@@ -42,7 +28,7 @@ class Camera:
         self._frame_height = frame_height
         self._name = name
         self._frame_rate = frame_rate
-        self._kill_thread = False
+        self._should_receive_frames = False
         self._last_frame = None
         self._frame_handler = FrameHandler() if frames_handler is None else frames_handler
         self._retrieval_strategy = retrieval_strategy
@@ -55,10 +41,7 @@ class Camera:
         :param json: Dictionary to transform into camera.
         :return: Camera from the dictionary.
         """
-        return cls(
-            json["id"], json["ip"], json["http_port"],
-            json["name"], json["frame_rate"], json["retrieval_strategy"]
-        )
+        pass
 
     @property
     def id(self) -> int:
@@ -132,13 +115,14 @@ class Camera:
         """
         Starts thread to receive video.
         """
+        self._should_receive_frames = True
         self._thread_pool.submit(self._receive_frames)
 
     def record(self):
         """
         Starts recording.
         """
-        self._frame_handler.set_observer(DynamicMovementDetectionObserver())
+        self._frame_handler.set_observer(DontLookBackObserver(model_factory))
         self._frame_handler.add_motion_handler(BufferedMotionHandler(self, SECONDS_TO_BUFFER))
         self._frame_handler.start()
 
@@ -147,14 +131,13 @@ class Camera:
         Stops recording.
         """
         self._frame_handler.stop()
-        self._frame_handler.set_observer(Observer())
         self._frame_handler.set_motion_handlers([])
 
     def stop_receiving_video(self):
         """
         Stops receiving video.
         """
-        self._kill_thread = True
+        self._should_receive_frames = False
 
     def _receive_frames(self):
         """
@@ -162,7 +145,7 @@ class Camera:
         """
         self._retrieval_strategy.connect()
 
-        while not self._kill_thread:
+        while self._should_receive_frames:
             try:
                 frame = self._retrieval_strategy.retrieve()
 
@@ -174,7 +157,6 @@ class Camera:
 
         self._retrieval_strategy.disconnect()
         self._frame_handler.stop()
-        self._kill_thread = False
 
     def __hash__(self):
         return "{}:{}@{}".format(self.ip, self.port, self.name).__hash__()

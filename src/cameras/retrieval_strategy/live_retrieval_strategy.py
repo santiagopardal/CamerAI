@@ -8,12 +8,6 @@ from time import sleep
 
 class LiveRetrievalStrategy(RetrievalStrategy):
 
-    _live_video: VideoCapture
-    _url: str
-    _frame_rate: int
-    _frame_width: int
-    _frame_height: int
-
     def __init__(self, camera):
         self._camera = camera
         self._live_video = None

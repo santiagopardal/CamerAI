@@ -2,14 +2,21 @@ import cv2
 from src.media.frame import Frame
 from src import constants
 import numpy as np
-from src.observations.models.model import Model
-from src.observations.observers.observation_strategies.dont_look_back_strategy import DontLookBackObservationStrategy
 
 
 class Observer:
-    def __init__(self, model: Model = None):
-        self._model = model
-        self._observation_strategy = DontLookBackObservationStrategy(self)
+    def __init__(self, model_factory):
+        self._model = model_factory.create_model()
+
+    def observe(self, frames: list) -> list:
+        """
+        Receives a list of frames and stores those in which there has been movement.
+        :param frames: Frames to analyse.
+        """
+        pass
+
+    def frames_to_buffer(self) -> int:
+        pass
 
     def _frame_manipulation(self, frame: Frame) -> Frame:
         """
@@ -34,7 +41,7 @@ class Observer:
 
         return np.array(cv2.absdiff(p_frame, frm) / 255, dtype="float32").reshape(constants.CNN_INPUT_SHAPE)
 
-    def batch_movement_check(self, frames: list) -> list:
+    def _batch_movement_check(self, frames: list) -> list:
         """
         Returns a list with the results of checking for all difference in frames if there has been movement or not. By
         difference, I mean what _prepare_for_cnn returns.
@@ -42,12 +49,10 @@ class Observer:
         :return: List with boolean values representing whether there has been movement or not.
         """
         images = [self._prepare_for_cnn(pf, frm) for pf, frm in frames]
-
         movements = self._model.predict_on_batch(images)
-
         return [movement >= constants.MOVEMENT_SENSITIVITY for movement in movements]
 
-    def movement(self, previous_frame: Frame, frame: Frame) -> bool:
+    def _movement(self, previous_frame: Frame, frame: Frame) -> bool:
         """
         Determines whether there has been movement between two frames.
         :param previous_frame: Frame more distant in time.
@@ -55,15 +60,4 @@ class Observer:
         :return: True if there is movement, False if there is no movement.
         """
         image = self._prepare_for_cnn(previous_frame, frame)
-
         return self._model.predict(image) >= constants.MOVEMENT_SENSITIVITY
-
-    def observe(self, frames: list) -> list:
-        """
-        Receives a list of frames and stores those in which there has been movement.
-        :param frames: Frames to analyse.
-        """
-        return self._observation_strategy.observe(frames)
-
-    def frames_to_buffer(self) -> int:
-        return self._observation_strategy.frames_to_buffer()

@@ -6,22 +6,16 @@ import numpy as np
 import time
 from src.media.frame import Frame
 from src.observations.observers.observer import Observer
-from src.handlers.handler import Handler
-from src.observations.observers.dynamic_movement_detection_observer import DynamicMovementDetectionObserver
+from src.observations.observers.dont_look_back_observer import DontLookBackObserver
+import src.observations.models.factory as model_factory
 from src.handlers.motion_handler import MotionHandler
 
 
-class FrameHandler(Handler):
-
-    _observer: Observer
-    _motion_handlers: list
-    _thread_pool: ThreadPoolExecutor
-    _current_buffer: list
-    _current_buffer_started_receiving: float
+class FrameHandler:
 
     def __init__(self, observer: Observer = None, motion_handlers: list = None):
         super().__init__()
-        self._observer = DynamicMovementDetectionObserver() if observer is None else observer
+        self._observer = DontLookBackObserver(model_factory) if observer is None else observer
         self._motion_handlers = [] if motion_handlers is None else motion_handlers
         self._thread_pool = ThreadPoolExecutor(1)
         self._current_buffer = []
@@ -44,8 +38,7 @@ class FrameHandler(Handler):
             handler.stop()
 
     def set_observer(self, observer: Observer):
-        if observer:
-            self._observer = observer
+        self._observer = observer
 
     def add_motion_handler(self, handler: MotionHandler):
         if handler:
@@ -99,8 +92,8 @@ class FrameHandler(Handler):
         Tells the observer to take a look at frames.
 
         Create frames and calculate the time they were taken, this is done here because obtaining the time
-        takes a lot of CPU time and it's not worth doing while receiving the frames from the camera. Note that
-        the first frame will be the same as the last of the previous batch, so we add the previous frame so as
+        takes a lot of CPU time and, it's not worth doing while receiving the frames from the camera. Note that
+        the first frame will be the same as the last of the previous batch, so we add the previous frame
         to not calculate everything again, including everything needed by the observer, so the last frame
         won't be analysed by the observer until the next batch arrives and will be the first frame of that
         batch. This does not occur on the first run, in which all the frames will be analysed and the last one
