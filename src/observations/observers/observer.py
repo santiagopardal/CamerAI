@@ -3,12 +3,13 @@ from src.media.frame import Frame
 from src import constants
 import numpy as np
 from src.observations.observers.observation_strategies.dont_look_back_strategy import DontLookBackObservationStrategy
+from src.observations.observers.observation_strategies.observation_strategy import ObservationStrategy
 
 
 class Observer:
-    def __init__(self, model_factory):
+    def __init__(self, model_factory, observation_strategy: ObservationStrategy = None):
         self._model = model_factory.create_model()
-        self._observation_strategy = DontLookBackObservationStrategy(self)
+        self._observation_strategy = DontLookBackObservationStrategy(self) if not observation_strategy else observation_strategy
 
     def _frame_manipulation(self, frame: Frame) -> Frame:
         """
