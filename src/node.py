@@ -4,6 +4,7 @@ import src.constants as constants
 import time
 from threading import Semaphore
 import src.api.cameras as cameras_api
+from src.tcp_listener.tcp_listener import TCPListener
 
 
 class Node:
@@ -14,16 +15,22 @@ class Node:
             os.mkdir(constants.STORING_PATH)
 
         self._fetch_cameras_from_api()
+        self._listener = TCPListener(self)
         self.waiter = Semaphore(0)
 
     def run(self):
+        self._listener.listen()
+
         for camera in self.cameras:
             camera.receive_video()
 
         self.waiter.acquire()
 
         for camera in self.cameras:
+            camera.stop_recording()
             camera.stop_receiving_video()
+
+        self._listener.stop_listening()
 
     def record(self):
         for camera in self.cameras:

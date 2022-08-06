@@ -25,10 +25,9 @@ class FrameHandler:
         self._current_buffer_started_receiving = time.time()
 
     def stop(self):
-        self._thread_pool.shutdown()
-
-        for handler in self._motion_handlers:
-            handler.stop()
+        self._lock.acquire()
+        self._thread_pool.shutdown(True)
+        self._lock.release()
 
     def set_observer(self, observer: Observer):
         self._observer = observer
@@ -38,13 +37,7 @@ class FrameHandler:
             self._motion_handlers.append(handler)
 
     def set_motion_handlers(self, handlers: list):
-        for handler in self._motion_handlers:
-            handler.stop()
-
-        self._motion_handlers.clear()
-
-        for handler in handlers:
-            self._motion_handlers.append(handler)
+        self._motion_handlers = handlers
 
     def handle(self, frame: np.ndarray):
         self._lock.acquire()

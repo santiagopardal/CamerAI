@@ -10,11 +10,12 @@ class LiveRetrievalStrategy(RetrievalStrategy):
     def __init__(self, camera):
         self._camera = camera
         self._live_video = None
+        self._disconnect = False
 
     def connect(self):
         connected = False
         i = 0
-        while not connected:
+        while not connected and not self._disconnect:
             try:
                 if self._live_video:
                     self._live_video.release()
@@ -32,7 +33,7 @@ class LiveRetrievalStrategy(RetrievalStrategy):
             except Exception as e:
                 api.log_connection_status(self._camera.id, f"Connection failed: {e}", datetime.now())
 
-            if not connected:
+            if not connected and not self._disconnect:
                 seconds = 2 ** i
                 sleep(seconds)
                 if i < 10:
@@ -51,6 +52,7 @@ class LiveRetrievalStrategy(RetrievalStrategy):
         return frame
 
     def disconnect(self):
+        self._disconnect = True
         if self._live_video:
             self._live_video.release()
             del self._live_video
