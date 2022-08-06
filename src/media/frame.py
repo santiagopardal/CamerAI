@@ -3,13 +3,11 @@ import numpy as np
 
 
 class Frame(object):
-    __slots__ = "_date", "_frame", "_resized_and_grayscale", "_stored_in"
+    __slots__ = "_date", "_frame"
 
     def __init__(self, frame, date=datetime.now()):
         self._date = date
         self._frame = frame
-        self._resized_and_grayscale = None
-        self._stored_in = []
 
     @property
     def frame(self) -> np.ndarray:
