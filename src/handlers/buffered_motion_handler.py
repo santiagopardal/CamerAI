@@ -4,6 +4,7 @@ import os
 from src.constants import STORING_PATH
 from src.media.savers.media_saver import MediaSaver
 from src.media.savers.remote_video_saver import RemoteVideoSaver
+from src.media.savers.local_video_saver import LocalVideoSaver
 
 
 class BufferedMotionHandler(MotionHandler):
@@ -11,8 +12,8 @@ class BufferedMotionHandler(MotionHandler):
         self._frames = deque()
         self._frames.append([])
         self._camera = camera
-        self._storing_path = os.path.join(STORING_PATH, camera.name)
-        self._media_saver = media_saver if media_saver else RemoteVideoSaver(camera.id, self._storing_path, camera.frame_rate)
+        storing_path = os.path.join(STORING_PATH, camera.name)
+        self._media_saver = media_saver if media_saver else RemoteVideoSaver(camera.id, LocalVideoSaver(camera.id, storing_path, camera.frame_rate))
         self._buffer_size = seconds_to_buffer*camera.frame_rate
 
         super().__init__()
