@@ -9,10 +9,6 @@ class DontLookBackObserver(Observer):
         self._last_two_frames = []
 
     def observe(self, frames: list) -> list:
-        """
-        Receives a list of frames and determines those in which there has been movement.
-        :param frames: Frames to analyse.
-        """
         frames = [*self._last_two_frames, *frames]
         to_observe = [(frame, frames[i + 1]) for i, frame in enumerate(frames) if i % JUMP == 0 and i > 0]
 

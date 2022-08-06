@@ -16,15 +16,6 @@ class FI9803PV3(Camera):
     def __init__(self, id: int, ip: str, port: int, streaming_port: int,
                  name: str, user: str, password: str,
                  retrieval_strategy: RetrievalStrategy = None, frames_handler: FrameHandler = None):
-        """
-        :param ip: IP where the camera is located.
-        :param port: Port to connect to camera.
-        :param streaming_port: Port to receive live video.
-        :param name: name where the camera is located.
-        :param user: Username to connect.
-        :param password: Password.
-        :param frames_handler: Handler to handle new frames, if set to None will use default.
-        """
         user = urllib.parse.quote(user)
         password = urllib.parse.quote(password)
 
@@ -37,11 +28,6 @@ class FI9803PV3(Camera):
 
     @classmethod
     def from_json(cls, json: dict) -> Camera:
-        """
-        Returns a Camera from a dictionary.
-        :param json: Dictionary to transform into FI9803PV3 camera.
-        :return: FI9803PV3 camera from the dictionary.
-        """
         return cls(json["id"], json["ip"], json["http_port"], json["streaming_port"],
                    json["name"], json["user"], json["password"])
 

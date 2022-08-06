@@ -4,10 +4,6 @@ from src.constants import JUMP, DBS
 
 class LookBackObserver(Observer):
     def observe(self, frames: list) -> list:
-        """
-        Receives a list of frames and determines those in which there has been movement. Brace yourself.
-        :param frames: Frames to analyse.
-        """
         to_observe = [(frame, frames[i + 1]) for i, frame in enumerate(frames) if i % JUMP == 0]
 
         results = self._batch_movement_check(to_observe)

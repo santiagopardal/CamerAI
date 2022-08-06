@@ -12,14 +12,6 @@ class Camera:
 
     def __init__(self, id: int, ip: str, port: int, video_url: str, name: str, frame_rate: int, frame_width: int,
                  frame_height: int, retrieval_strategy: RetrievalStrategy = None, frames_handler: FrameHandler = None):
-        """
-        :param ip: IP of the camera.
-        :param port: Port for the camera's IP.
-        :param name: name where the camera is located, this will be the name of the folder where the frames will
-        be stored.
-        :param frame_rate: Camera's frame rate.
-        :param frames_handler: Handler to handle new frames.
-        """
         self._id = id
         self._ip = ip
         self._port = port
@@ -36,11 +28,6 @@ class Camera:
 
     @classmethod
     def from_json(cls, json: dict):
-        """
-        Returns a Camera from a dictionary.
-        :param json: Dictionary to transform into camera.
-        :return: Camera from the dictionary.
-        """
         pass
 
     @property
@@ -93,10 +80,6 @@ class Camera:
 
     @frame_handler.setter
     def frame_handler(self, frames_handler: FrameHandler):
-        """
-        Changes the frames handler.
-        :param frames_handler: New frames handler.
-        """
         self._frame_handler.stop()
         self._frame_handler = frames_handler
         self._frame_handler.start()
@@ -106,43 +89,25 @@ class Camera:
         self._retrieval_strategy = retrieval_strategy
 
     def screenshot(self) -> ndarray:
-        """
-        :return: A screenshot from the camera.
-        """
         return self._last_frame
 
     def receive_video(self):
-        """
-        Starts thread to receive video.
-        """
         self._should_receive_frames = True
         self._thread_pool.submit(self._receive_frames)
 
     def record(self):
-        """
-        Starts recording.
-        """
         self._frame_handler.set_observer(DontLookBackObserver(model_factory))
         self._frame_handler.add_motion_handler(BufferedMotionHandler(self, SECONDS_TO_BUFFER))
         self._frame_handler.start()
 
     def stop_recording(self):
-        """
-        Stops recording.
-        """
         self._frame_handler.stop()
         self._frame_handler.set_motion_handlers([])
 
     def stop_receiving_video(self):
-        """
-        Stops receiving video.
-        """
         self._should_receive_frames = False
 
     def _receive_frames(self):
-        """
-        Obtains live images from the camera and calls the frames handler to handle them.
-        """
         self._retrieval_strategy.connect()
 
         while self._should_receive_frames:

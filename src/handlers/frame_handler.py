@@ -23,15 +23,9 @@ class FrameHandler:
         self._lock = Lock()
 
     def start(self):
-        """
-        Starts the handler.
-        """
         self._current_buffer_started_receiving = time.time()
 
     def stop(self):
-        """
-        Stops the handler.
-        """
         self._thread_pool.shutdown()
 
         for handler in self._motion_handlers:
@@ -54,10 +48,6 @@ class FrameHandler:
             self._motion_handlers.append(handler)
 
     def handle(self, frame: np.ndarray):
-        """
-        Handles a new frame.
-        :param frame: Frame to handle.
-        """
         self._lock.acquire()
         self._current_buffer.append(frame)
 
@@ -75,12 +65,6 @@ class FrameHandler:
 
     @staticmethod
     def _calculate_time_taken(tme, frame_rate, i):
-        """
-        Approximates the time a frame was taken using the last time an image was received and the framerate.
-        :param tme: Last time an image was received.
-        :param frame_rate: Frame rate.
-        :return: Time the frame was taken approximately.
-        """
         return tme + datetime.timedelta(seconds=i / frame_rate)
 
     @staticmethod

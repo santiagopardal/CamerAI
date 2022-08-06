@@ -16,14 +16,6 @@ class FI89182(Camera):
     def __init__(self, id: int, ip: str, port: int, name: str,
                  user: str, password: str,
                  retrieval_strategy: RetrievalStrategy = None, frames_handler: FrameHandler = None):
-        """
-        :param ip: IP where the camera is located.
-        :param port: Port to connect to camera.
-        :param name: name where the camera is located.
-        :param user: Username to connect.
-        :param password: Password.
-        :param frames_handler: Handler to handle new frames, if set to None will use default.
-        """
         user = urllib.parse.quote(user)
         password = urllib.parse.quote(password)
 
@@ -34,11 +26,6 @@ class FI89182(Camera):
 
     @classmethod
     def from_json(cls, json: dict) -> Camera:
-        """
-        Returns a Camera from a dictionary.
-        :param json: Dictionary to transform into FI89182 camera.
-        :return: FI89182 camera from the dictionary.
-        """
         return cls(json["id"], json["ip"], json["http_port"], json["name"], json["user"], json["password"])
 
     def __eq__(self, other):

@@ -38,9 +38,6 @@ class Node:
         print("Scheduled video transformation in {} seconds!".format(time_until_3))
 
     def _fetch_cameras_from_api(self):
-        """
-        Loads cameras from the API.
-        """
         i = 0
         cameras = None
 
@@ -81,31 +78,18 @@ class Node:
         videos_api.register_new_video(camera.id, date, video_path)
 
     def record(self):
-        """
-        Starts recording.
-        """
         thread = Thread(target=self._apply_to_all_cameras, args=(lambda cam: cam.record(),))
         thread.start()
 
     def stop_recording(self):
-        """
-        Stops recording.
-        """
         thread = Thread(target=self._apply_to_all_cameras, args=(lambda cam: cam.stop_recording(),))
         thread.start()
 
     def _apply_to_all_cameras(self, func):
-        """
-        Applies a function to all the cameras in the system.
-        :param func: function tu apply to all the cameras.
-        """
         for camera in self.cameras:
             func(camera)
 
     def run(self):
-        """
-        Runs the system.
-        """
         for camera in self.cameras:
             camera.receive_video()
 
@@ -115,10 +99,6 @@ class Node:
             camera.stop_receiving_video()
 
     def run_n_seconds(self, n):
-        """
-        Runs for n seconds.
-        :param n: Number of seconds to run.
-        """
         thread = Thread(target=self.run, args=())
         thread.start()
 

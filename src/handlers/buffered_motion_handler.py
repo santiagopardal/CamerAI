@@ -7,15 +7,7 @@ from src.media.savers.remote_video_saver import RemoteVideoSaver
 
 
 class BufferedMotionHandler(MotionHandler):
-    """
-    Handles motion storing the frames on disk asynchronously.
-    """
     def __init__(self, camera, seconds_to_buffer: int = 2, media_saver: MediaSaver = None):
-        """
-        Initializes the handler.
-        :param seconds_to_buffer: If set, the frames will be stored as soon as the buffer reaches this number of frames,
-        if not set, the frames will be stored as soon as they arrive to the handler.
-        """
         self._frames = deque()
         self._frames.append([])
         self._camera = camera
@@ -26,10 +18,6 @@ class BufferedMotionHandler(MotionHandler):
         super().__init__()
 
     def handle(self, frames: list):
-        """
-        Receives the frames and once the handler is ready stores them.
-        :param frames: List of frames in which there has been movement.
-        """
         if frames:
             self._frames[0] = self._frames[0] + frames
 
