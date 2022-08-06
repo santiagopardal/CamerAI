@@ -28,7 +28,7 @@ class Camera:
         self._frame_height = frame_height
         self._name = name
         self._frame_rate = frame_rate
-        self._receive_frames = False
+        self._should_receive_frames = False
         self._last_frame = None
         self._frame_handler = FrameHandler() if frames_handler is None else frames_handler
         self._retrieval_strategy = retrieval_strategy
@@ -115,7 +115,7 @@ class Camera:
         """
         Starts thread to receive video.
         """
-        self._receive_frames = True
+        self._should_receive_frames = True
         self._thread_pool.submit(self._receive_frames)
 
     def record(self):
@@ -137,7 +137,7 @@ class Camera:
         """
         Stops receiving video.
         """
-        self._receive_frames = False
+        self._should_receive_frames = False
 
     def _receive_frames(self):
         """
@@ -145,7 +145,7 @@ class Camera:
         """
         self._retrieval_strategy.connect()
 
-        while self._receive_frames:
+        while self._should_receive_frames:
             try:
                 frame = self._retrieval_strategy.retrieve()
 
