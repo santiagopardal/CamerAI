@@ -1,6 +1,3 @@
-from src.handlers.handler import Handler
-
-
-class MotionHandler(Handler):
-    def handle(self, event: list):
+class MotionHandler:
+    def handle(self, fames: list):
         pass

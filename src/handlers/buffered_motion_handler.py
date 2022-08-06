@@ -25,13 +25,13 @@ class BufferedMotionHandler(MotionHandler):
 
         super().__init__()
 
-    def handle(self, event: list):
+    def handle(self, frames: list):
         """
         Receives the frames and once the handler is ready stores them.
-        :param event: List of frames in which there has been movement.
+        :param frames: List of frames in which there has been movement.
         """
-        if event:
-            self._frames[0] = self._frames[0] + event
+        if frames:
+            self._frames[0] = self._frames[0] + frames
 
             if len(self._frames[0]) >= self._buffer_size:
                 to_store = self._frames.popleft()

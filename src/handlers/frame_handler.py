@@ -7,12 +7,11 @@ import time
 from src.media.frame import Frame
 from src.observations.observers.observer import Observer
 from src.observations.observers.dont_look_back_observer import DontLookBackObserver
-from src.handlers.handler import Handler
 import src.observations.models.factory as model_factory
 from src.handlers.motion_handler import MotionHandler
 
 
-class FrameHandler(Handler):
+class FrameHandler:
 
     def __init__(self, observer: Observer = None, motion_handlers: list = None):
         super().__init__()
@@ -93,8 +92,8 @@ class FrameHandler(Handler):
         Tells the observer to take a look at frames.
 
         Create frames and calculate the time they were taken, this is done here because obtaining the time
-        takes a lot of CPU time and it's not worth doing while receiving the frames from the camera. Note that
-        the first frame will be the same as the last of the previous batch, so we add the previous frame so as
+        takes a lot of CPU time and, it's not worth doing while receiving the frames from the camera. Note that
+        the first frame will be the same as the last of the previous batch, so we add the previous frame
         to not calculate everything again, including everything needed by the observer, so the last frame
         won't be analysed by the observer until the next batch arrives and will be the first frame of that
         batch. This does not occur on the first run, in which all the frames will be analysed and the last one
