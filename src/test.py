@@ -1,6 +1,6 @@
-from src.system import System
+from src.node import Node
 
 
-sys = System()
+sys = Node()
 sys.record()
 sys.run()
