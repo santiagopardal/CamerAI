@@ -26,6 +26,23 @@ class Node:
         self.__scheduler = sched.scheduler(time.time, time.sleep)
         self.__schedule_video_transformation()
 
+    def run(self):
+        for camera in self.cameras:
+            camera.receive_video()
+
+        self.__scheduler.run()
+
+        for camera in self.cameras:
+            camera.stop_receiving_video()
+
+    def record(self):
+        for camera in self.cameras:
+            camera.record()
+
+    def stop_recording(self):
+        for camera in self.cameras:
+            camera.stop_recording()
+
     def __schedule_video_transformation(self):
         now = datetime.now()
         tomorrow_3_am = now + timedelta(days=1) - timedelta(hours=now.hour) - timedelta(minutes=now.minute) - \
@@ -76,31 +93,3 @@ class Node:
         merger.merge(video_path, True)
 
         videos_api.register_new_video(camera.id, date, video_path)
-
-    def record(self):
-        thread = Thread(target=self._apply_to_all_cameras, args=(lambda cam: cam.record(),))
-        thread.start()
-
-    def stop_recording(self):
-        thread = Thread(target=self._apply_to_all_cameras, args=(lambda cam: cam.stop_recording(),))
-        thread.start()
-
-    def _apply_to_all_cameras(self, func):
-        for camera in self.cameras:
-            func(camera)
-
-    def run(self):
-        for camera in self.cameras:
-            camera.receive_video()
-
-        self.__scheduler.run()
-
-        for camera in self.cameras:
-            camera.stop_receiving_video()
-
-    def run_n_seconds(self, n):
-        thread = Thread(target=self.run, args=())
-        thread.start()
-
-        time.sleep(n)
-        thread.join()
