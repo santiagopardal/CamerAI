@@ -52,8 +52,9 @@ class LiveRetrievalStrategy(RetrievalStrategy):
         return frame
 
     def disconnect(self):
-        self._disconnect = True
-        if self._live_video:
+        if self._live_video and not self._disconnect:
             api.log_connection_status(self._camera.id, "Disconnected", datetime.now())
             self._live_video.release()
             del self._live_video
+
+        self._disconnect = True

@@ -27,7 +27,6 @@ class FrameHandler:
     def stop(self):
         self._lock.acquire()
         self._thread_pool.shutdown(True)
-        self._lock.release()
 
     def set_observer(self, observer: Observer):
         self._observer = observer
