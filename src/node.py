@@ -22,6 +22,7 @@ class Node:
         self._listener.listen()
 
         for camera in self.cameras:
+            camera.record()
             camera.receive_video()
 
         self.waiter.acquire()
@@ -32,6 +33,9 @@ class Node:
 
         self._listener.stop_listening()
 
+    def stop(self):
+        self.waiter.release()
+
     def record(self):
         for camera in self.cameras:
             camera.record()
@@ -40,11 +44,19 @@ class Node:
         for camera in self.cameras:
             camera.stop_recording()
 
-    def stop(self):
-        self.waiter.release()
+    def add_camera(self, camera: dict):
+        camera = deserialize(camera)
+        self.cameras.append(camera)
+        camera.record()
+        camera.receive_video()
 
-    def handle_message(self, request_type: int, message: dict):
-        pass
+    def remove_camera(self, camera_id: int):
+        camera = [camera for camera in self.cameras if camera.id == camera_id]
+        if camera:
+            camera = camera.pop()
+            camera.stop_recording()
+            camera.stop_receiving_video()
+            self.cameras.remove(camera)
 
     def _fetch_cameras_from_api(self):
         i = 0
