@@ -31,22 +31,24 @@ class TCPListener:
         self._thread_pool.shutdown(True)
 
     def _listen(self):
-        while self._do_listen:
-            client_socket, address = self._socket.accept()
-            self._thread_pool.submit(self._decode_and_execute, client_socket)
+        with self._socket:
+            while self._do_listen:
+                client_socket, address = self._socket.accept()
+                self._thread_pool.submit(self._decode_and_execute, client_socket)
 
     def _decode_and_execute(self, client_socket):
-        try:
-            request_type = int.from_bytes(client_socket.recv(1), 'little')
-            content_length = int.from_bytes(client_socket.recv(8), 'little')
-            raw_data = client_socket.recv(content_length).decode('utf-8')
-            message = json.loads(raw_data)
-            response = pack_message(RESPONSE, self._handle_message(request_type, message))
-        except Exception as e:
-            response = pack_message(WRONG_FORMAT, 'Wrong format or error, kiddo: {}'.format(str(e)))
+        with client_socket:
+            try:
+                request_type = int.from_bytes(client_socket.recv(1), 'little')
+                content_length = int.from_bytes(client_socket.recv(8), 'little')
+                raw_data = client_socket.recv(content_length).decode('utf-8')
+                message = json.loads(raw_data)
+                response = pack_message(RESPONSE, self._handle_message(request_type, message))
+            except Exception as e:
+                response = pack_message(WRONG_FORMAT, 'Wrong format or error, kiddo: {}'.format(str(e)))
 
-        client_socket.send(response)
+            client_socket.send(response)
 
     def _handle_message(self, instruction_type: int, data: dict):
         result = self._instruction_decoder.decode(instruction_type, data)
-        return result if result else 'OK'
+        return result if result else ''
