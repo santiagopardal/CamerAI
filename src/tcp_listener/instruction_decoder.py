@@ -1,9 +1,8 @@
-HALTING = 1
-DISCOVERY = 2
-RESPONSE = 3
-ACK = 4
-NODE_REQUEST = 5
-WRONG_FORMAT = 6
+DISCOVERY = 1
+RESPONSE = 2
+ACK = 3
+NODE_REQUEST = 4
+WRONG_FORMAT = 5
 
 
 class InstructionDecoder:
@@ -11,17 +10,17 @@ class InstructionDecoder:
         self._node = node
 
     def decode(self, instruction_type: int, data: dict):
-        if instruction_type == HALTING:
-            self._node.stop()
-        elif instruction_type == DISCOVERY:
+        if instruction_type == DISCOVERY:
             pass
         elif instruction_type == RESPONSE:
             pass
         elif instruction_type == ACK:
             pass
         elif instruction_type == NODE_REQUEST:
-            print(data)
             method = getattr(self._node, data['method'])
-            return method(data['args'])
+            if 'args' in data:
+                return method(data['args'])
+            else:
+                method()
         else:
             pass
