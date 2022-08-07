@@ -22,8 +22,7 @@ class DontLookBackObserver(Observer):
         # Here i is shifted 1 to the left that's why frames[i * JUMP + j] instead of frames[(i - 1) * JUMP + j]
         for i, movement in results:
             if movement or self._recording:
-                for j in range(JUMP):
-                    frames_with_movement.append(frames[i * JUMP + j])
+                frames_with_movement += frames[i * JUMP:(i + 1) * JUMP]
 
             self._recording = movement        
 
