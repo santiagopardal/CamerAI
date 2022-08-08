@@ -1,9 +1,9 @@
 from concurrent.futures import ThreadPoolExecutor
-from multiprocessing import Lock
 import datetime
 from src import constants
 import numpy as np
 import time
+from collections import deque
 from src.media.frame import Frame
 from src.observations.observers.observer import Observer
 from src.observations.observers.dont_look_back_observer import DontLookBackObserver
@@ -17,15 +17,14 @@ class FrameHandler:
         self._observer = DontLookBackObserver(model_factory) if observer is None else observer
         self._motion_handlers = [] if motion_handlers is None else motion_handlers
         self._thread_pool = ThreadPoolExecutor(1)
-        self._current_buffer = []
+        self._buffer = deque()
+        self._cleared_buffer = True
         self._current_buffer_started_receiving = 0.0
-        self._lock = Lock()
 
     def start(self):
         self._current_buffer_started_receiving = time.time()
 
     def stop(self):
-        self._lock.acquire()
         self._thread_pool.shutdown(True)
 
     def set_observer(self, observer: Observer):
@@ -39,20 +38,17 @@ class FrameHandler:
         self._motion_handlers = handlers
 
     def handle(self, frame: np.ndarray):
-        self._lock.acquire()
-        self._current_buffer.append(frame)
+        self._buffer.append(frame)
 
-        if len(self._current_buffer) >= self._observer.frames_to_buffer():
+        if self._cleared_buffer and len(self._buffer) >= self._observer.frames_to_buffer():
+            self._cleared_buffer = False
             end = time.time()
 
-            true_framerate = len(self._current_buffer) / (end - self._current_buffer_started_receiving) \
+            true_framerate = self._observer.frames_to_buffer() / (end - self._current_buffer_started_receiving) \
                 if self._current_buffer_started_receiving else constants.FRAME_RATE
 
-            self._thread_pool.submit(self._check_movement, self._current_buffer, true_framerate)
-            self._current_buffer = []
+            self._thread_pool.submit(self._check_movement, true_framerate)
             self._current_buffer_started_receiving = end
-
-        self._lock.release()
 
     @staticmethod
     def _calculate_time_taken(tme, frame_rate, i):
@@ -62,7 +58,7 @@ class FrameHandler:
     def _last_time_stored(frame_rate: int, number_of_frames: int):
         return datetime.datetime.now() - datetime.timedelta(seconds=(number_of_frames + 1) / frame_rate)
 
-    def _check_movement(self, frames, frame_rate):
+    def _check_movement(self, frame_rate):
         """
         Tells the observer to take a look at frames.
 
@@ -74,12 +70,15 @@ class FrameHandler:
         batch. This does not occur on the first run, in which all the frames will be analysed and the last one
         will be analysed twice, on the first run and on the second one, but will be stored only once if needed.
         """
-        last_time_stored = self._last_time_stored(frame_rate, len(frames))
+        if len(self._buffer) >= self._observer.frames_to_buffer():
+            frames = [self._buffer.popleft() for _ in range(self._observer.frames_to_buffer())]
+            self._cleared_buffer = True
+            last_time_stored = self._last_time_stored(frame_rate, len(frames))
 
-        frames = [Frame(frame, self._calculate_time_taken(last_time_stored, frame_rate, i + 1))
-                  for i, frame in enumerate(frames)]
+            frames = [Frame(frame, self._calculate_time_taken(last_time_stored, frame_rate, i + 1))
+                      for i, frame in enumerate(frames)]
 
-        movement = self._observer.observe(frames)
+            movement = self._observer.observe(frames)
 
-        for handler in self._motion_handlers:
-            handler.handle(movement)
+            for handler in self._motion_handlers:
+                handler.handle(movement)
