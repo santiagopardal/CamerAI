@@ -2,11 +2,11 @@ from numpy import ndarray
 
 
 class RetrievalStrategy:
-    def connect(self):
+    async def connect(self):
         pass
 
-    def retrieve(self) -> ndarray:
+    async def retrieve(self) -> ndarray:
         pass
 
-    def disconnect(self):
+    async def disconnect(self):
         pass

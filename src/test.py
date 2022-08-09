@@ -1,5 +1,6 @@
 from src.node import Node
+import asyncio
 
 
 sys = Node()
-sys.run()
+asyncio.run(sys.run())

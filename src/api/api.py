@@ -3,7 +3,7 @@ import requests
 from src.constants import API_URL
 
 
-def get(endpoint: str):
+async def get(endpoint: str):
     api_endpoint = "{}/{}".format(API_URL, endpoint)
 
     for i in range(6):
@@ -16,7 +16,7 @@ def get(endpoint: str):
             time.sleep(2 ** (i + 1))
 
 
-def post(endpoint: str):
+async def post(endpoint: str):
     api_endpoint = "{}/{}".format(API_URL, endpoint)
 
     for i in range(6):
@@ -29,7 +29,7 @@ def post(endpoint: str):
             time.sleep(2 ** (i + 1))
 
 
-def put(endpoint: str, body: dict):
+async def put(endpoint: str, body: dict):
     api_endpoint = "{}/{}".format(API_URL, endpoint)
 
     for i in range(6):
@@ -43,7 +43,7 @@ def put(endpoint: str, body: dict):
             time.sleep(2 ** (i + 1))
 
 
-def delete(endpoint: str):
+async def delete(endpoint: str):
     api_endpoint = "{}/{}".format(API_URL, endpoint)
 
     for i in range(6):

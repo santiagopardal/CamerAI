@@ -1,3 +1,4 @@
+import asyncio
 from concurrent.futures import ThreadPoolExecutor
 from socket import socket, AF_INET, SOCK_STREAM
 from src.tcp_listener.instruction_decoder import RESPONSE, WRONG_FORMAT
@@ -16,7 +17,7 @@ class TCPListener:
     def __init__(self, node):
         self._node = node
         self._instruction_decoder = InstructionDecoder(node)
-        self._thread_pool = ThreadPoolExecutor(11)
+        self._thread_pool = ThreadPoolExecutor(1)
         self._socket = socket(AF_INET, SOCK_STREAM)
         self._socket.bind(('', LISTENING_PORT))
         self._socket.listen()
@@ -31,12 +32,14 @@ class TCPListener:
         self._thread_pool.shutdown(True)
 
     def _listen(self):
+        loop = asyncio.new_event_loop()
         with self._socket:
             while self._do_listen:
                 client_socket, address = self._socket.accept()
-                self._thread_pool.submit(self._decode_and_execute, client_socket)
+                loop.create_task(self._decode_and_execute(client_socket))
+        loop.close()
 
-    def _decode_and_execute(self, client_socket):
+    async def _decode_and_execute(self, client_socket):
         with client_socket:
             try:
                 request_type = int.from_bytes(client_socket.recv(1), 'little')

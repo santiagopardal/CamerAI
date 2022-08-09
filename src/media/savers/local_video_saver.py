@@ -1,5 +1,6 @@
 import os
 import cv2
+import asyncio
 from typing import List
 from src.media.savers.media_saver import MediaSaver
 from src.media.frame import Frame
@@ -15,11 +16,10 @@ class LocalVideoSaver(MediaSaver):
         if not os.path.exists(self._folder):
             os.mkdir(self._folder)
 
-    def save(self, frames: List[Frame]):
+    async def save(self, frames: List[Frame]):
         filename = "{}.mp4".format(frames[0].time).replace(':', '-')
         path = self._store_video(frames, filename)
-        temporal_videos_api.add_temporal_video(self._camera_id, frames[0].date, path)
-
+        asyncio.create_task(temporal_videos_api.add_temporal_video(self._camera_id, frames[0].date, path))
         return path
 
     def _store_video(self, frames, filename):
