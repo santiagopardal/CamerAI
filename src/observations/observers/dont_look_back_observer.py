@@ -9,8 +9,9 @@ class DontLookBackObserver(Observer):
         self._last_two_frames = []
 
     def observe(self, frames: list) -> list:
-        frames.insert(0, self._last_two_frames[-1])
-        frames.insert(0, self._last_two_frames[-2])
+        if self._last_two_frames:
+            frames.insert(0, self._last_two_frames[-1])
+            frames.insert(0, self._last_two_frames[-2])
         to_observe = [(frame, frames[i + 1]) for i, frame in enumerate(frames) if i % JUMP == 0 and i > 0]
 
         self._last_two_frames = [frames[-2], frames[-1]]
