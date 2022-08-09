@@ -72,4 +72,4 @@ class Node:
                     i += 1
                 seconds = 2 ** i
                 print("Could not fetch from API, retrying in {} seconds".format(seconds))
-                time.sleep(seconds)
+                await asyncio.sleep(seconds)

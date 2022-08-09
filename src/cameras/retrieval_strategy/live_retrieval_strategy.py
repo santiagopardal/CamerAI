@@ -3,7 +3,6 @@ from src.cameras.retrieval_strategy.retrieval_strategy import RetrievalStrategy
 import src.api.cameras as api
 from cv2 import VideoCapture, CAP_PROP_FPS, CAP_PROP_FRAME_WIDTH, CAP_PROP_FRAME_HEIGHT, CAP_PROP_BUFFERSIZE, CAP_FFMPEG
 from numpy import ndarray
-from time import sleep
 import asyncio
 
 
@@ -36,7 +35,7 @@ class LiveRetrievalStrategy(RetrievalStrategy):
 
             if not connected and not self._disconnect:
                 seconds = 2 ** i
-                sleep(seconds)
+                await asyncio.sleep(seconds)
                 if i < 10:
                     i += 1
 

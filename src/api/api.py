@@ -1,6 +1,7 @@
 import time
 import requests
 from src.constants import API_URL
+import asyncio
 
 
 async def get(endpoint: str):
@@ -13,7 +14,7 @@ async def get(endpoint: str):
             if i == 5:
                 raise e
 
-            time.sleep(2 ** (i + 1))
+            await asyncio.sleep(2 ** (i + 1))
 
 
 async def post(endpoint: str):
@@ -26,7 +27,7 @@ async def post(endpoint: str):
             if i == 5:
                 raise e
 
-            time.sleep(2 ** (i + 1))
+            await asyncio.sleep(2 ** (i + 1))
 
 
 async def put(endpoint: str, body: dict):
@@ -40,7 +41,7 @@ async def put(endpoint: str, body: dict):
             if i == 5:
                 raise e
 
-            time.sleep(2 ** (i + 1))
+            await asyncio.sleep(2 ** (i + 1))
 
 
 async def delete(endpoint: str):
@@ -53,4 +54,4 @@ async def delete(endpoint: str):
             if i == 5:
                 raise e
 
-            time.sleep(2 ** (i + 1))
+            await asyncio.sleep(2 ** (i + 1))
