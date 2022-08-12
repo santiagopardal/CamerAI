@@ -1,5 +1,5 @@
 from concurrent.futures import ThreadPoolExecutor
-from socket import socket, AF_INET, SOCK_STREAM
+from socket import socket, AF_INET, SOCK_STREAM, gethostname, gethostbyname
 from src.tcp_listener.instruction_decoder import RESPONSE, WRONG_FORMAT
 from src.tcp_listener.instruction_decoder import InstructionDecoder
 import json
@@ -17,10 +17,17 @@ class TCPListener:
         self._node = node
         self._instruction_decoder = InstructionDecoder(node)
         self._thread_pool = ThreadPoolExecutor(11)
-        self._socket = socket(AF_INET, SOCK_STREAM)
-        self._socket.bind(('', LISTENING_PORT))
+        self._socket, self._port = self._create_socket()
         self._socket.listen()
         self._do_listen = False
+
+    @property
+    def ip(self) -> str:
+        return gethostbyname(gethostname())
+
+    @property
+    def port(self) -> int:
+        return self._port
 
     def listen(self):
         self._do_listen = True
@@ -52,3 +59,16 @@ class TCPListener:
     def _handle_message(self, instruction_type: int, data: dict):
         result = self._instruction_decoder.decode(instruction_type, data)
         return result if result else ''
+
+    def _create_socket(self) -> tuple:
+        sock = None
+        port = LISTENING_PORT
+
+        while not sock:
+            try:
+                sock = socket(AF_INET, SOCK_STREAM)
+                self._socket.bind(('', LISTENING_PORT))
+            except Exception:
+                port += 1
+
+        return sock, port

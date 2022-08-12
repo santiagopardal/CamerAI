@@ -87,3 +87,6 @@ YOLO_V4_CONFIGS = os.path.join(YOLO_V3_PATH, os.path.join("320", "yolov4.cfg"))
 YOLO_V4_RESOLUTION = 320
 
 API_URL = "http://localhost:8080/api"
+
+if not os.path.exists(STORING_PATH):
+    os.mkdir(STORING_PATH)
