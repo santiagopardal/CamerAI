@@ -39,12 +39,26 @@ async def _upload_parts(file, api_endpoint):
     requests = [
         API.put(
             api_endpoint,
-            {"filename": filename, "chunk": base64.b64encode(file.read(1024 * 1024)), "part": part, "parts": parts}
+            {
+                "filename": filename,
+                "chunk": base64.b64encode(file.read(1024 * 1024)),
+                "part": part,
+                "parts": parts
+            }
         )
-        for part in range(parts)
+        for part in range(parts - 1)
     ]
 
     await asyncio.gather(*requests)
+    await API.put(
+        api_endpoint,
+        {
+            "filename": filename,
+            "chunk": base64.b64encode(file.read(1024 * 1024)),
+            "part": parts - 1,
+            "parts": parts
+        }
+    )
 
 
 async def remove_video(id: int):

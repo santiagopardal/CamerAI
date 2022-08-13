@@ -19,7 +19,7 @@ async def get(endpoint: str):
 
     for i in range(6):
         try:
-            return requests.get(api_endpoint, headers=_get_headers())
+            return await asyncio.to_thread(requests.get, api_endpoint, headers=_get_headers())
         except Exception as e:
             if i == 5:
                 raise e
@@ -32,8 +32,9 @@ async def post(endpoint: str, body: dict = None):
 
     for i in range(6):
         try:
-            return requests.post(api_endpoint, data=body, headers=_get_headers())
+            return await asyncio.to_thread(requests.post, api_endpoint, data=body, headers=_get_headers())
         except Exception as e:
+            print(e)
             if i == 5:
                 raise e
 
@@ -45,7 +46,7 @@ async def put(endpoint: str, body: dict = None):
 
     for i in range(6):
         try:
-            return requests.put(api_endpoint, data=body, headers=_get_headers())
+            return await asyncio.to_thread(requests.put, api_endpoint, data=body, headers=_get_headers())
         except Exception as e:
             if i == 5:
                 raise e
@@ -58,7 +59,7 @@ async def delete(endpoint: str):
 
     for i in range(6):
         try:
-            return requests.delete(api_endpoint, headers=_get_headers())
+            return await asyncio.to_thread(requests.delete, api_endpoint, headers=_get_headers())
         except Exception as e:
             if i == 5:
                 raise e
