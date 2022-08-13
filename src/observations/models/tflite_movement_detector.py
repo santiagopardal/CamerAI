@@ -35,7 +35,7 @@ class TFLiteModelDetector(Model):
         return result
 
     def _predict(self, data) -> float:
-        self._interpreter.set_tensor(self._interpreter.get_input_details()[0]['index'], data)
+        self._interpreter.set_tensor(self._interpreter.get_input_details()[0]['index'], [data])
 
         self._interpreter.invoke()
 
