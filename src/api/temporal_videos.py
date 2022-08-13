@@ -1,6 +1,6 @@
 import math
 from datetime import datetime
-import src.api.api as api
+import src.api.api as API
 from src.utils.date_utils import get_numbers_as_string
 import os
 import asyncio
@@ -11,7 +11,7 @@ async def get_temporal_videos(camera_id: int, date: datetime) -> list:
     day, month, year = get_numbers_as_string(date)
     temporal_videos_endpoint = "cameras/{}/temporal_videos/{}-{}-{}".format(camera_id, day, month, year)
 
-    return (await api.get(temporal_videos_endpoint)).json()
+    return (await API.get(temporal_videos_endpoint)).json()
 
 
 async def add_temporal_video(camera_id: int, date: datetime, path: str):
@@ -19,7 +19,7 @@ async def add_temporal_video(camera_id: int, date: datetime, path: str):
 
     api_endpoint = "cameras/{}/temporal_videos/{}-{}-{}?path={}".format(camera_id, day, month, year, path)
 
-    return await api.post(api_endpoint)
+    return await API.post(api_endpoint)
 
 
 async def upload(camera_id: int, date: datetime, path: str):
@@ -37,7 +37,7 @@ async def _upload_parts(file, api_endpoint):
     parts = math.ceil(size / (1024 * 1024))
 
     requests = [
-        api.put(
+        API.put(
             api_endpoint,
             {"filename": filename, "chunk": base64.b64encode(file.read(1024 * 1024)), "part": part, "parts": parts}
         )
@@ -50,11 +50,11 @@ async def _upload_parts(file, api_endpoint):
 async def remove_video(id: int):
     api_endpoint = "temporal_videos/{}".format(id)
 
-    return await api.delete(api_endpoint)
+    return await API.delete(api_endpoint)
 
 
 async def remove_temporal_videos(camera_id: int, date: datetime):
     day, month, year = get_numbers_as_string(date)
     api_endpoint = "cameras/{}/temporal_videos/{}-{}-{}".format(camera_id, day, month, year)
 
-    return await api.delete(api_endpoint)
+    return await API.delete(api_endpoint)

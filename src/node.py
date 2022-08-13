@@ -1,8 +1,7 @@
-import os
 from src.cameras.serializer import deserialize
-import src.constants as constants
-import time
 from threading import Semaphore
+import src.api.api as API
+import src.api.node as node_api
 import src.api.cameras as cameras_api
 from src.tcp_listener.tcp_listener import TCPListener
 import asyncio
@@ -10,15 +9,15 @@ import asyncio
 
 class Node:
     def __init__(self):
-        if not os.path.exists(constants.STORING_PATH):
-            os.mkdir(constants.STORING_PATH)
-
+        API.NODE = self
+        self._id = None
         self.cameras = []
         self._listener = TCPListener(self)
         self._waiter = Semaphore(0)
 
     async def run(self):
-        print(id(asyncio.get_running_loop()))
+        response = await node_api.register(self._listener.ip, self._listener.port)
+        self._id = response['id']
         self.cameras = await self._fetch_cameras_from_api()
         self._listener.listen()
 
@@ -59,15 +58,20 @@ class Node:
             camera.stop_receiving_video()
             self.cameras.remove(camera)
 
+    @property
+    def id(self):
+        return self._id
+
     async def _fetch_cameras_from_api(self):
         i = 0
-        cameras = None
+        cameras = []
 
         while not cameras:
             try:
                 cameras = await cameras_api.get_cameras()
                 return [deserialize(cam=cam) for cam in cameras]
-            except Exception:
+            except Exception as e:
+                print(e)
                 if i < 6:
                     i += 1
                 seconds = 2 ** i
