@@ -2,8 +2,8 @@ import src.api.api as API
 from datetime import datetime
 
 
-async def get_cameras() -> list:
-    return (await API.get("cameras")).json()
+async def get_cameras(id: int) -> list:
+    return (await API.get(f"cameras/node/{id}")).json()
 
 
 async def log_connection_status(camera_id: int, message: str, date: datetime):
