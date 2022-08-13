@@ -67,7 +67,7 @@ class TCPListener:
         while not sock:
             try:
                 sock = socket(AF_INET, SOCK_STREAM)
-                self._socket.bind(('', LISTENING_PORT))
+                sock.bind(('', LISTENING_PORT))
             except Exception:
                 port += 1
 
