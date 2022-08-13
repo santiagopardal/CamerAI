@@ -1,22 +1,24 @@
-import os
 from src.cameras.serializer import deserialize
-import src.constants as constants
 import time
 from threading import Semaphore
+import src.api.api as API
+import src.api.node as node_api
 import src.api.cameras as cameras_api
 from src.tcp_listener.tcp_listener import TCPListener
 
 
 class Node:
     def __init__(self):
+        API.NODE = self
+        self._id = None
         self.cameras = []
-
-        if not os.path.exists(constants.STORING_PATH):
-            os.mkdir(constants.STORING_PATH)
-
-        self._fetch_cameras_from_api()
         self._listener = TCPListener(self)
         self.waiter = Semaphore(0)
+
+        response = node_api.register(self._listener.ip, self._listener.port)
+        self._id = response['id']
+
+        self._fetch_cameras_from_api()
 
     def run(self):
         self._listener.listen()
@@ -58,15 +60,21 @@ class Node:
             camera.stop_receiving_video()
             self.cameras.remove(camera)
 
+    @property
+    def id(self):
+        return self._id
+
     def _fetch_cameras_from_api(self):
         i = 0
-        cameras = None
+        fetched = False
 
-        while not cameras:
+        while not fetched:
             try:
                 cameras = cameras_api.get_cameras()
                 self.cameras = [deserialize(cam=cam) for cam in cameras]
-            except Exception:
+                fetched = True
+            except Exception as e:
+                print(e)
                 if i < 6:
                     i += 1
                 seconds = 2 ** i
