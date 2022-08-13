@@ -17,21 +17,21 @@ async def get_temporal_videos(camera_id: int, date: datetime) -> list:
 async def add_temporal_video(camera_id: int, date: datetime, path: str):
     day, month, year = get_numbers_as_string(date)
 
-    api_endpoint = "cameras/{}/temporal_videos/{}-{}-{}?path={}".format(camera_id, day, month, year, path)
+    api_endpoint = "cameras/{}/temporal_videos/{}-{}-{}".format(camera_id, day, month, year)
 
-    return await API.post(api_endpoint)
+    return await API.post(api_endpoint, {"path": path})
 
 
 async def upload(camera_id: int, date: datetime, path: str):
     day, month, year = get_numbers_as_string(date)
 
-    api_endpoint = "cameras/{}/temporal_videos/{}-{}-{}?old_path={}".format(camera_id, day, month, year, path)
+    api_endpoint = "cameras/{}/temporal_videos/{}-{}-{}".format(camera_id, day, month, year)
 
     with open(path, 'rb') as file:
-        await _upload_parts(file, api_endpoint)
+        await _upload_parts(file, api_endpoint, path)
 
 
-async def _upload_parts(file, api_endpoint):
+async def _upload_parts(file, api_endpoint, old_path):
     filename = file.name.split("/")[-1]
     size = os.path.getsize(file.name)
     parts = math.ceil(size / (1024 * 1024))
@@ -43,21 +43,25 @@ async def _upload_parts(file, api_endpoint):
                 "filename": filename,
                 "chunk": base64.b64encode(file.read(1024 * 1024)),
                 "part": part,
-                "parts": parts
+                "parts": parts,
+                "old_path": old_path,
+                "upload_complete": False
             }
         )
-        for part in range(parts - 1)
+        for part in range(parts)
     ]
 
     await asyncio.gather(*requests)
-    await API.put(
-        api_endpoint,
-        {
-            "filename": filename,
-            "chunk": base64.b64encode(file.read(1024 * 1024)),
-            "part": parts - 1,
-            "parts": parts
-        }
+    asyncio.create_task(
+        API.put(
+            api_endpoint,
+            {
+                "filename": filename,
+                "parts": parts,
+                "old_path": old_path,
+                "upload_complete": True
+            }
+        )
     )
 
 

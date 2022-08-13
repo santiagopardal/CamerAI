@@ -7,4 +7,4 @@ async def get_cameras() -> list:
 
 
 async def log_connection_status(camera_id: int, message: str, date: datetime):
-    return await API.post(f"cameras/{camera_id}/connection_status?message={message}&date={date}")
+    return await API.post(f"cameras/{camera_id}/connection_status", {"message": message, "date": date})
