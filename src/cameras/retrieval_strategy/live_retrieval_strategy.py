@@ -3,7 +3,7 @@ from src.cameras.retrieval_strategy.retrieval_strategy import RetrievalStrategy
 import src.api.cameras as api
 from cv2 import VideoCapture, CAP_PROP_FPS, CAP_PROP_FRAME_WIDTH, CAP_PROP_FRAME_HEIGHT, CAP_PROP_BUFFERSIZE, CAP_FFMPEG
 from numpy import ndarray
-from time import sleep
+import asyncio
 
 
 class LiveRetrievalStrategy(RetrievalStrategy):
@@ -12,7 +12,7 @@ class LiveRetrievalStrategy(RetrievalStrategy):
         self._live_video = None
         self._disconnect = False
 
-    def connect(self):
+    async def connect(self):
         connected = False
         i = 0
         while not connected and not self._disconnect:
@@ -29,32 +29,35 @@ class LiveRetrievalStrategy(RetrievalStrategy):
                 connected, frame = self._live_video.read()
 
                 if not connected:
-                    api.log_connection_status(self._camera.id, f"Connection failed", datetime.now())
+                    self._log_status(f"Connection failed")
             except Exception as e:
-                api.log_connection_status(self._camera.id, f"Connection failed: {e}", datetime.now())
+                self._log_status(f"Connection failed: {e}")
 
             if not connected and not self._disconnect:
                 seconds = 2 ** i
-                sleep(seconds)
+                await asyncio.sleep(seconds)
                 if i < 10:
                     i += 1
 
-        api.log_connection_status(self._camera.id, "Connected", datetime.now())
+        self._log_status("Connected")
 
-    def retrieve(self) -> ndarray:
+    async def retrieve(self) -> ndarray:
         grabbed, frame = self._live_video.read()
 
         while not grabbed:
-            api.log_connection_status(self._camera.id, "Lost connection to camera, reconnecting...", datetime.now())
-            self.connect()
+            self._log_status("Lost connection to camera, reconnecting...")
+            await self.connect()
             grabbed, frame = self._live_video.read()
 
         return frame
 
     def disconnect(self):
         if self._live_video and not self._disconnect:
-            api.log_connection_status(self._camera.id, "Disconnected", datetime.now())
+            self._log_status("Disconnected")
             self._live_video.release()
             del self._live_video
 
         self._disconnect = True
+
+    def _log_status(self, status: str):
+        asyncio.create_task(api.log_connection_status(self._camera.id, status, datetime.now()))

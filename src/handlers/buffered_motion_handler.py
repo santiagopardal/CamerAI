@@ -1,6 +1,7 @@
 from src.handlers.motion_handler import MotionHandler
 from collections import deque
 import os
+import asyncio
 from src.constants import STORING_PATH
 from src.media.savers.media_saver import MediaSaver
 from src.media.savers.remote_video_saver import RemoteVideoSaver
@@ -18,11 +19,11 @@ class BufferedMotionHandler(MotionHandler):
 
         super().__init__()
 
-    def handle(self, frames: list):
+    async def handle(self, frames: list):
         if frames:
             self._frames[0] = self._frames[0] + frames
 
             if len(self._frames[0]) >= self._buffer_size:
                 to_store = self._frames.popleft()
                 self._frames.append([])
-                self._media_saver.save(to_store)
+                asyncio.create_task(self._media_saver.save(to_store))

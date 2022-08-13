@@ -1,3 +1,3 @@
 class MediaSaver:
-    def save(self, media):
+    async def save(self, media):
         pass

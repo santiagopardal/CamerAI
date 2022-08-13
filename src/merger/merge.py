@@ -8,10 +8,11 @@ from src.constants import STORING_PATH
 from libs.VideosMerger.videos_iterator import VideosIterator
 from libs.VideosMerger.merger import VideoMerger
 import src.media.video.video_factory as video_factory
+import asyncio
 
 
-def merge_cameras_video(camera: dict, date: datetime):
-    temporal_videos = temporal_videos_api.get_temporal_videos(camera['id'], date)
+async def merge_cameras_video(camera: dict, date: datetime):
+    temporal_videos = await temporal_videos_api.get_temporal_videos(camera['id'], date)
 
     if temporal_videos:
         pth = os.path.join(STORING_PATH, camera['name'])
@@ -23,19 +24,19 @@ def merge_cameras_video(camera: dict, date: datetime):
         merger = VideoMerger(videos)
         merger.merge(video_path, True)
 
-        videos_api.register_new_video(camera['id'], date, video_path)
+        asyncio.create_task(videos_api.register_new_video(camera['id'], date, video_path))
 
 
-def transform_yesterday_into_video():
+async def transform_yesterday_into_video():
     yesterday = datetime.now() - timedelta(days=1)
-    cameras = get_cameras()
+    cameras = await get_cameras()
 
     for camera in cameras:
         try:
-            merge_cameras_video(camera, yesterday)
+            await merge_cameras_video(camera, yesterday)
         except Exception as e:
             print("Error merging videos:", e)
 
 
 if __name__ == '__main__':
-    transform_yesterday_into_video()
+    asyncio.run(transform_yesterday_into_video())
