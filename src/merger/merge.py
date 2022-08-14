@@ -9,6 +9,10 @@ from libs.VideosMerger.videos_iterator import VideosIterator
 from libs.VideosMerger.merger import VideoMerger
 import src.media.video.video_factory as video_factory
 import asyncio
+from src.tcp_listener.tcp_listener import pack_message, LISTENING_PORT
+from src.tcp_listener.instruction_decoder import NODE_REQUEST
+import json
+from socket import socket, AF_INET, SOCK_STREAM
 
 
 async def merge_cameras_video(camera: dict, date: datetime):
@@ -27,9 +31,23 @@ async def merge_cameras_video(camera: dict, date: datetime):
         asyncio.create_task(videos_api.register_new_video(camera['id'], date, video_path))
 
 
+def get_my_id():
+    sock: socket = socket(AF_INET, SOCK_STREAM)
+    sock.connect(('127.0.0.1', LISTENING_PORT))
+    request = pack_message(NODE_REQUEST, json.dumps({"method": "id"}))
+    sock.send(request)
+    sock.recv(1)
+    content_length = int.from_bytes(sock.recv(8), 'little')
+    response = json.loads(sock.recv(content_length))
+    sock.close()
+    return response['result']
+
+
 async def transform_yesterday_into_video():
     yesterday = datetime.now() - timedelta(days=1)
-    cameras = await get_cameras()
+    node_id = get_my_id()
+    video_factory.NODE_ID = node_id
+    cameras = await get_cameras(node_id)
 
     for camera in cameras:
         try:
