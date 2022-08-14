@@ -75,5 +75,5 @@ class Node:
                 if i < 6:
                     i += 1
                 seconds = 2 ** i
-                print("Could not fetch from API, retrying in {} seconds".format(seconds))
+                print(f"Could not fetch from API, retrying in {seconds} seconds")
                 await asyncio.sleep(seconds)
