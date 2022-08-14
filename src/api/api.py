@@ -24,7 +24,7 @@ async def get(endpoint: str):
             if i == 5:
                 raise e
 
-            await asyncio.sleep(2 ** (i + 1))
+            await asyncio.sleep(1)
 
 
 async def post(endpoint: str, body: dict = None):
@@ -38,7 +38,7 @@ async def post(endpoint: str, body: dict = None):
             if i == 5:
                 raise e
 
-            await asyncio.sleep(2 ** (i + 1))
+            await asyncio.sleep(1)
 
 
 async def put(endpoint: str, body: dict = None):
@@ -51,7 +51,7 @@ async def put(endpoint: str, body: dict = None):
             if i == 5:
                 raise e
 
-            await asyncio.sleep(2 ** (i + 1))
+            await asyncio.sleep(1)
 
 
 async def delete(endpoint: str):
@@ -64,4 +64,4 @@ async def delete(endpoint: str):
             if i == 5:
                 raise e
 
-            await asyncio.sleep(2 ** (i + 1))
+            await asyncio.sleep(1)
