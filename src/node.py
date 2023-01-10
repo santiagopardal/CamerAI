@@ -58,6 +58,15 @@ class Node:
             camera.stop_receiving_video()
             self.cameras.remove(camera)
 
+    def get_snapshot_url(self, cameraId: int):
+        cameras = [camera for camera in self.cameras if camera.id == cameraId]
+        print(self.cameras)
+        if cameras:
+            camera = cameras.pop()
+            return camera.snapshot_url
+
+        raise Exception('There is no camera with such id')
+
     @property
     def id(self):
         return self._id
