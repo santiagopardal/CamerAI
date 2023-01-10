@@ -51,8 +51,9 @@ class Camera:
     def video_url(self) -> str:
         return self._video_url
 
+    @property
     def snapshot_url(self) -> str:
-        return self.snapshot_url
+        return self._snapshot_url
 
     @property
     def frame_rate(self) -> int:

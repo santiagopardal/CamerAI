@@ -20,7 +20,7 @@ class FI9803PV3(Camera):
         password = urllib.parse.quote(password)
 
         video_url = LIVE_VIDEO_URL.format(user, password, ip, streaming_port)
-        snapshot_url = SNAPSHOT_URL.format(self.ip, self.port, user, password)
+        snapshot_url = SNAPSHOT_URL.format(ip, port, user, password)
         retrieval_strategy = retrieval_strategy if retrieval_strategy else LiveRetrievalStrategy(self)
 
         super().__init__(id, ip, port, video_url, snapshot_url, name, FRAME_RATE, WIDTH, HEIGHT, retrieval_strategy, frames_handler)
