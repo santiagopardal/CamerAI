@@ -5,7 +5,7 @@ from src.cameras.retrieval_strategy.retrieval_strategy import RetrievalStrategy
 from src.cameras.retrieval_strategy.live_retrieval_strategy import LiveRetrievalStrategy
 
 
-SCREENSHOT_URL = "http://{}:{}/cgi-bin/CGIProxy.fcgi?cmd=snapPicture2&usr={}&pwd={}"
+SNAPSHOT_URL = "http://{}:{}/cgi-bin/CGIProxy.fcgi?cmd=snapPicture2&usr={}&pwd={}"
 LIVE_VIDEO_URL = "rtsp://{}:{}@{}:{}/videoMain"
 WIDTH = 1280
 HEIGHT = 720
@@ -20,9 +20,10 @@ class FI9803PV3(Camera):
         password = urllib.parse.quote(password)
 
         video_url = LIVE_VIDEO_URL.format(user, password, ip, streaming_port)
+        snapshot_url = SNAPSHOT_URL.format(self.ip, self.port, user, password)
         retrieval_strategy = retrieval_strategy if retrieval_strategy else LiveRetrievalStrategy(self)
 
-        super().__init__(id, ip, port, video_url, name, FRAME_RATE, WIDTH, HEIGHT, retrieval_strategy, frames_handler)
+        super().__init__(id, ip, port, video_url, snapshot_url, name, FRAME_RATE, WIDTH, HEIGHT, retrieval_strategy, frames_handler)
 
         self._streaming_port = streaming_port
 

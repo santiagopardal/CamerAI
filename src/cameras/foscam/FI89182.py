@@ -5,7 +5,7 @@ from src.cameras.retrieval_strategy.retrieval_strategy import RetrievalStrategy
 from src.cameras.retrieval_strategy.live_retrieval_strategy import LiveRetrievalStrategy
 
 
-SCREENSHOT_URL = "http://{}:{}/cgi-bin/CGIProxy.fcgi?cmd=snapPicture2&usr={}&pwd={}"
+SNAPSHOT_URL = "http://{}:{}/cgi-bin/CGIProxy.fcgi?cmd=snapPicture2&usr={}&pwd={}"
 LIVE_VIDEO_URL = "http://{}:{}/videostream.cgi?user={}&pwd={}"
 WIDTH = 640
 HEIGHT = 480
@@ -20,9 +20,10 @@ class FI89182(Camera):
         password = urllib.parse.quote(password)
 
         video_url = LIVE_VIDEO_URL.format(ip, port, user, password)
+        snapshot_url = SNAPSHOT_URL.format(ip, port, user, password)
         retrieval_strategy = retrieval_strategy if retrieval_strategy else LiveRetrievalStrategy(self)
 
-        super().__init__(id, ip, port, video_url, name, FRAME_RATE, WIDTH, HEIGHT, retrieval_strategy, frames_handler)
+        super().__init__(id, ip, port, video_url, snapshot_url, name, FRAME_RATE, WIDTH, HEIGHT, retrieval_strategy, frames_handler)
 
     @classmethod
     def from_json(cls, json: dict) -> Camera:

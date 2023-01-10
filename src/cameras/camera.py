@@ -10,12 +10,13 @@ import src.observations.models.factory as model_factory
 
 
 class Camera:
-    def __init__(self, id: int, ip: str, port: int, video_url: str, name: str, frame_rate: int, frame_width: int,
+    def __init__(self, id: int, ip: str, port: int, video_url: str, snapshot_url: str, name: str, frame_rate: int, frame_width: int,
                  frame_height: int, retrieval_strategy: RetrievalStrategy = None, frames_handler: FrameHandler = None):
         self._id = id
         self._ip = ip
         self._port = port
         self._video_url = video_url
+        self._snapshot_url = snapshot_url
         self._frame_width = frame_width
         self._frame_height = frame_height
         self._name = name
@@ -49,6 +50,9 @@ class Camera:
     @property
     def video_url(self) -> str:
         return self._video_url
+
+    def snapshot_url(self) -> str:
+        return self.snapshot_url
 
     @property
     def frame_rate(self) -> int:
