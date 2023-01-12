@@ -16,22 +16,25 @@ class Node:
         self._waiter = Semaphore(0)
 
     async def run(self):
-        response = await node_api.register(self._listener.ip, self._listener.port)
-        self._id = response['id']
-        self.cameras = await self._fetch_cameras_from_api()
-        self._listener.listen()
+        try:
+            response = await node_api.register(self._listener.ip, self._listener.port)
+            self._id = response['id']
+            self.cameras = await self._fetch_cameras_from_api()
+            self._listener.listen()
 
-        for camera in self.cameras:
-            camera.record()
-            camera.receive_video()
+            for camera in self.cameras:
+                camera.record()
+                camera.receive_video()
 
-        self._waiter.acquire()
+            self._waiter.acquire()
 
-        for camera in self.cameras:
-            camera.stop_recording()
-            camera.stop_receiving_video()
+            for camera in self.cameras:
+                camera.stop_recording()
+                camera.stop_receiving_video()
 
-        self._listener.stop_listening()
+            self._listener.stop_listening()
+        except Exception as e:
+            print(f"Error initializing node, {e}")
 
     def stop(self):
         self._waiter.release(1)
