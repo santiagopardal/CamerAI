@@ -1,6 +1,4 @@
-from src.cameras.camera import Camera
-from src.cameras.foscam.FI9803PV3 import FI9803PV3
-from src.cameras.foscam.FI89182 import FI89182
+from . import Camera, FI89182, FI9803PV3
 
 _classes = {
     "FI89182": FI89182,
