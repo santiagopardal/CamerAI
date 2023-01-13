@@ -1,4 +1,4 @@
-from src.handlers.motion_handler import MotionHandler
+from src.handlers import MotionHandler
 from collections import deque
 import os
 import asyncio

@@ -1,5 +1,5 @@
 import urllib
-from src.handlers.frame_handler import FrameHandler
+from src.handlers import FrameHandler
 from src.cameras.camera import Camera
 from src.cameras.retrieval_strategy.retrieval_strategy import RetrievalStrategy
 from src.cameras.retrieval_strategy.live_retrieval_strategy import LiveRetrievalStrategy

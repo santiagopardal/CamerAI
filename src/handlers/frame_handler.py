@@ -8,7 +8,7 @@ from src.media.frame import Frame
 from src.observations.observers.observer import Observer
 from src.observations.observers.dont_look_back_observer import DontLookBackObserver
 import src.observations.models.factory as model_factory
-from src.handlers.motion_handler import MotionHandler
+from src.handlers import MotionHandler
 import asyncio
 
 

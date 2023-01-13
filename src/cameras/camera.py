@@ -1,6 +1,6 @@
 import asyncio
-from src.handlers.frame_handler import FrameHandler
-from src.handlers.buffered_motion_handler import BufferedMotionHandler
+from src.handlers import FrameHandler
+from src.handlers import BufferedMotionHandler
 from src.observations.observers.dont_look_back_observer import DontLookBackObserver
 from concurrent.futures import ThreadPoolExecutor
 from src.constants import SECONDS_TO_BUFFER
