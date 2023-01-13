@@ -1,5 +1,6 @@
 from datetime import datetime, timedelta
 import src.api.temporal_videos as temporal_videos_api
+from src.cameras import Camera
 from src.utils.date_utils import get_numbers_as_string
 import src.api.videos as videos_api
 from src.api.cameras import get_cameras
@@ -15,11 +16,11 @@ import json
 from socket import socket, AF_INET, SOCK_STREAM
 
 
-async def merge_cameras_video(camera: dict, date: datetime):
-    temporal_videos = await temporal_videos_api.get_temporal_videos(camera['id'], date)
+async def merge_cameras_video(camera: Camera, date: datetime):
+    temporal_videos = await temporal_videos_api.get_temporal_videos(camera.id, date)
 
     if temporal_videos:
-        pth = os.path.join(STORING_PATH, camera['name'])
+        pth = os.path.join(STORING_PATH, camera.name)
 
         day, month, year = get_numbers_as_string(date)
         video_path = "{}/{}-{}-{}.mp4".format(pth, year, month, day)
@@ -28,7 +29,7 @@ async def merge_cameras_video(camera: dict, date: datetime):
         merger = VideoMerger(videos)
         merger.merge(video_path, True)
 
-        asyncio.create_task(videos_api.register_new_video(camera['id'], date, video_path))
+        asyncio.create_task(videos_api.register_new_video(camera.id, date, video_path))
 
 
 def get_my_id():

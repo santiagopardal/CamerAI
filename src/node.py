@@ -79,8 +79,7 @@ class Node:
 
         while not cameras:
             try:
-                cameras = await cameras_api.get_cameras(self.id)
-                return [deserialize(cam=cam) for cam in cameras]
+                return await cameras_api.get_cameras(self.id)
             except Exception as e:
                 print(e)
                 if i < 6:
