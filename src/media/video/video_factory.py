@@ -1,6 +1,6 @@
-from src.media.video.video import Video
-from src.media.video.local_video import LocalVideo
-from src.media.video.remote_video import RemoteVideo
+from src.media import Video
+from src.media import LocalVideo
+from src.media import RemoteVideo
 from src.constants import API_URL
 
 

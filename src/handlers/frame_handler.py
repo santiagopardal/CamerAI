@@ -4,7 +4,7 @@ from src import constants
 import numpy as np
 import time
 from collections import deque
-from src.media.frame import Frame
+from src.media import Frame
 from src.observations.observers.observer import Observer
 from src.observations.observers.dont_look_back_observer import DontLookBackObserver
 import src.observations.models.factory as model_factory

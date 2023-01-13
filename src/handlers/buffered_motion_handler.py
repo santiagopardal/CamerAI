@@ -3,9 +3,9 @@ from collections import deque
 import os
 import asyncio
 from src.constants import STORING_PATH
-from src.media.savers.media_saver import MediaSaver
-from src.media.savers.remote_video_saver import RemoteVideoSaver
-from src.media.savers.local_video_saver import LocalVideoSaver
+from src.media import MediaSaver
+from src.media import RemoteVideoSaver
+from src.media import LocalVideoSaver
 
 
 class BufferedMotionHandler(MotionHandler):

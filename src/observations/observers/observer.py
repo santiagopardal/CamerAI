@@ -1,5 +1,5 @@
 import cv2
-from src.media.frame import Frame
+from src.media import Frame
 from src import constants
 import numpy as np
 from src.media.frame_editor import resize_frame, black_and_white

@@ -1,7 +1,7 @@
 import os
 from typing import List
-from src.media.savers.media_saver import MediaSaver
-from src.media.frame import Frame
+from .media_saver import MediaSaver
+from src.media import Frame
 import src.api.temporal_videos as temporal_videos_api
 
 
