@@ -1,7 +1,7 @@
 import asyncio
 from src.handlers import FrameHandler
 from src.handlers import BufferedMotionHandler
-from src.observations.observers.dont_look_back_observer import DontLookBackObserver
+from src.observations import DontLookBackObserver
 from concurrent.futures import ThreadPoolExecutor
 from src.constants import SECONDS_TO_BUFFER
 from src.cameras.retrieval_strategy.retrieval_strategy import RetrievalStrategy

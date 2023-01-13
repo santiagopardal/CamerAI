@@ -5,8 +5,8 @@ import numpy as np
 import time
 from collections import deque
 from src.media import Frame
-from src.observations.observers.observer import Observer
-from src.observations.observers.dont_look_back_observer import DontLookBackObserver
+from src.observations import Observer
+from src.observations import DontLookBackObserver
 import src.observations.models.factory as model_factory
 from src.handlers import MotionHandler
 import asyncio

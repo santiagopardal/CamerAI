@@ -1,4 +1,4 @@
-from src.observations.observers.observer import Observer
+from .observer import Observer
 from src.constants import JUMP, DBS
 
 
