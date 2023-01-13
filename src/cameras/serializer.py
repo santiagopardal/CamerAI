@@ -1,4 +1,4 @@
-from . import Camera, FI89182, FI9803PV3
+from . import Camera, FI9803PV3, FI89182
 
 _classes = {
     "FI89182": FI89182,
