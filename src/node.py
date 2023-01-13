@@ -3,7 +3,7 @@ from threading import Semaphore
 import src.api.api as API
 import src.api.node as node_api
 import src.api.cameras as cameras_api
-from src.tcp_listener.tcp_listener import TCPListener
+from src.tcp_listener import TCPListener
 import asyncio
 
 
