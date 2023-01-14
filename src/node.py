@@ -1,4 +1,5 @@
 from src.cameras.serializer import deserialize
+from src.cameras import Camera
 from threading import Semaphore
 import src.api.api as API
 import src.api.node as node_api
@@ -23,7 +24,6 @@ class Node:
             self._listener.listen()
 
             for camera in self.cameras:
-                camera.record()
                 camera.receive_video()
 
             self._waiter.acquire()
@@ -39,12 +39,22 @@ class Node:
     def stop(self):
         self._waiter.release(1)
 
-    async def record(self):
-        for camera in self.cameras:
+    def is_recording(self, camera_id: int) -> bool:
+        camera = self._get_camera(camera_id)
+        return camera.is_recording
+
+    def record(self, cameras_ids: list = None):
+        cameras_ids = [int(id) for id in cameras_ids]
+        cameras: list[Camera] = [camera for camera in self.cameras
+                                 if camera.id in cameras_ids] if cameras_ids else self.cameras
+        for camera in cameras:
             camera.record()
 
-    async def stop_recording(self):
-        for camera in self.cameras:
+    def stop_recording(self, cameras_ids: list = None):
+        cameras_ids = [int(id) for id in cameras_ids]
+        cameras: list[Camera] = [camera for camera in self.cameras if
+                                 camera.id in cameras_ids] if cameras_ids else self.cameras
+        for camera in cameras:
             camera.stop_recording()
 
     async def add_camera(self, camera: dict):
@@ -62,10 +72,14 @@ class Node:
             self.cameras.remove(camera)
 
     def get_snapshot_url(self, camera_id: int):
+        camera = self._get_camera(camera_id)
+        return camera.snapshot_url
+
+    def _get_camera(self, camera_id: int) -> Camera:
         cameras = [camera for camera in self.cameras if camera.id == int(camera_id)]
         if cameras:
             camera = cameras.pop()
-            return camera.snapshot_url
+            return camera
 
         raise Exception('There is no camera with such id')
 

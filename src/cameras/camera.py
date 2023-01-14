@@ -25,6 +25,7 @@ class Camera:
         self._last_frame = None
         self._frame_handler = FrameHandler() if frames_handler is None else frames_handler
         self._retrieval_strategy = retrieval_strategy
+        self._is_recording = False
         self._thread_pool = ThreadPoolExecutor(max_workers=1)
 
     @classmethod
@@ -75,6 +76,10 @@ class Camera:
     def retrieval_strategy(self) -> RetrievalStrategy:
         return self._retrieval_strategy
 
+    @property
+    def is_recording(self) -> bool:
+        return self._is_recording
+
     @ip.setter
     def ip(self, ip: str):
         self._ip = ip
@@ -101,13 +106,17 @@ class Camera:
         self._thread_pool.submit(self._receive_frames)
 
     def record(self):
-        self._frame_handler.set_observer(DontLookBackObserver(model_factory))
-        self._frame_handler.add_motion_handler(BufferedMotionHandler(self, SECONDS_TO_BUFFER))
-        self._frame_handler.start()
+        if not self.is_recording:
+            self._frame_handler.set_observer(DontLookBackObserver(model_factory))
+            self._frame_handler.add_motion_handler(BufferedMotionHandler(self, SECONDS_TO_BUFFER))
+            self._frame_handler.start()
+            self._is_recording = True
 
     def stop_recording(self):
-        self._frame_handler.stop()
-        self._frame_handler.set_motion_handlers([])
+        if self.is_recording:
+            self._frame_handler.stop()
+            self._frame_handler.set_motion_handlers([])
+            self._is_recording = False
 
     def stop_receiving_video(self):
         self._should_receive_frames = False
