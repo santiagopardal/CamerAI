@@ -50,12 +50,16 @@ class Node:
         for camera in cameras:
             camera.record()
 
+        return {camera_id: True for camera_id in cameras_ids}
+
     def stop_recording(self, cameras_ids: list = None):
         cameras_ids = [int(id) for id in cameras_ids]
         cameras: list[Camera] = [camera for camera in self.cameras if
                                  camera.id in cameras_ids] if cameras_ids else self.cameras
         for camera in cameras:
             camera.stop_recording()
+
+        return {camera_id: False for camera_id in cameras_ids}
 
     async def add_camera(self, camera: dict):
         camera = deserialize(camera)
