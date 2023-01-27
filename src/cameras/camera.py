@@ -7,6 +7,7 @@ from src.constants import SECONDS_TO_BUFFER
 from src.cameras.retrieval_strategy.retrieval_strategy import RetrievalStrategy
 from numpy import ndarray
 import src.observations.models.factory as model_factory
+import logging
 
 
 class Camera:
@@ -133,8 +134,7 @@ class Camera:
                 self._last_frame = frame
                 loop.create_task(self._frame_handler.handle(frame))
             except Exception as e:
-                print("Error downloading image from camera {} on ip {}".format(self._name, self._ip))
-                print(e)
+                logging.error(f"Error downloading image from camera {self._name} @ {self._ip}:{self._port}: {e}")
 
         loop.run_until_complete(self._retrieval_strategy.disconnect())
         self._frame_handler.stop()

@@ -6,6 +6,7 @@ import src.api.node as node_api
 import src.api.cameras as cameras_api
 from src.tcp_listener import TCPListener
 import asyncio
+import logging
 
 
 class Node:
@@ -18,6 +19,7 @@ class Node:
 
     async def run(self):
         try:
+            logging.info('Starting node')
             response = await node_api.register(self._listener.ip, self._listener.port)
             self._id = response['id']
             self.cameras = await self._fetch_cameras_from_api()
@@ -33,8 +35,9 @@ class Node:
                 camera.stop_receiving_video()
 
             self._listener.stop_listening()
+            logging.info('Node stopped')
         except Exception as e:
-            print(f"Error initializing node, {e}")
+            logging.error(f"Error initializing node, {e}")
 
     def stop(self):
         self._waiter.release(1)
@@ -100,9 +103,8 @@ class Node:
                 cameras = await cameras_api.get_cameras(self.id)
                 return [deserialize(camera) for camera in cameras]
             except Exception as e:
-                print(e)
                 if i < 6:
                     i += 1
                 seconds = 2 ** i
-                print(f"Could not fetch from API, retrying in {seconds} seconds")
+                logging.error(f"Could not fetch from API, retrying in {seconds} seconds: {e}")
                 await asyncio.sleep(seconds)

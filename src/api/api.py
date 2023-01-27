@@ -34,7 +34,6 @@ async def post(endpoint: str, body: dict = None):
         try:
             return await asyncio.to_thread(requests.post, api_endpoint, data=body, headers=_get_headers())
         except Exception as e:
-            print(e)
             if i == 5:
                 raise e
 
