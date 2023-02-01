@@ -14,7 +14,7 @@ FRAME_RATE = 23
 
 class FI9803PV3(Camera):
     def __init__(self, id: int, ip: str, port: int, streaming_port: int,
-                 name: str, user: str, password: str,
+                 name: str, user: str, password: str, sensitivity: int,
                  retrieval_strategy: RetrievalStrategy = None, frames_handler: FrameHandler = None):
         user = urllib.parse.quote(user)
         password = urllib.parse.quote(password)
@@ -23,7 +23,7 @@ class FI9803PV3(Camera):
         snapshot_url = SNAPSHOT_URL.format(ip, port, user, password)
         retrieval_strategy = retrieval_strategy if retrieval_strategy else LiveRetrievalStrategy(self)
 
-        super().__init__(id, ip, port, video_url, snapshot_url, name, FRAME_RATE, WIDTH, HEIGHT, retrieval_strategy, frames_handler)
+        super().__init__(id, ip, port, video_url, snapshot_url, name, FRAME_RATE, WIDTH, HEIGHT, sensitivity, retrieval_strategy, frames_handler)
 
         self._streaming_port = streaming_port
 
@@ -31,7 +31,7 @@ class FI9803PV3(Camera):
     def from_json(cls, json: dict) -> Camera:
         instance = cls(
             json["id"], json["ip"], json["http_port"], json["streaming_port"],
-            json["name"], json["user"], json["password"]
+            json["name"], json["user"], json["password"], json["configurations"]["sensitivity"]
         )
 
         if json["configurations"]["recording"]:

@@ -12,7 +12,7 @@ import logging
 
 class Camera:
     def __init__(self, id: int, ip: str, port: int, video_url: str, snapshot_url: str, name: str, frame_rate: int, frame_width: int,
-                 frame_height: int, retrieval_strategy: RetrievalStrategy = None, frames_handler: FrameHandler = None):
+                 frame_height: int, sensitivity: int, retrieval_strategy: RetrievalStrategy = None, frames_handler: FrameHandler = None):
         self._id = id
         self._ip = ip
         self._port = port
@@ -27,6 +27,7 @@ class Camera:
         self._frame_handler = FrameHandler() if frames_handler is None else frames_handler
         self._retrieval_strategy = retrieval_strategy
         self._is_recording = False
+        self._sensitivity = sensitivity
         self._thread_pool = ThreadPoolExecutor(max_workers=1)
 
     @classmethod
@@ -108,7 +109,7 @@ class Camera:
 
     def record(self):
         if not self.is_recording:
-            self._frame_handler.set_observer(DontLookBackObserver(model_factory))
+            self._frame_handler.set_observer(DontLookBackObserver(model_factory, self._sensitivity))
             self._frame_handler.add_motion_handler(BufferedMotionHandler(self, SECONDS_TO_BUFFER))
             self._frame_handler.start()
             self._is_recording = True

@@ -15,7 +15,7 @@ import asyncio
 class FrameHandler:
     def __init__(self, observer: Observer = None, motion_handlers: list = None):
         super().__init__()
-        self._observer = DontLookBackObserver(model_factory) if observer is None else observer
+        self._observer = DontLookBackObserver(model_factory, constants.MOVEMENT_SENSITIVITY) if observer is None else observer
         self._motion_handlers = [] if motion_handlers is None else motion_handlers
         self._thread_pool = ThreadPoolExecutor(1)
         self._buffer = deque()
