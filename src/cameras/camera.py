@@ -7,27 +7,22 @@ from src.constants import SECONDS_TO_BUFFER
 from src.cameras.retrieval_strategy.retrieval_strategy import RetrievalStrategy
 from numpy import ndarray
 import src.observations.models.factory as model_factory
+from src.cameras.properties import Properties
+from src.cameras.configurations import Configurations
 import logging
 
 
 class Camera:
-    def __init__(self, id: int, ip: str, port: int, video_url: str, snapshot_url: str, name: str, frame_rate: int, frame_width: int,
-                 frame_height: int, sensitivity: int, retrieval_strategy: RetrievalStrategy = None, frames_handler: FrameHandler = None):
-        self._id = id
-        self._ip = ip
-        self._port = port
+    def __init__(self, properties: Properties, configurations: Configurations, video_url: str, snapshot_url: str, retrieval_strategy: RetrievalStrategy = None, frames_handler: FrameHandler = None):
+        self._properties = properties
+        self._configurations = configurations
         self._video_url = video_url
         self._snapshot_url = snapshot_url
-        self._frame_width = frame_width
-        self._frame_height = frame_height
-        self._name = name
-        self._frame_rate = frame_rate
         self._should_receive_frames = False
         self._last_frame = None
         self._frame_handler = FrameHandler() if frames_handler is None else frames_handler
         self._retrieval_strategy = retrieval_strategy
         self._is_recording = False
-        self._sensitivity = sensitivity
         self._thread_pool = ThreadPoolExecutor(max_workers=1)
 
     @classmethod
@@ -36,19 +31,19 @@ class Camera:
 
     @property
     def id(self) -> int:
-        return self._id
+        return self._properties.id
 
     @property
     def name(self) -> str:
-        return self._name
+        return self._properties.name
 
     @property
     def ip(self) -> str:
-        return self._ip
+        return self._properties.ip
 
     @property
     def port(self) -> int:
-        return self._port
+        return self._properties.port
 
     @property
     def video_url(self) -> str:
@@ -60,15 +55,15 @@ class Camera:
 
     @property
     def frame_rate(self) -> int:
-        return self._frame_rate
+        return self._properties.frame_rate
 
     @property
     def frame_width(self) -> int:
-        return self._frame_width
+        return self._properties.frame_width
 
     @property
     def frame_height(self) -> int:
-        return self._frame_width
+        return self._properties.frame_width
 
     @property
     def frame_handler(self) -> FrameHandler:
@@ -80,15 +75,15 @@ class Camera:
 
     @property
     def is_recording(self) -> bool:
-        return self._is_recording
+        return self._configurations.recording
 
     @ip.setter
     def ip(self, ip: str):
-        self._ip = ip
+        self._properties.ip = ip
 
     @port.setter
     def port(self, port: int):
-        self._port = port
+        self._properties.port = port
 
     @frame_handler.setter
     def frame_handler(self, frames_handler: FrameHandler):
@@ -109,7 +104,7 @@ class Camera:
 
     def record(self):
         if not self.is_recording:
-            self._frame_handler.set_observer(DontLookBackObserver(model_factory, self._sensitivity))
+            self._frame_handler.set_observer(DontLookBackObserver(model_factory, self._configurations.sensitivity))
             self._frame_handler.add_motion_handler(BufferedMotionHandler(self, SECONDS_TO_BUFFER))
             self._frame_handler.start()
             self._is_recording = True
@@ -135,7 +130,7 @@ class Camera:
                 self._last_frame = frame
                 loop.create_task(self._frame_handler.handle(frame))
             except Exception as e:
-                logging.error(f"Error downloading image from camera {self._name} @ {self._ip}:{self._port}: {e}")
+                logging.error(f"Error downloading image from camera {self.name} @ {self.ip}:{self.port}: {e}")
 
         loop.run_until_complete(self._retrieval_strategy.disconnect())
         self._frame_handler.stop()
@@ -145,4 +140,4 @@ class Camera:
         return "{}:{}@{}".format(self.ip, self.port, self.name).__hash__()
 
     def __eq__(self, other):
-        return isinstance(other, Camera) and other.ip == self._ip and other.port == self._port
+        return isinstance(other, Camera) and other.ip == self.ip and other.port == self.port
