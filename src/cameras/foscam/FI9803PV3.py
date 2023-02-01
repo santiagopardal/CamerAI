@@ -29,8 +29,15 @@ class FI9803PV3(Camera):
 
     @classmethod
     def from_json(cls, json: dict) -> Camera:
-        return cls(json["id"], json["ip"], json["http_port"], json["streaming_port"],
-                   json["name"], json["user"], json["password"])
+        instance = cls(
+            json["id"], json["ip"], json["http_port"], json["streaming_port"],
+            json["name"], json["user"], json["password"]
+        )
+
+        if json["configurations"]["recording"]:
+            instance.record()
+
+        return instance
 
     def __eq__(self, other):
         if isinstance(other, FI9803PV3):
