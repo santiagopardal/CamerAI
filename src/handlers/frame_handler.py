@@ -15,7 +15,7 @@ import asyncio
 class FrameHandler:
     def __init__(self, observer: Observer = None, motion_handlers: list = None):
         super().__init__()
-        self._observer = DontLookBackObserver(model_factory, constants.MOVEMENT_SENSITIVITY) if observer is None else observer
+        self.observer = DontLookBackObserver(model_factory, constants.MOVEMENT_SENSITIVITY) if observer is None else observer
         self._motion_handlers = [] if motion_handlers is None else motion_handlers
         self._thread_pool = ThreadPoolExecutor(1)
         self._buffer = deque()
@@ -38,11 +38,11 @@ class FrameHandler:
     async def handle(self, frame: np.ndarray):
         self._buffer.append(frame)
 
-        if self._cleared_buffer and len(self._buffer) >= self._observer.frames_to_buffer():
+        if self._cleared_buffer and len(self._buffer) >= self.observer.frames_to_buffer():
             self._cleared_buffer = False
             end = time.time()
 
-            true_framerate = self._observer.frames_to_buffer() / (end - self._current_buffer_started_receiving) \
+            true_framerate = self.observer.frames_to_buffer() / (end - self._current_buffer_started_receiving) \
                 if self._current_buffer_started_receiving else constants.FRAME_RATE
 
             asyncio.create_task(self._check_movement(true_framerate))
@@ -68,14 +68,14 @@ class FrameHandler:
         batch. This does not occur on the first run, in which all the frames will be analysed and the last one
         will be analysed twice, on the first run and on the second one, but will be stored only once if needed.
         """
-        if len(self._buffer) >= self._observer.frames_to_buffer():
-            frames = [self._buffer.popleft() for _ in range(self._observer.frames_to_buffer())]
+        if len(self._buffer) >= self.observer.frames_to_buffer():
+            frames = [self._buffer.popleft() for _ in range(self.observer.frames_to_buffer())]
             self._cleared_buffer = True
             last_time_stored = self._last_time_stored(frame_rate, len(frames))
 
             frames = [Frame(frame, self._calculate_time_taken(last_time_stored, frame_rate, i + 1))
                       for i, frame in enumerate(frames)]
 
-            movement = self._observer.observe(frames)
+            movement = self.observer.observe(frames)
             tasks = [handler.handle(movement) for handler in self._motion_handlers]
             await asyncio.gather(*tasks)

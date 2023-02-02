@@ -42,6 +42,10 @@ class Node:
     def stop(self):
         self._waiter.release(1)
 
+    def update_sensitivity(self, args: dict):
+        camera = self._get_camera(args['camera_id'])
+        camera.update_sensitivity(args['sensitivity'])
+
     def is_recording(self, camera_id: int) -> bool:
         camera = self._get_camera(camera_id)
         return camera.is_recording

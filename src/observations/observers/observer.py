@@ -17,7 +17,7 @@ class Observer:
         pass
 
     @property
-    def sensitivity(self) -> int:
+    def sensitivity(self) -> float:
         return self._sensitivity
 
     @sensitivity.setter
