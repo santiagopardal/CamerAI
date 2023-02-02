@@ -9,7 +9,6 @@ class Properties:
     _frame_rate: int
 
     def __init__(self, **properties):
-        print(properties)
         self._id = properties["id"]
         self.name = properties["name"]
         self.ip = properties["ip"]
