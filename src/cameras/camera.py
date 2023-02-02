@@ -95,6 +95,9 @@ class Camera:
     def retrieval_strategy(self, retrieval_strategy: RetrievalStrategy):
         self._retrieval_strategy = retrieval_strategy
 
+    def update_sensitivity(self, sensitivity: float):
+        self._frame_handler.observer.sensitivity = sensitivity
+
     def screenshot(self) -> ndarray:
         return self._last_frame
 
@@ -104,7 +107,7 @@ class Camera:
 
     def record(self):
         if not self.is_recording:
-            self._frame_handler.set_observer(DontLookBackObserver(model_factory, self._configurations.sensitivity))
+            self._frame_handler.observer = DontLookBackObserver(model_factory, self._configurations.sensitivity)
             self._frame_handler.add_motion_handler(BufferedMotionHandler(self, SECONDS_TO_BUFFER))
             self._frame_handler.start()
             self._is_recording = True

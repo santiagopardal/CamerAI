@@ -77,17 +77,14 @@ class CameraUnitTest(unittest.TestCase):
         """
         Tests that the correct procedure is executed when we start and stop recording.
         """
-        self.frame_handler.set_observer = MagicMock()
         self.frame_handler.add_motion_handler = MagicMock()
         self.frame_handler.start = MagicMock()
         self.frame_handler.stop = MagicMock()
-        self.frame_handler.set_observer = MagicMock()
         self.frame_handler.set_motion_handlers = MagicMock()
 
         self.camera.record()
         self.camera.stop_recording()
 
-        self.frame_handler.set_observer.assert_called()
         self.frame_handler.add_motion_handler.assert_called_once()
         self.frame_handler.start.assert_called_once()
         self.frame_handler.add_motion_handler.assert_called_once()

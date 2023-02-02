@@ -3,7 +3,7 @@ from src.constants import JUMP, DBS
 
 
 class DontLookBackObserver(Observer):
-    def __init__(self, model_factory, sensitivity: int):
+    def __init__(self, model_factory, sensitivity: float):
         super().__init__(model_factory, sensitivity)
         self._recording = False
         self._last_two_frames = []

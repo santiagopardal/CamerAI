@@ -28,9 +28,6 @@ class FrameHandler:
     def stop(self):
         self._thread_pool.shutdown(True)
 
-    def set_observer(self, observer: Observer):
-        self._observer = observer
-
     def add_motion_handler(self, handler: MotionHandler):
         if handler:
             self._motion_handlers.append(handler)

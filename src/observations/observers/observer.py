@@ -6,7 +6,7 @@ from src.media.frame_editor import resize_frame, black_and_white
 
 
 class Observer:
-    def __init__(self, model_factory, sensitivity: int):
+    def __init__(self, model_factory, sensitivity: float):
         self._model = model_factory.create_model()
         self._sensitivity = sensitivity
 
@@ -21,7 +21,7 @@ class Observer:
         return self._sensitivity
 
     @sensitivity.setter
-    def sensitivity(self, sensitivity: int):
+    def sensitivity(self, sensitivity: float):
         if sensitivity < 0 or sensitivity > 1:
             raise Exception('Sensitivity must be a value between 0 and 1')
 
