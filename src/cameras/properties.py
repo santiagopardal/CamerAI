@@ -9,6 +9,7 @@ class Properties:
     _frame_rate: int
 
     def __init__(self, **properties):
+        print(properties)
         self._id = properties["id"]
         self.name = properties["name"]
         self.ip = properties["ip"]
@@ -42,7 +43,7 @@ class Properties:
 
     @property
     def streaming_port(self) -> int:
-        return self._port
+        return self._streaming_port
 
     @streaming_port.setter
     def streaming_port(self, streaming_port: int):
