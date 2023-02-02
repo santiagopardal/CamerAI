@@ -7,11 +7,8 @@ class Configurations:
     recording: bool
 
     def __init__(self, **configurations):
-        for key in CONFIGURATIONS_KEYS:
-            if hasattr(self, key):
-                setattr(self, key, configurations[key])
-            elif hasattr(self, f"_{key}"):
-                setattr(self, f"_{key}", configurations[key])
+        self._sensitivity = configurations["sensitivity"]
+        self.recording = configurations["recording"]
 
     @property
     def sensitivity(self) -> int:

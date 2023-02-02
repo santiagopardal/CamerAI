@@ -26,7 +26,7 @@ class FI89182(Camera):
         snapshot_url = SNAPSHOT_URL.format(properties.ip, properties.port, user, password)
         retrieval_strategy = retrieval_strategy if retrieval_strategy else LiveRetrievalStrategy(self)
 
-        super().__init__(properties.id, properties.ip, properties.port, video_url, snapshot_url, properties.name, FRAME_RATE, WIDTH, HEIGHT, configurations.sensitivity, retrieval_strategy, frames_handler)
+        super().__init__(properties, configurations, video_url, snapshot_url, retrieval_strategy, frames_handler)
 
     @classmethod
     def from_json(cls, json: dict) -> Camera:

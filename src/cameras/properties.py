@@ -1,7 +1,3 @@
-
-PROPERTIES_KEYS = ["id", "name", "ip", "port", "frame_width", "frame_height", "frame_rate", "streaming_port"]
-
-
 class Properties:
     _id: int
     name: str
@@ -13,11 +9,14 @@ class Properties:
     _frame_rate: int
 
     def __init__(self, **properties):
-        for key in PROPERTIES_KEYS:
-            if hasattr(self, key):
-                setattr(self, key, properties[key])
-            elif hasattr(self, f"_{key}"):
-                setattr(self, f"_{key}", properties[key])
+        self._id = properties["id"]
+        self.name = properties["name"]
+        self.ip = properties["ip"]
+        self._port = properties["http_port"]
+        self._streaming_port = properties["streaming_port"]
+        self._frame_width = properties["frame_width"]
+        self._frame_height = properties["frame_height"]
+        self._frame_rate = properties["frame_rate"]
 
     @property
     def id(self) -> int:
