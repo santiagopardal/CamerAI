@@ -26,7 +26,7 @@ class DontLookBackObserver(Observer):
             if movement or self._recording:
                 frames_with_movement += frames[i * JUMP:(i + 1) * JUMP]
 
-            self._recording = movement        
+            self._recording = movement
 
         return frames_with_movement
 
