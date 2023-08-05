@@ -23,6 +23,7 @@ class Node:
             response = await node_api.register(self._listener.ip, self._listener.port)
             self._id = response['id']
             self.cameras = await self._fetch_cameras_from_api()
+            logging.info(f"Node running with {len(self.cameras)} cameras.")
             self._listener.listen()
 
             for camera in self.cameras:
@@ -98,7 +99,7 @@ class Node:
     def id(self):
         return self._id
 
-    async def _fetch_cameras_from_api(self):
+    async def _fetch_cameras_from_api(self) -> list:
         i = 0
         cameras = []
 

@@ -1,6 +1,7 @@
 import requests
 from src.constants import API_URL
 import asyncio
+import logging
 
 
 NODE = None
@@ -21,6 +22,7 @@ async def get(endpoint: str):
         try:
             return await asyncio.to_thread(requests.get, api_endpoint, headers=_get_headers())
         except Exception as e:
+            logging.info(f"Error getting @ {endpoint}: {str(e)}")
             if i == 5:
                 raise e
 
@@ -34,6 +36,7 @@ async def post(endpoint: str, body: dict = None):
         try:
             return await asyncio.to_thread(requests.post, api_endpoint, data=body, headers=_get_headers())
         except Exception as e:
+            logging.info(f"Error posting @ {endpoint}: {str(e)}")
             if i == 5:
                 raise e
 
@@ -47,6 +50,7 @@ async def put(endpoint: str, body: dict = None):
         try:
             return await asyncio.to_thread(requests.put, api_endpoint, data=body, headers=_get_headers())
         except Exception as e:
+            logging.info(f"Error putting @ {endpoint}: {str(e)}")
             if i == 5:
                 raise e
 
@@ -60,6 +64,7 @@ async def delete(endpoint: str):
         try:
             return await asyncio.to_thread(requests.delete, api_endpoint, headers=_get_headers())
         except Exception as e:
+            logging.info(f"Error deleting @ {endpoint}: {str(e)}")
             if i == 5:
                 raise e
 
