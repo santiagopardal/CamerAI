@@ -36,6 +36,7 @@ class FI89182(Camera):
 
         properties = Properties(**json)
         configurations = Configurations(**json["configurations"])
+        configurations.recording = False
 
         instance = cls(properties, configurations, json["user"], json["password"])
 
