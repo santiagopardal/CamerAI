@@ -8,7 +8,7 @@ NODE_ID = None
 
 
 def create(video: dict) -> Video:
-    if video['node'] != NODE_ID:
+    if not video['is_in_node']:
         endpoint = '{}/temporal_videos/{}/stream'.format(API_URL, video['id'])
         return RemoteVideo(video['id'], video['path'], endpoint)
     else:
