@@ -1,4 +1,3 @@
-import asyncio
 from concurrent.futures import ThreadPoolExecutor
 from socket import socket, AF_INET, SOCK_STREAM, gethostname, gethostbyname
 from src.tcp_listener.instruction_decoder import RESPONSE, WRONG_FORMAT
@@ -17,7 +16,7 @@ class TCPListener:
     def __init__(self, node):
         self._node = node
         self._instruction_decoder = InstructionDecoder(node)
-        self._thread_pool = ThreadPoolExecutor(1)
+        self._thread_pool = ThreadPoolExecutor(11)
         self._socket, self._port = self._create_socket()
         self._socket.listen()
         self._do_listen = False
@@ -39,21 +38,19 @@ class TCPListener:
         self._thread_pool.shutdown(True)
 
     def _listen(self):
-        loop = asyncio.new_event_loop()
         with self._socket:
             while self._do_listen:
                 client_socket, address = self._socket.accept()
-                loop.create_task(self._decode_and_execute(client_socket))
-        loop.close()
+                self._thread_pool.submit(self._decode_and_execute, client_socket)
 
-    async def _decode_and_execute(self, client_socket):
+    def _decode_and_execute(self, client_socket):
         with client_socket:
             try:
                 request_type = int.from_bytes(client_socket.recv(1), 'little')
                 content_length = int.from_bytes(client_socket.recv(8), 'little')
-                raw_data = client_socket.recv(content_length).decode('utf-8')
-                message = json.loads(raw_data)
-                response = pack_message(RESPONSE, self._handle_message(request_type, message))
+                message = json.loads(client_socket.recv(content_length))
+                response_message = self._handle_message(request_type, message)
+                response = pack_message(RESPONSE, response_message)
             except Exception as e:
                 response = pack_message(WRONG_FORMAT, 'Wrong format or error, kiddo: {}'.format(str(e)))
 
@@ -72,6 +69,6 @@ class TCPListener:
                 sock = socket(AF_INET, SOCK_STREAM)
                 sock.bind(('', LISTENING_PORT))
             except Exception:
-                port += 1
+                pass
 
         return sock, port

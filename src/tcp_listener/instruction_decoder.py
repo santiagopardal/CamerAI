@@ -1,3 +1,6 @@
+import json
+import types
+
 DISCOVERY = 1
 RESPONSE = 2
 ACK = 3
@@ -19,8 +22,11 @@ class InstructionDecoder:
         elif instruction_type == NODE_REQUEST:
             method = getattr(self._node, data['method'])
             if 'args' in data:
-                return method(data['args'])
+                return json.dumps({"result": method(data['args'])})
             else:
-                method()
+                if isinstance(method, types.MethodType):
+                    return json.dumps({"result": method()})
+                else:
+                    return json.dumps({"result": method})
         else:
             pass

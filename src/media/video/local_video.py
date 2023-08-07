@@ -1,4 +1,4 @@
-from src.media.video.video import Video
+from .video import Video
 from cv2 import VideoCapture
 import os
 

@@ -2,8 +2,8 @@ import os
 import cv2
 import asyncio
 from typing import List
-from src.media.savers.media_saver import MediaSaver
-from src.media.frame import Frame
+from .media_saver import MediaSaver
+from src.media import Frame
 import src.api.temporal_videos as temporal_videos_api
 from src.utils.date_utils import get_numbers_as_string
 

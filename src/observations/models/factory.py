@@ -1,6 +1,6 @@
-from src.observations.models.model import Model
-from src.observations.models.tatiana import Tatiana
-from src.observations.models.tflite_movement_detector import TFLiteModelDetector
+from .model import Model
+from .tatiana import Tatiana
+from .tflite_movement_detector import TFLiteModelDetector
 
 
 # FIXME Add Tatiana lite model

@@ -1,4 +1,4 @@
-from src.observations.models.model import Model
+from .model import Model
 from src import constants
 import numpy as np
 from threading import Lock

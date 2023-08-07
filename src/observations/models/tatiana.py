@@ -1,4 +1,4 @@
-from src.observations.models.model import Model
+from .model import Model
 import numpy as np
 import tensorflow as tf
 from tensorflow_addons.metrics import F1Score

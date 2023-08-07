@@ -1,10 +1,10 @@
-from src.observations.observers.observer import Observer
+from .observer import Observer
 from src.constants import JUMP, DBS
 
 
 class DontLookBackObserver(Observer):
-    def __init__(self, model_factory):
-        super().__init__(model_factory)
+    def __init__(self, model_factory, sensitivity: float):
+        super().__init__(model_factory, sensitivity)
         self._recording = False
         self._last_two_frames = []
 
@@ -26,7 +26,7 @@ class DontLookBackObserver(Observer):
             if movement or self._recording:
                 frames_with_movement += frames[i * JUMP:(i + 1) * JUMP]
 
-            self._recording = movement        
+            self._recording = movement
 
         return frames_with_movement
 
