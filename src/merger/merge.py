@@ -5,8 +5,7 @@ import src.api.videos as videos_api
 from src.api.cameras import get_cameras
 import os
 from src.constants import STORING_PATH
-from libs.VideosMerger.videos_iterator import VideosIterator
-from libs.VideosMerger.merger import VideoMerger
+from libs.VideosMerger import VideoMerger, VideosIterator
 import src.media.video.video_factory as video_factory
 import asyncio
 from src.tcp_listener.tcp_listener import pack_message, LISTENING_PORT
@@ -45,7 +44,7 @@ def get_my_id():
 
 async def transform_yesterday_into_video():
     yesterday = datetime.now() - timedelta(days=1)
-    node_id = get_my_id()
+    node_id = 1#get_my_id()
     video_factory.NODE_ID = node_id
     cameras = await get_cameras(node_id)
 
