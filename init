@@ -1,4 +1,4 @@
 cd CamerAPI
 ./init &
 cd ..
-python3.10 -m src.test
+python3.10 -m src.node

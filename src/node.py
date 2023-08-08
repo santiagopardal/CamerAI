@@ -114,3 +114,16 @@ class Node:
                 seconds = 2 ** i
                 logging.error(f"Could not fetch from API, retrying in {seconds} seconds: {e}")
                 await asyncio.sleep(seconds)
+
+
+if __name__ == '__main__':
+    logging.basicConfig(
+        filename='camerai.log',
+        filemode='a',
+        level=logging.INFO,
+        format="{asctime} {levelname:<8} {message}",
+        style="{"
+    )
+
+    sys = Node()
+    asyncio.run(sys.run())
