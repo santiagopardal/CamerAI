@@ -22,6 +22,7 @@ class Node:
             logging.info('Starting node')
             response = await node_api.register(self._listener.ip, self._listener.port)
             self._id = response['id']
+            API.set_headers({"node_id": str(self._id)})
             self.cameras = await self._fetch_cameras_from_api()
             logging.info(f"Node running with {len(self.cameras)} cameras.")
             self._listener.listen()

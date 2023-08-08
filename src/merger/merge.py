@@ -1,6 +1,7 @@
 from datetime import datetime, timedelta
 import src.api.temporal_videos as temporal_videos_api
 from src.utils.date_utils import get_numbers_as_string
+import src.api.api as API
 import src.api.videos as videos_api
 from src.api.cameras import get_cameras
 import os
@@ -44,7 +45,8 @@ def get_my_id():
 
 async def transform_yesterday_into_video():
     yesterday = datetime.now() - timedelta(days=1)
-    node_id = 1#get_my_id()
+    node_id = get_my_id()
+    API.set_headers({"node_id": str(node_id)})
     video_factory.NODE_ID = node_id
     cameras = await get_cameras(node_id)
 
