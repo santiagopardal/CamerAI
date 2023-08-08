@@ -3,8 +3,8 @@ from src.cameras.retrieval_strategy.retrieval_strategy import RetrievalStrategy
 import src.api.cameras as api
 from cv2 import VideoCapture, CAP_PROP_FPS, CAP_PROP_FRAME_WIDTH, CAP_PROP_FRAME_HEIGHT, CAP_PROP_BUFFERSIZE, CAP_FFMPEG
 from numpy import ndarray
-import asyncio
 import logging
+import time
 
 
 class LiveRetrievalStrategy(RetrievalStrategy):
@@ -13,7 +13,7 @@ class LiveRetrievalStrategy(RetrievalStrategy):
         self._live_video = None
         self._disconnect = False
 
-    async def connect(self):
+    def connect(self):
         connected = False
         i = 0
         while not connected and not self._disconnect:
@@ -36,16 +36,16 @@ class LiveRetrievalStrategy(RetrievalStrategy):
 
             if not connected and not self._disconnect:
                 seconds = 2 ** i
-                await asyncio.sleep(seconds)
+                time.sleep(seconds)
                 i = min(i + 1, 10)
         self._log_status("Connected")
 
-    async def retrieve(self) -> ndarray:
+    def retrieve(self) -> ndarray:
         grabbed, frame = self._live_video.read()
 
         while not grabbed:
             self._log_status("Lost connection to camera, reconnecting...")
-            await self.connect()
+            self.connect()
             grabbed, frame = self._live_video.read()
 
         return frame
@@ -59,6 +59,6 @@ class LiveRetrievalStrategy(RetrievalStrategy):
         self._disconnect = True
 
     def _log_status(self, status: str):
-        asyncio.create_task(api.log_connection_status(self._camera.id, status, datetime.now()))
+        api.log_connection_status(self._camera.id, status, datetime.now())
         message_to_log = f"Status updated for {self._camera.name} @ {self._camera.ip}:{self._camera.port}: {status}"
         logging.info(message_to_log)

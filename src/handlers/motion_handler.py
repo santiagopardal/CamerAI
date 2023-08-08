@@ -1,3 +1,3 @@
 class MotionHandler:
-    async def handle(self, frames: list):
+    def handle(self, frames: list):
         pass

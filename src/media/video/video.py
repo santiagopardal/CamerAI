@@ -1,6 +1,5 @@
 from cv2 import VideoCapture, CAP_PROP_FRAME_WIDTH, CAP_PROP_FRAME_HEIGHT, CAP_PROP_FPS
 import src.api.temporal_videos as temporal_videos_api
-import asyncio
 
 
 class Video:
@@ -35,5 +34,4 @@ class Video:
         return self._video.get(CAP_PROP_FPS)
 
     def delete(self):
-        loop = asyncio.get_event_loop()
-        loop.run_until_complete(temporal_videos_api.remove_video(self._id))
+        temporal_videos_api.remove_video(self._id)

@@ -8,15 +8,14 @@ import os
 from src.constants import STORING_PATH
 from libs.VideosMerger import VideoMerger, VideosIterator
 import src.media.video.video_factory as video_factory
-import asyncio
 from src.tcp_listener.tcp_listener import pack_message, LISTENING_PORT
 from src.tcp_listener.instruction_decoder import NODE_REQUEST
 import json
 from socket import socket, AF_INET, SOCK_STREAM
 
 
-async def merge_cameras_video(camera: dict, date: datetime):
-    temporal_videos = await temporal_videos_api.get_temporal_videos(camera['id'], date)
+def merge_cameras_video(camera: dict, date: datetime):
+    temporal_videos = temporal_videos_api.get_temporal_videos(camera['id'], date)
 
     if temporal_videos:
         pth = os.path.join(STORING_PATH, camera['name'])
@@ -28,7 +27,7 @@ async def merge_cameras_video(camera: dict, date: datetime):
         merger = VideoMerger(videos)
         merger.merge(video_path, True)
 
-        asyncio.create_task(videos_api.register_new_video(camera['id'], date, video_path))
+        videos_api.register_new_video(camera['id'], date, video_path)
 
 
 def get_my_id():
@@ -43,19 +42,19 @@ def get_my_id():
     return response['result']
 
 
-async def transform_yesterday_into_video():
+def transform_yesterday_into_video():
     yesterday = datetime.now() - timedelta(days=1)
     node_id = get_my_id()
     API.set_headers({"node_id": str(node_id)})
     video_factory.NODE_ID = node_id
-    cameras = await get_cameras(node_id)
+    cameras = get_cameras(node_id)
 
     for camera in cameras:
         try:
-            await merge_cameras_video(camera, yesterday)
+            merge_cameras_video(camera, yesterday)
         except Exception as e:
             print("Error merging videos:", e)
 
 
 if __name__ == '__main__':
-    asyncio.run(transform_yesterday_into_video())
+    transform_yesterday_into_video()

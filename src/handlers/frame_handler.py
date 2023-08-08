@@ -9,7 +9,6 @@ from src.observations import Observer
 from src.observations import DontLookBackObserver
 import src.observations.models.factory as model_factory
 from src.handlers import MotionHandler
-import asyncio
 
 
 class FrameHandler:
@@ -35,7 +34,7 @@ class FrameHandler:
     def set_motion_handlers(self, handlers: list):
         self._motion_handlers = handlers
 
-    async def handle(self, frame: np.ndarray):
+    def handle(self, frame: np.ndarray):
         self._buffer.append(frame)
 
         if self._cleared_buffer and len(self._buffer) >= self.observer.frames_to_buffer():
@@ -45,7 +44,7 @@ class FrameHandler:
             true_framerate = self.observer.frames_to_buffer() / (end - self._current_buffer_started_receiving) \
                 if self._current_buffer_started_receiving else constants.FRAME_RATE
 
-            asyncio.create_task(self._check_movement(true_framerate))
+            self._check_movement(true_framerate)
             self._current_buffer_started_receiving = end
 
     @staticmethod
@@ -56,7 +55,7 @@ class FrameHandler:
     def _last_time_stored(frame_rate: int, number_of_frames: int):
         return datetime.datetime.now() - datetime.timedelta(seconds=(number_of_frames + 1) / frame_rate)
 
-    async def _check_movement(self, frame_rate):
+    def _check_movement(self, frame_rate):
         """
         Tells the observer to take a look at frames.
 
@@ -77,5 +76,6 @@ class FrameHandler:
                       for i, frame in enumerate(frames)]
 
             movement = self.observer.observe(frames)
-            tasks = [handler.handle(movement) for handler in self._motion_handlers]
-            await asyncio.gather(*tasks)
+
+            for handler in self._motion_handlers:
+                handler.handle(movement)

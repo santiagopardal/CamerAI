@@ -5,7 +5,7 @@ import src.api.api as API
 import src.api.node as node_api
 import src.api.cameras as cameras_api
 from src.tcp_listener import TCPListener
-import asyncio
+import time
 import logging
 
 
@@ -17,13 +17,13 @@ class Node:
         self._listener = TCPListener(self)
         self._waiter = Semaphore(0)
 
-    async def run(self):
+    def run(self):
         try:
             logging.info('Starting node')
-            response = await node_api.register(self._listener.ip, self._listener.port)
+            response = node_api.register(self._listener.ip, self._listener.port)
             self._id = response['id']
             API.set_headers({"node_id": str(self._id)})
-            self.cameras = await self._fetch_cameras_from_api()
+            self.cameras = self._fetch_cameras_from_api()
             logging.info(f"Node running with {len(self.cameras)} cameras.")
             self._listener.listen()
 
@@ -70,13 +70,13 @@ class Node:
 
         return {camera_id: False for camera_id in cameras_ids}
 
-    async def add_camera(self, camera: dict):
+    def add_camera(self, camera: dict):
         camera = deserialize(camera)
         self.cameras.append(camera)
         camera.record()
         camera.receive_video()
 
-    async def remove_camera(self, camera_id: int):
+    def remove_camera(self, camera_id: int):
         camera = [camera for camera in self.cameras if camera.id == camera_id]
         if camera:
             camera = camera.pop()
@@ -100,20 +100,20 @@ class Node:
     def id(self):
         return self._id
 
-    async def _fetch_cameras_from_api(self) -> list:
+    def _fetch_cameras_from_api(self) -> list:
         i = 0
         cameras = []
 
         while not cameras:
             try:
-                cameras = await cameras_api.get_cameras(self.id)
+                cameras = cameras_api.get_cameras(self.id)
                 return [deserialize(camera) for camera in cameras]
             except Exception as e:
                 if i < 6:
                     i += 1
                 seconds = 2 ** i
                 logging.error(f"Could not fetch from API, retrying in {seconds} seconds: {e}")
-                await asyncio.sleep(seconds)
+                time.sleep(seconds)
 
 
 if __name__ == '__main__':
@@ -126,4 +126,4 @@ if __name__ == '__main__':
     )
 
     sys = Node()
-    asyncio.run(sys.run())
+    sys.run()

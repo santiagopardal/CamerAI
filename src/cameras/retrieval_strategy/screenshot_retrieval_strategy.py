@@ -9,7 +9,7 @@ class ScreenshotRetrievalStrategy(RetrievalStrategy):
     def __init__(self, url: str):
         self._url = url
 
-    async def retrieve(self) -> ndarray:
+    def retrieve(self) -> ndarray:
         response = requests.get(self._url, stream=True).raw
         frame = np.asarray(bytearray(response.read()), dtype="uint8")
         return cv2.imdecode(frame, cv2.IMREAD_COLOR)

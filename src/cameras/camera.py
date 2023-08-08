@@ -1,4 +1,3 @@
-import asyncio
 from src.handlers import FrameHandler
 from src.handlers import BufferedMotionHandler
 from src.observations import DontLookBackObserver
@@ -124,20 +123,18 @@ class Camera:
         self._thread_pool.shutdown(True)
 
     def _receive_frames(self):
-        loop = asyncio.new_event_loop()
-        loop.run_until_complete(self._retrieval_strategy.connect())
+        self._retrieval_strategy.connect()
 
         while self._should_receive_frames:
             try:
-                frame = loop.run_until_complete(self._retrieval_strategy.retrieve())
+                frame = self._retrieval_strategy.retrieve()
                 self._last_frame = frame
-                loop.create_task(self._frame_handler.handle(frame))
+                self._frame_handler.handle(frame)
             except Exception as e:
                 logging.error(f"Error downloading image from camera {self.name} @ {self.ip}:{self.port}: {e}")
 
-        loop.run_until_complete(self._retrieval_strategy.disconnect())
+        self._retrieval_strategy.disconnect()
         self._frame_handler.stop()
-        loop.close()
 
     def __hash__(self):
         return "{}:{}@{}".format(self.ip, self.port, self.name).__hash__()
