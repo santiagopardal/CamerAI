@@ -1,6 +1,10 @@
 import numpy as np
 from numpy import sqrt
 import os
+from dotenv import load_dotenv
+
+
+load_dotenv()
 
 
 def cost_function(b):
@@ -26,9 +30,9 @@ def calculate_dbs():
         return round(JUMP * round(DETECTION_BATCH_SIZE/JUMP)) + 2
 
 
-FRAMERATE = 23
+FRAME_RATE = 23
 
-MOVEMENT_SENSITIVITY = 0.84
+MOVEMENT_SENSITIVITY = 0.5
 DETECTION_BATCH_SIZE = 92
 MOVEMENT_BURSTS = 2
 SECONDS_TO_BUFFER = 2
@@ -39,23 +43,25 @@ DBS = calculate_dbs()
 RESOLUTION = (180, 180)
 CNN_INPUT_SHAPE = (180, 180, 1)
 
-ABSOLUTE_PATH = os.path.abspath(os.path.curdir)
+ABSOLUTE_PATH = os.environ["ABSOLUTE_PATH"]
 
 STORING_PATH = os.path.join(ABSOLUTE_PATH, "Images")
 
 AI_PATH = os.path.join(ABSOLUTE_PATH, "ai")
 
-V3_MODEL_WEIGHTS = os.path.join(AI_PATH, "Neural Network")
+NEURAL_NETWORKS_FOLDER = os.path.join(AI_PATH, "Neural Network")
 
-LITE_MODEL_PATH = os.path.join(V3_MODEL_WEIGHTS, "lite")
+LITE_MODEL_PATH = os.path.join(NEURAL_NETWORKS_FOLDER, "lite")
 LITE_MODEL_PATH = os.path.join(LITE_MODEL_PATH, "model.tflite")
 
-TINY_MODEL_WEIGHTS = os.path.join(V3_MODEL_WEIGHTS, "tiny")
+TINY_MODEL_WEIGHTS = os.path.join(NEURAL_NETWORKS_FOLDER, "tiny")
 TINY_MODEL_WEIGHTS = os.path.join(TINY_MODEL_WEIGHTS, "model")
 
-V3_MODEL_WEIGHTS = os.path.join(V3_MODEL_WEIGHTS, "Second network")
+V3_MODEL_WEIGHTS = os.path.join(NEURAL_NETWORKS_FOLDER, "Second network")
 V3_MODEL_WEIGHTS = os.path.join(V3_MODEL_WEIGHTS, "v3")
 V3_MODEL_WEIGHTS = os.path.join(V3_MODEL_WEIGHTS, "model.h5")
+
+TATIANA = os.path.join(NEURAL_NETWORKS_FOLDER, "Tatiana")
 
 YOLO_V3_PATH = os.path.join(AI_PATH, "YOLO v3")
 YOLO_V4_PATH = os.path.join(AI_PATH, "YOLO v4")
@@ -80,3 +86,7 @@ YOLO_V4_WEIGHTS = os.path.join(YOLO_V3_PATH, os.path.join("320", "yolov4.weights
 YOLO_V4_CONFIGS = os.path.join(YOLO_V3_PATH, os.path.join("320", "yolov4.cfg"))
 YOLO_V4_RESOLUTION = 320
 
+API_URL = "http://localhost:8080/api"
+
+if not os.path.exists(STORING_PATH):
+    os.mkdir(STORING_PATH)
