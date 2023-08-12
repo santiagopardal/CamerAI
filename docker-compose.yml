@@ -4,15 +4,12 @@ services:
     build:
       context: ./CamerAPI
       dockerfile: Dockerfile
+    image: node:latest
     container_name: camerapi
     restart: unless-stopped
     env_file: ./CamerAPI/.env
     ports:
-        - "8080:8080"
-    volumes:
-      - ${ABSOLUTE_PATH}/Images:/Images
-      - ${ABSOLUTE_PATH}/CamerAPI/camerai.db:/app/camerai.db
-      - ${ABSOLUTE_PATH}/CamerAPI/temporal_videos:/app/temporal_videos
+      - "8080:8080"
   camerai:
     build:
       context: .
@@ -22,7 +19,7 @@ services:
     restart: unless-stopped
     env_file:
       - .env
+    environment:
+      - PYTHONPATH=/app/src
     ports:
       - "5460:5460"
-    volumes:
-      - ${ABSOLUTE_PATH}:/app
