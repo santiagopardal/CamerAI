@@ -1,0 +1,28 @@
+version: "1.0"
+services:
+  camerapi:
+    build:
+      context: ./CamerAPI
+      dockerfile: Dockerfile
+    container_name: camerapi
+    restart: unless-stopped
+    env_file: ./CamerAPI/.env
+    ports:
+        - "8080:8080"
+    volumes:
+      - ${ABSOLUTE_PATH}/Images:/Images
+      - ${ABSOLUTE_PATH}/CamerAPI/camerai.db:/app/camerai.db
+      - ${ABSOLUTE_PATH}/CamerAPI/temporal_videos:/app/temporal_videos
+  camerai:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: python:3.10.12
+    container_name: camerai
+    restart: unless-stopped
+    env_file:
+      - .env
+    ports:
+      - "5460:5460"
+    volumes:
+      - ${ABSOLUTE_PATH}:/app

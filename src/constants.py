@@ -63,30 +63,7 @@ V3_MODEL_WEIGHTS = os.path.join(V3_MODEL_WEIGHTS, "model.h5")
 
 TATIANA = os.path.join(NEURAL_NETWORKS_FOLDER, "Tatiana")
 
-YOLO_V3_PATH = os.path.join(AI_PATH, "YOLO v3")
-YOLO_V4_PATH = os.path.join(AI_PATH, "YOLO v4")
-
-YOLO_V3_TINY_PATH = os.path.join(YOLO_V3_PATH, "tiny")
-YOLO_V3_TINY_WEIGHTS = os.path.join(YOLO_V3_TINY_PATH, "yolov3.weights")
-YOLO_V3_TINY_CONFIGS = os.path.join(YOLO_V3_TINY_PATH, "yolov3.cfg")
-YOLO_V3_TINY_RESOLUTION = 448
-
-
-YOLO_V3_WEIGHTS = os.path.join(YOLO_V3_PATH, os.path.join("320", "yolov3.weights"))
-YOLO_V3_CONFIGS = os.path.join(YOLO_V3_PATH, os.path.join("320", "yolov3.cfg"))
-YOLO_V3_RESOLUTION = 320
-
-YOLO_V4_TINY_PATH = os.path.join(YOLO_V4_PATH, "tiny")
-
-YOLO_V4_TINY_WEIGHTS = os.path.join(YOLO_V4_TINY_PATH, "yolov4.weights")
-YOLO_V4_TINY_CONFIGS = os.path.join(YOLO_V4_TINY_PATH, "yolov4.cfg")
-YOLO_V4_TINY_RESOLUTION = 448
-
-YOLO_V4_WEIGHTS = os.path.join(YOLO_V3_PATH, os.path.join("320", "yolov4.weights"))
-YOLO_V4_CONFIGS = os.path.join(YOLO_V3_PATH, os.path.join("320", "yolov4.cfg"))
-YOLO_V4_RESOLUTION = 320
-
-API_URL = "http://localhost:8080/api"
+API_URL = os.environ["API_URL"]
 
 if not os.path.exists(STORING_PATH):
     os.mkdir(STORING_PATH)
