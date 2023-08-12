@@ -8,7 +8,7 @@ fi
 
 if [ ! -f ./.env ]; then
     echo API_URL="http://camerapi:8080/api" >> ./.env
-    echo ABSOLUTE_PATH="$(pwd)" >> ./.env
+    echo ABSOLUTE_PATH="/app" >> ./.env
 fi
 
 cd CamerAPI
