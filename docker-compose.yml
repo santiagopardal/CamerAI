@@ -4,7 +4,6 @@ services:
     build:
       context: ./CamerAPI
       dockerfile: Dockerfile
-    image: node:latest
     container_name: camerapi
     restart: unless-stopped
     env_file: ./CamerAPI/.env
@@ -17,7 +16,6 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
-    image: python:3.10.12
     container_name: camerai
     restart: unless-stopped
     env_file:
