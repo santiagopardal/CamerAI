@@ -10,8 +10,7 @@ RUN pip install --upgrade pip
 RUN pip install --upgrade setuptools
 RUN pip install --no-cache-dir -r requirements.txt
 
-ADD docker/merge-videos-cron-task /etc/cron.d/cron-config
-RUN chmod 0644 /etc/cron.d/cron-config
+RUN echo "0 3 * * * $(which python) /app/merge.py" | crontab -
 RUN touch /var/log/cron.log
 
 CMD cron && tail -f /var/log/cron.log
