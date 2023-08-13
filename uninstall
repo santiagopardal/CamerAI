@@ -1,3 +1,4 @@
 sudo rm -rf Images
+sudo rm camerai.log
 cd CamerAPI
 ./uninstall
