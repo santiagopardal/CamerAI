@@ -1,4 +1,4 @@
-mkdir Images
+mkdir -p Images
 touch camerai.log
 git submodule init
 git submodule update
