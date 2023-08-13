@@ -15,5 +15,8 @@ fi
 cd CamerAPI
 ./install
 
+cd ../CamerAPP
+./install
+
 cd ..
 docker compose build
