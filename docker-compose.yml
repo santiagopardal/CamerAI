@@ -1,4 +1,4 @@
-version: "1.0"
+version: "2.1"
 services:
   camerapi:
     build:
@@ -10,6 +10,9 @@ services:
     env_file: ./CamerAPI/.env
     ports:
       - "8080:8080"
+    volumes:
+      - "./CamerAPI/camerai.db:/app/camerai.db"
+      - "./CamerAPI/temporal_videos:/app/temporal_videos"
   camerai:
     build:
       context: .
@@ -23,3 +26,6 @@ services:
       - PYTHONPATH=/app/src
     ports:
       - "5460:5460"
+    volumes:
+      - "./Images:/app/Images"
+      - "./camerai.log:/app/camerai.log"
