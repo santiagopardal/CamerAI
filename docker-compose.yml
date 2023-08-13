@@ -11,7 +11,6 @@ services:
     ports:
       - "8080:8080"
     volumes:
-      - "./CamerAPI/APP-Database:/app/APP-Database"
       - "./CamerAPI/temporal_videos:/app/temporal_videos"
       - "./CamerAPI/.env:/app/.env"
   camerai:
