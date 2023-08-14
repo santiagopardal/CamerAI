@@ -83,3 +83,4 @@ Images
 *.pyc
 *.cpython*
 *.env
+node.json
