@@ -7,6 +7,9 @@ import src.api.cameras as cameras_api
 from src.tcp_listener import TCPListener
 import time
 import logging
+from src.constants import NODE_INFO_PATH
+import json
+import os
 
 
 class Node:
@@ -20,9 +23,17 @@ class Node:
     def run(self):
         try:
             logging.info('Starting node')
+
+            if self.id:
+                API.set_headers({"node_id": str(self.id)})
+
             response = node_api.register(self._listener.ip, self._listener.port)
-            self._id = response['id']
-            API.set_headers({"node_id": str(self._id)})
+            if not self.id:
+                self._id = response['id']
+                API.set_headers({"node_id": str(self._id)})
+                with open(NODE_INFO_PATH, "w") as node_info_file:
+                    node_info_file.write(json.dumps({"id": self.id}))
+
             self.cameras = self._fetch_cameras_from_api()
             logging.info(f"Node running with {len(self.cameras)} cameras.")
             self._listener.listen()
@@ -98,6 +109,11 @@ class Node:
 
     @property
     def id(self):
+        if not self._id and os.path.exists(NODE_INFO_PATH):
+            with open(NODE_INFO_PATH) as file:
+                data = json.load(file)
+                self._id = data['id']
+
         return self._id
 
     def _fetch_cameras_from_api(self) -> list:
