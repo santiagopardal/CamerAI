@@ -14,6 +14,6 @@ RUN touch /var/log/cron.log
 RUN mkdir -p /var/log/supervisor
 COPY container/supervisord.conf /etc/supervisor/conf.d/supervisord.conf
 
-RUN echo "3 22 * * * $(which python) /app/merge.py" | crontab -
+RUN echo "0 3 * * * $(which python) /app/merge.py" | crontab -
 
 CMD ["/usr/bin/supervisord", "-n"]
