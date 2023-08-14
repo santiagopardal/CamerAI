@@ -84,11 +84,10 @@ class Node:
     def add_camera(self, camera: dict):
         camera = deserialize(camera)
         self.cameras.append(camera)
-        camera.record()
         camera.receive_video()
 
     def remove_camera(self, camera_id: int):
-        camera = [camera for camera in self.cameras if camera.id == camera_id]
+        camera = [camera for camera in self.cameras if camera.id == int(camera_id)]
         if camera:
             camera = camera.pop()
             camera.stop_recording()
