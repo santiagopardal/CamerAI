@@ -45,6 +45,8 @@ CNN_INPUT_SHAPE = (180, 180, 1)
 
 ABSOLUTE_PATH = os.environ["ABSOLUTE_PATH"]
 
+NODE_INFO_PATH = os.path.join(ABSOLUTE_PATH, "node.json")
+
 STORING_PATH = os.path.join(ABSOLUTE_PATH, "Images")
 
 AI_PATH = os.path.join(ABSOLUTE_PATH, "ai")
