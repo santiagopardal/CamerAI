@@ -10,8 +10,8 @@ services:
     ports:
       - "8080:8080"
     volumes:
-      - "./CamerAPI/temporal_videos:/app/temporal_videos"
-      - "./CamerAPI/.env:/app/.env"
+      - "./CamerAPI/temporal_videos:/camerapi/temporal_videos"
+      - "./CamerAPI/.env:/camerapi/.env"
   camerai:
     build:
       context: .
@@ -21,13 +21,13 @@ services:
     env_file:
       - .env
     environment:
-      - PYTHONPATH=/app/src
+      - PYTHONPATH=/camerai/src
     ports:
       - "5460:5460"
     volumes:
-      - "./Images:/app/Images"
-      - "./camerai.log:/app/camerai.log"
-      - "./.env:/app/.env"
+      - "./Images:/camerai/Images"
+      - "./camerai.log:/camerai/camerai.log"
+      - "./.env:/camerai/.env"
   camerapp:
     build:
       context: ./CamerAPP/camerapp
@@ -39,4 +39,4 @@ services:
     ports:
       - "3000:4173"
     volumes:
-      - "./CamerAPP/camerapp/.env:/app/.env"
+      - "./CamerAPP/camerapp/.env:/camerapp/.env"
