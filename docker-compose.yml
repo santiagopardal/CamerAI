@@ -17,6 +17,7 @@ services:
       dockerfile: Dockerfile
     container_name: camerapi
     restart: unless-stopped
+    env_file: ./CamerAPI/.env
     ports:
       - "8080:8080"
     volumes:
