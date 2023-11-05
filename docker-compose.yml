@@ -1,17 +1,27 @@
 version: "2.1"
 services:
+  camerapidatabase:
+    image: postgres:15-alpine
+    container_name: camerapidatabase
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: camerapi
+      POSTGRES_PASSWORD: admin
+    ports:
+      - "5432:5432"
+    volumes:
+      - "./pgdata:/var/lib/postgresql/data"
   camerapi:
     build:
       context: ./CamerAPI
       dockerfile: Dockerfile
     container_name: camerapi
     restart: unless-stopped
-    env_file: ./CamerAPI/.env
     ports:
       - "8080:8080"
     volumes:
-      - "./CamerAPI/temporal_videos:/app/temporal_videos"
-      - "./CamerAPI/.env:/app/.env"
+      - "./CamerAPI/temporal_videos:/camerapi/temporal_videos"
+      - "./CamerAPI/.env:/camerapi/.env"
   camerai:
     build:
       context: .
@@ -21,13 +31,13 @@ services:
     env_file:
       - .env
     environment:
-      - PYTHONPATH=/app/src
+      - PYTHONPATH=/camerai/src
     ports:
       - "5460:5460"
     volumes:
-      - "./Images:/app/Images"
-      - "./camerai.log:/app/camerai.log"
-      - "./.env:/app/.env"
+      - "./Images:/camerai/Images"
+      - "./camerai.log:/camerai/camerai.log"
+      - "./.env:/camerai/.env"
   camerapp:
     build:
       context: ./CamerAPP/camerapp
@@ -39,4 +49,4 @@ services:
     ports:
       - "3000:4173"
     volumes:
-      - "./CamerAPP/camerapp/.env:/app/.env"
+      - "./CamerAPP/camerapp/.env:/camerapp/.env"

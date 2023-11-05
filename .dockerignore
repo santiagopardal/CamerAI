@@ -2,3 +2,5 @@ camerai.log
 node.json
 .gitignore
 .dockerignore
+**git**
+*git*
