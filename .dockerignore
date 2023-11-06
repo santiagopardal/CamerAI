@@ -4,3 +4,4 @@ node.json
 .dockerignore
 **git**
 *git*
+pagdata
