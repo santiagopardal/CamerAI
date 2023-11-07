@@ -4,7 +4,7 @@
 CameraAI is a program which can retrieve images from CCTV cameras recognizing movement and acting on it.
 
 ## 📚 Requirements
-   👉 Docker: CamerAI can run on any OS that supports Docker.
+ - 👉 Docker: CamerAI can run on any OS that supports Docker.
 
 ## 🛠 Instalation
 To install the entire project, this is, CamerAI, CamerAPI and CamerAPP simply run:
@@ -18,7 +18,7 @@ Note that if you don't want CamerAPI you can also comment out the database `came
 
 You may want to deploy multiple nodes, even in multiple devices. To do so, you can deploy the entire system in one device and in the rest just deploy CamerAI. In that case, you'll need to modify the `.env' file that the `install` script will create for you:
 
-  👉 Change the `API_URL` so that the node can hit the API.
+ - 👉 Change the `API_URL` so that the node can hit the API.
 
 ## 🤖 How does it detect movement?
 There is a convolutional neural network which is fed with the difference between two frames and returns a probability, that probability will be the number that determines whether
