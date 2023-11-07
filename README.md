@@ -1,7 +1,7 @@
 # CamerAI
 
 ## 📹 What is CameraAI?
-CameraAI is a program which can retrieve images from CCTV cameras, display them, recognize movement, and detect objects.
+CameraAI is a program which can retrieve images from CCTV cameras recognizing movement and acting on it.
 
 ## 📚 Requirements
  - 👉 Docker: CamerAI can run on any OS that supports Docker.
