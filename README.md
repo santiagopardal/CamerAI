@@ -4,7 +4,7 @@
 CameraAI is a program which can retrieve images from CCTV cameras, display them, recognize movement, and detect objects.
 
 ## 📚 Requirements
- 👉 Docker: CamerAI can run on any OS that supports Docker.
+ - 👉 Docker: CamerAI can run on any OS that supports Docker.
 
 ## 🛠 Instalation
 To install the entire project, this is, CamerAI, CamerAPI and CamerAPP simply run:
@@ -23,9 +23,6 @@ this may be due to a few mislabeled images in the dataset, fortunately, in pract
 
 # 🤖 What's the architecture of the CNN?
 ![alt text](https://github.com/santiagopardal/CamerAI/blob/master/docs/Lite%20CNN%20architecture.png)
-
-# ❓ How do we detect objects?
-Objects are detected by YOLO v4, it's a pretrained convolutional neural network designed to detect a variety of objects. See [YOLOv4/coco.names](https://github.com/santiagopardal/CamerAI/blob/master/YOLO%20v4/coco.names) to get the full list.
 
 # 💻 What about the hardware requirements?
 The program can run on any OS, RAM usage can be quite large depending on the quality of the CCTV cameras you are using. There is a trade-off between CPU performance and RAM usage, in order to make the program lighter on the CPU (because the idea is to run it on low end devices such as raspberry pi) modifications have been made so as not to load the CPU too much, these modifications come at the expense of a greater RAM usage. If you want to play with the performance you can do so by increasing or decreasing the detection batch size
