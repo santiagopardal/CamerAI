@@ -14,7 +14,7 @@ To install the entire project, this is, CamerAI, CamerAPI and CamerAPP simply ru
 ```
 
 If you decide that you don't want the API or the web app, you can just comment the services in the `docker-compose.yml` file and after doing so, running the `install` script.
-Note that if you don't want CamerAPI you can also comment out the database `camerapidatabase`.
+Note that if you don't want CamerAPI you can also comment out the database `camerapidatabase`. Keep in mind that you will need an API, so if you are going to comment CamerAPI out, you will need to implement your own.
 
 You may want to deploy multiple nodes, even in multiple devices. To do so, you can deploy the entire system in one device and in the rest just deploy CamerAI. In that case, you'll need to modify the `.env` file that the `install` script will create for you:
 
