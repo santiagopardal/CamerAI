@@ -16,6 +16,10 @@ To install the entire project, this is, CamerAI, CamerAPI and CamerAPP simply ru
 If you decide that you don't want the API or the web app, you can just comment the services in the `docker-compose.yml` file and after doing so, running the `install` script.
 Note that if you don't want CamerAPI you can also comment out the database `camerapidatabase`.
 
+You may want to deploy multiple nodes, even in multiple devices. To do so, you can deploy the entire system in one device and in the rest just deploy CamerAI. In that case, you'll need to modify the `.env' file that the `install` script will create for you:
+
+ - Change the ´API_URL´ so that the node can hit the API.
+
 ## 🤖 How does it detect movement?
 There is a convolutional neural network which is fed with the difference between two frames and returns a probability, that probability will be the number that determines whether
 there's been movement or not. The sensitivity can be modified either by editing it through CamerAPP or hitting the endpoint (see CamerAPI docs).
