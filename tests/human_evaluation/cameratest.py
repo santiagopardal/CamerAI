@@ -3,7 +3,7 @@ import numpy as np
 import urllib
 import concurrent.futures
 from src.observations import Tatiana
-from src.constants import CNN_INPUT_SHAPE, MOVEMENT_SENSITIVITY
+from src.constants import CNN_INPUT_SHAPE
 
 
 MODEL = Tatiana()
