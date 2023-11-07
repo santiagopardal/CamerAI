@@ -18,8 +18,7 @@ Note that if you don't want CamerAPI you can also comment out the database `came
 
 ## 🤖 How does it detect movement?
 There is a convolutional neural network which is fed with the difference between two frames and returns a probability, that probability will be the number that determines whether
-there's been movement or not. The sensitivity can be modified in the Constants.py file. The tests suggest that network's accuracy is about 97.64%, but it may be a bit higher around 98% or even 99%
-this may be due to a few mislabeled images in the dataset, fortunately, in practice the network performs way better than 97%. More testing must be done in order to ensure this.
+there's been movement or not. The sensitivity can be modified either by editing it through CamerAPP or hitting the endpoint (see CamerAPI docs).
 
 # 🤖 What's the architecture of the CNN?
 ![alt text](https://github.com/santiagopardal/CamerAI/blob/master/docs/Lite%20CNN%20architecture.png)
