@@ -1,24 +1,37 @@
 # CamerAI
 
-## What is CameraAI?
+## 📹 What is CameraAI?
 CameraAI is a program which can retrieve images from CCTV cameras, display them, recognize movement, and detect objects.
 
-## How does it detect movement?
+## 📚 Requirements
+ 👉 Docker: CamerAI can run on any OS that supports Docker.
+
+## 🛠 Instalation
+To install the entire project, this is, CamerAI, CamerAPI and CamerAPP simply run:
+
+```bash
+./install
+```
+
+If you decide that you don't want the API or the web app, you can just comment the services in the `docker-compose.yml` file and after doing so, running the `install` script.
+Note that if you don't want CamerAPI you can also comment out the database `camerapidatabase`.
+
+## 🤖 How does it detect movement?
 There is a convolutional neural network which is fed with the difference between two frames and returns a probability, that probability will be the number that determines whether
 there's been movement or not. The sensitivity can be modified in the Constants.py file. The tests suggest that network's accuracy is about 97.64%, but it may be a bit higher around 98% or even 99%
 this may be due to a few mislabeled images in the dataset, fortunately, in practice the network performs way better than 97%. More testing must be done in order to ensure this.
 
-# What's the architecture of the CNN?
+# 🤖 What's the architecture of the CNN?
 ![alt text](https://github.com/santiagopardal/CamerAI/blob/master/docs/Lite%20CNN%20architecture.png)
 
-# How do we detect objects?
+# ❓ How do we detect objects?
 Objects are detected by YOLO v4, it's a pretrained convolutional neural network designed to detect a variety of objects. See [YOLOv4/coco.names](https://github.com/santiagopardal/CamerAI/blob/master/YOLO%20v4/coco.names) to get the full list.
 
-# What about the requirements?
+# 💻 What about the hardware requirements?
 The program can run on any OS, RAM usage can be quite large depending on the quality of the CCTV cameras you are using. There is a trade-off between CPU performance and RAM usage, in order to make the program lighter on the CPU (because the idea is to run it on low end devices such as raspberry pi) modifications have been made so as not to load the CPU too much, these modifications come at the expense of a greater RAM usage. If you want to play with the performance you can do so by increasing or decreasing the detection batch size
 (DBS) on [Constants.py](https://github.com/santiagopardal/CamerAI/blob/master/Constants.py). Note that the DBS must be greater than 1.
 
-## How's the optimization process?
+## 🤔 How's the optimization process?
 Instead of checking frame by frame whether there has been movement or not, we look for movement every DBS(s) frames, the default value is 100 DBS but you can modify it. Once
 we have DBSs frames we won't be checking frame by frame, instead we will skip some of them. In the worst case scenario we will be looking
 
@@ -75,7 +88,6 @@ Some visual explanations of what's happening when using b=5:
 ![alt text](https://github.com/santiagopardal/CamerAI/blob/master/docs/GIFS/NM-NM.gif)
 
 
-## I have a GPU can I use it?
-Yes, of course! Just install the requirements (requirements.txt) and you are ready to go, maybe you will benefit from decreasing the detection batch size,
-also remember that tensorflow for GPU requires CUDA toolkit and cuDNN, [here](https://www.tensorflow.org/install/gpu) is the official tutorial to install
-tensorflow GPU.
+## 🎮 I have a GPU can I use it?
+Not if you are using the dockerized version. But if you want to, you can install the application on your host or dockerize the system using your GPU.
+To install the system in your host, just install the requirements (requirements.txt) and you are ready to go, CamerAPI and CamerAPP can be dockerized. Maybe you will benefit from decreasing the detection batch size, also remember that tensorflow for GPU requires CUDA toolkit and cuDNN, [here](https://www.tensorflow.org/install/gpu) is the official tutorial to install tensorflow GPU.
