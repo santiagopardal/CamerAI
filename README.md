@@ -13,7 +13,7 @@ To install the entire project, this is, CamerAI, CamerAPI and CamerAPP simply ru
 ./install
 ```
 
-If you decide that you don't want the API or the web app, you can just just deploy the services you want by first running the `install` script and then `docker compose up -d [camerai, camerapi camerapidatabase, camerapp]`.
+If you decide that you don't want the API or the web app, you can just just deploy the services you want by first running the `install` script and then `docker compose up -d [camerai || camerapi camerapidatabase || camerapp]`.
 Note that if you don't want CamerAPI you also don't need the database `camerapidatabase`. Keep in mind that you will need an API, so if you are not deploying CamerAPI, you will need to implement your own API.
 
 You may want to deploy multiple nodes, even in multiple devices. To do so, you can deploy the entire system in one device and in the rest just deploy CamerAI `docker compose up -d camerai`. In that case, you'll need to modify the `.env` file that the `install` script will create for you:
