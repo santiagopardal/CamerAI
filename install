@@ -3,11 +3,6 @@ touch camerai.log
 git submodule init
 git submodule update
 
-if [ ! -f ./.env ]; then
-    echo API_URL="http://camerapi:8080/api" >> ./.env
-    echo ABSOLUTE_PATH="/camerai" >> ./.env
-fi
-
 cd CamerAPI
 ./install
 
