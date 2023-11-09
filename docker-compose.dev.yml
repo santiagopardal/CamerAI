@@ -26,6 +26,7 @@ services:
       - "8080:8080"
     volumes:
       - "./CamerAPI:/camerapi"
+      - /camerapi/node_modules
   camerai:
     build:
       context: .
