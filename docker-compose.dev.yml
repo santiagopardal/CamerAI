@@ -1,8 +1,8 @@
 version: "2.1"
 services:
-  camerairrabit:
+  camerairabbit:
     image: rabbitmq:3.12-management-alpine
-    container_name: camerairrabit
+    container_name: camerairabbit
     restart: unless-stopped
     ports:
       - 15672:15672
