@@ -1,0 +1,32 @@
+syntax = "proto3";
+
+import "google/protobuf/empty.proto";
+import "google/protobuf/wrappers.proto";
+
+service Node {
+
+    rpc stop (google.protobuf.Empty) returns (google.protobuf.Empty);
+
+    rpc update_sensitivity (UpdateSensitivityRequest) returns (google.protobuf.Empty);
+
+    rpc is_recording (NodeIdParameterRequest) returns (google.protobuf.BoolValue);
+
+    rpc record (SwitchRecordingRequest) returns (google.protobuf.Empty);
+
+    rpc stop_recording (SwitchRecordingRequest) returns (google.protobuf.Empty);
+
+    rpc get_snapshot_url (NodeIdParameterRequest) returns (google.protobuf.StringValue);
+}
+
+message UpdateSensitivityRequest {
+    int32 node_id = 1;
+    double sensitivity = 2;
+}
+
+message NodeIdParameterRequest {
+    int32 node_id = 1;
+}
+
+message SwitchRecordingRequest {
+    repeated int32 cameras_ids = 1;
+}
