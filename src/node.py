@@ -4,7 +4,8 @@ from threading import Semaphore
 import src.api.api as API
 import src.api.node as node_api
 import src.api.cameras as cameras_api
-from src.tcp_listener import TCPListener
+from src.tcp_listener import TCPListener, LISTENING_PORT
+from socket import gethostname, gethostbyname
 import time
 import logging
 from src.constants import NODE_INFO_PATH
@@ -16,27 +17,13 @@ class Node:
     def __init__(self):
         API.NODE = self
         self._id = None
-        self.cameras = []
-        self._listener = TCPListener(self)
+        self._register()
+        self.cameras = self._fetch_cameras_from_api()
         self._waiter = Semaphore(0)
 
     def run(self):
         try:
-            logging.info('Starting node')
-
-            if self.id:
-                API.set_headers({"node_id": str(self.id)})
-
-            response = node_api.register(self._listener.ip, self._listener.port)
-            if not self.id:
-                self._id = response['id']
-                API.set_headers({"node_id": str(self._id)})
-                with open(NODE_INFO_PATH, "w") as node_info_file:
-                    node_info_file.write(json.dumps({"id": self.id}))
-
-            self.cameras = self._fetch_cameras_from_api()
             logging.info(f"Node running with {len(self.cameras)} cameras.")
-            self._listener.listen()
 
             for camera in self.cameras:
                 camera.receive_video()
@@ -47,7 +34,6 @@ class Node:
                 camera.stop_recording()
                 camera.stop_receiving_video()
 
-            self._listener.stop_listening()
             logging.info('Node stopped')
         except Exception as e:
             logging.error(f"Error initializing node, {e}")
@@ -115,6 +101,17 @@ class Node:
 
         return self._id
 
+    def _register(self):
+        if self.id:
+            API.set_headers({"node_id": str(self.id)})
+
+        response = node_api.register(gethostbyname(gethostname()), LISTENING_PORT)
+        if not self.id:
+            self._id = response['id']
+            API.set_headers({"node_id": str(self._id)})
+            with open(NODE_INFO_PATH, "w") as node_info_file:
+                node_info_file.write(json.dumps({"id": self.id}))
+
     def _fetch_cameras_from_api(self) -> list:
         i = 0
         cameras = []
@@ -140,5 +137,8 @@ if __name__ == '__main__':
         style="{"
     )
 
-    sys = Node()
-    sys.run()
+    node = Node()
+    listener = TCPListener(node)
+    listener.listen()
+    node.run()
+    listener.stop_listening()
