@@ -15,18 +15,45 @@ service Node {
 
     rpc stop_recording (SwitchRecordingRequest) returns (google.protobuf.Empty);
 
+    rpc add_camera (CameraInfo) returns (google.protobuf.Empty);
+
+    rpc remove_camera (CameraIdParameterRequest) returns (google.protobuf.Empty);
+
     rpc get_snapshot_url (NodeIdParameterRequest) returns (google.protobuf.StringValue);
 }
 
 message UpdateSensitivityRequest {
-    int32 node_id = 1;
+    uint32 node_id = 1;
     double sensitivity = 2;
 }
 
 message NodeIdParameterRequest {
-    int32 node_id = 1;
+    uint32 node_id = 1;
+}
+
+message CameraIdParameterRequest {
+    uint32 camera_id = 1;
 }
 
 message SwitchRecordingRequest {
-    repeated int32 cameras_ids = 1;
+    repeated uint32 cameras_ids = 1;
+}
+
+message CameraInfo {
+    uint32 id = 1;
+    string name = 2;
+    string ip = 3;
+    uint32 http_port = 4;
+    uint32 streaming_port = 5;
+    sint32 frame_width = 6;
+    sint32 frame_height = 7;
+    sint32 frame_rate = 8;
+    string user = 9;
+    string password = 10;
+    CameraConfigurations configurations = 11;
+}
+
+message CameraConfigurations {
+    double sensitivity = 1;
+    bool recording = 2;
 }
