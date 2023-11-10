@@ -50,7 +50,8 @@ message CameraInfo {
     sint32 frame_rate = 8;
     string user = 9;
     string password = 10;
-    CameraConfigurations configurations = 11;
+    string model = 11;
+    CameraConfigurations configurations = 12;
 }
 
 message CameraConfigurations {
