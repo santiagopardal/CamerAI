@@ -29,6 +29,7 @@ services:
     volumes:
       - "./CamerAPI:/camerapi"
       - /camerapi/node_modules
+      - "./protos:/camerapi/src/models/protos"
   camerai:
     build:
       context: .
@@ -46,6 +47,7 @@ services:
       - "./libs:/camerai/libs"
       - "./ai:/camerai/ai"
       - "./node.json:/camerai/node.json"
+      - "./camerai.log:/camerai/camerai.log"
   camerapp:
     build:
       context: ./CamerAPP/camerapp

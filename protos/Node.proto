@@ -19,7 +19,7 @@ service Node {
 
     rpc remove_camera (CameraIdParameterRequest) returns (google.protobuf.Empty);
 
-    rpc get_snapshot_url (NodeIdParameterRequest) returns (google.protobuf.StringValue);
+    rpc get_snapshot_url (CameraIdParameterRequest) returns (URLResponse);
 }
 
 message UpdateSensitivityRequest {
@@ -33,6 +33,10 @@ message NodeIdParameterRequest {
 
 message CameraIdParameterRequest {
     uint32 camera_id = 1;
+}
+
+message URLResponse {
+    string url = 1;
 }
 
 message SwitchRecordingRequest {

@@ -27,6 +27,12 @@ class CameraIdParameterRequest(_message.Message):
     camera_id: int
     def __init__(self, camera_id: _Optional[int] = ...) -> None: ...
 
+class URLResponse(_message.Message):
+    __slots__ = ["url"]
+    URL_FIELD_NUMBER: _ClassVar[int]
+    url: str
+    def __init__(self, url: _Optional[str] = ...) -> None: ...
+
 class SwitchRecordingRequest(_message.Message):
     __slots__ = ["cameras_ids"]
     CAMERAS_IDS_FIELD_NUMBER: _ClassVar[int]
@@ -34,7 +40,7 @@ class SwitchRecordingRequest(_message.Message):
     def __init__(self, cameras_ids: _Optional[_Iterable[int]] = ...) -> None: ...
 
 class CameraInfo(_message.Message):
-    __slots__ = ["id", "name", "ip", "http_port", "streaming_port", "frame_width", "frame_height", "frame_rate", "user", "password", "configurations"]
+    __slots__ = ["id", "name", "ip", "http_port", "streaming_port", "frame_width", "frame_height", "frame_rate", "user", "password", "model", "configurations"]
     ID_FIELD_NUMBER: _ClassVar[int]
     NAME_FIELD_NUMBER: _ClassVar[int]
     IP_FIELD_NUMBER: _ClassVar[int]
@@ -45,6 +51,7 @@ class CameraInfo(_message.Message):
     FRAME_RATE_FIELD_NUMBER: _ClassVar[int]
     USER_FIELD_NUMBER: _ClassVar[int]
     PASSWORD_FIELD_NUMBER: _ClassVar[int]
+    MODEL_FIELD_NUMBER: _ClassVar[int]
     CONFIGURATIONS_FIELD_NUMBER: _ClassVar[int]
     id: int
     name: str
@@ -56,8 +63,9 @@ class CameraInfo(_message.Message):
     frame_rate: int
     user: str
     password: str
+    model: str
     configurations: CameraConfigurations
-    def __init__(self, id: _Optional[int] = ..., name: _Optional[str] = ..., ip: _Optional[str] = ..., http_port: _Optional[int] = ..., streaming_port: _Optional[int] = ..., frame_width: _Optional[int] = ..., frame_height: _Optional[int] = ..., frame_rate: _Optional[int] = ..., user: _Optional[str] = ..., password: _Optional[str] = ..., configurations: _Optional[_Union[CameraConfigurations, _Mapping]] = ...) -> None: ...
+    def __init__(self, id: _Optional[int] = ..., name: _Optional[str] = ..., ip: _Optional[str] = ..., http_port: _Optional[int] = ..., streaming_port: _Optional[int] = ..., frame_width: _Optional[int] = ..., frame_height: _Optional[int] = ..., frame_rate: _Optional[int] = ..., user: _Optional[str] = ..., password: _Optional[str] = ..., model: _Optional[str] = ..., configurations: _Optional[_Union[CameraConfigurations, _Mapping]] = ...) -> None: ...
 
 class CameraConfigurations(_message.Message):
     __slots__ = ["sensitivity", "recording"]

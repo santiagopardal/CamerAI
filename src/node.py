@@ -12,6 +12,7 @@ from src.constants import NODE_INFO_PATH
 import json
 import os
 from src.Node_pb2_grpc import NodeServicer, add_NodeServicer_to_server
+from src.Node_pb2 import CameraIdParameterRequest, URLResponse
 import grpc
 
 
@@ -67,9 +68,9 @@ class Node(NodeServicer):
         camera.stop_receiving_video()
         self.cameras.remove(camera)
 
-    def get_snapshot_url(self, request, context):
+    def get_snapshot_url(self, request: CameraIdParameterRequest, context) -> URLResponse:
         camera = self._get_camera(request.camera_id)
-        return camera.snapshot_url
+        return URLResponse(url=camera.snapshot_url)
 
     def _get_camera(self, camera_id: int) -> Camera:
         cameras = [camera for camera in self.cameras if camera.id == int(camera_id)]
