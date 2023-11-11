@@ -40,11 +40,12 @@ services:
     environment:
       - PYTHONPATH=/camerai/src
     ports:
-      - "5460:5460"
+      - "50051:50051"
     volumes:
       - "./src:/camerai/src"
       - "./libs:/camerai/libs"
       - "./ai:/camerai/ai"
+      - "./node.json:/camerai/node.json"
   camerapp:
     build:
       context: ./CamerAPP/camerapp
