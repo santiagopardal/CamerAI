@@ -12,7 +12,7 @@ from src.constants import NODE_INFO_PATH
 import json
 import os
 from src.Node_pb2_grpc import NodeServicer, add_NodeServicer_to_server
-from src.Node_pb2 import CameraIdParameterRequest, UpdateSensitivityRequest
+from src.Node_pb2 import CameraIdParameterRequest, UpdateSensitivityRequest, ManyCameraIdsRequest
 import grpc
 from google.protobuf.wrappers_pb2 import StringValue
 from google.protobuf.empty_pb2 import Empty as EmptyValue
@@ -44,7 +44,7 @@ class Node(NodeServicer):
         camera.update_sensitivity(request.sensitivity)
         return EmptyValue()
 
-    def record(self, request, context) -> EmptyValue:
+    def record(self, request: ManyCameraIdsRequest, context) -> EmptyValue:
         cameras_ids = request.cameras_ids
         cameras: list[Camera] = [camera for camera in self.cameras
                                  if camera.id in cameras_ids] if cameras_ids else self.cameras
@@ -53,7 +53,7 @@ class Node(NodeServicer):
 
         return EmptyValue()
 
-    def stop_recording(self, request, context) -> EmptyValue:
+    def stop_recording(self, request: ManyCameraIdsRequest, context) -> EmptyValue:
         cameras_ids = request.cameras_ids
         cameras: list[Camera] = [camera for camera in self.cameras if
                                  camera.id in cameras_ids] if cameras_ids else self.cameras
@@ -67,11 +67,12 @@ class Node(NodeServicer):
         self.cameras.append(camera)
         camera.receive_video()
 
-    def remove_camera(self, request, context):
+    def remove_camera(self, request: CameraIdParameterRequest, context) -> EmptyValue:
         camera = self._get_camera(request.camera_id)
         camera.stop_recording()
         camera.stop_receiving_video()
         self.cameras.remove(camera)
+        return EmptyValue()
 
     def get_snapshot_url(self, request: CameraIdParameterRequest, context) -> StringValue:
         camera = self._get_camera(request.camera_id)

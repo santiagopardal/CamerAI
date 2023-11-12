@@ -28,12 +28,12 @@ class NodeStub(object):
                 )
         self.record = channel.unary_unary(
                 '/Node/record',
-                request_serializer=Node__pb2.SwitchRecordingRequest.SerializeToString,
+                request_serializer=Node__pb2.ManyCameraIdsRequest.SerializeToString,
                 response_deserializer=google_dot_protobuf_dot_empty__pb2.Empty.FromString,
                 )
         self.stop_recording = channel.unary_unary(
                 '/Node/stop_recording',
-                request_serializer=Node__pb2.SwitchRecordingRequest.SerializeToString,
+                request_serializer=Node__pb2.ManyCameraIdsRequest.SerializeToString,
                 response_deserializer=google_dot_protobuf_dot_empty__pb2.Empty.FromString,
                 )
         self.add_camera = channel.unary_unary(
@@ -113,12 +113,12 @@ def add_NodeServicer_to_server(servicer, server):
             ),
             'record': grpc.unary_unary_rpc_method_handler(
                     servicer.record,
-                    request_deserializer=Node__pb2.SwitchRecordingRequest.FromString,
+                    request_deserializer=Node__pb2.ManyCameraIdsRequest.FromString,
                     response_serializer=google_dot_protobuf_dot_empty__pb2.Empty.SerializeToString,
             ),
             'stop_recording': grpc.unary_unary_rpc_method_handler(
                     servicer.stop_recording,
-                    request_deserializer=Node__pb2.SwitchRecordingRequest.FromString,
+                    request_deserializer=Node__pb2.ManyCameraIdsRequest.FromString,
                     response_serializer=google_dot_protobuf_dot_empty__pb2.Empty.SerializeToString,
             ),
             'add_camera': grpc.unary_unary_rpc_method_handler(
@@ -192,7 +192,7 @@ class Node(object):
             timeout=None,
             metadata=None):
         return grpc.experimental.unary_unary(request, target, '/Node/record',
-            Node__pb2.SwitchRecordingRequest.SerializeToString,
+            Node__pb2.ManyCameraIdsRequest.SerializeToString,
             google_dot_protobuf_dot_empty__pb2.Empty.FromString,
             options, channel_credentials,
             insecure, call_credentials, compression, wait_for_ready, timeout, metadata)
@@ -209,7 +209,7 @@ class Node(object):
             timeout=None,
             metadata=None):
         return grpc.experimental.unary_unary(request, target, '/Node/stop_recording',
-            Node__pb2.SwitchRecordingRequest.SerializeToString,
+            Node__pb2.ManyCameraIdsRequest.SerializeToString,
             google_dot_protobuf_dot_empty__pb2.Empty.FromString,
             options, channel_credentials,
             insecure, call_credentials, compression, wait_for_ready, timeout, metadata)

@@ -21,7 +21,7 @@ class CameraIdParameterRequest(_message.Message):
     camera_id: int
     def __init__(self, camera_id: _Optional[int] = ...) -> None: ...
 
-class SwitchRecordingRequest(_message.Message):
+class ManyCameraIdsRequest(_message.Message):
     __slots__ = ["cameras_ids"]
     CAMERAS_IDS_FIELD_NUMBER: _ClassVar[int]
     cameras_ids: _containers.RepeatedScalarFieldContainer[int]
