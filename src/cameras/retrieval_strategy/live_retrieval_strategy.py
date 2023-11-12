@@ -54,7 +54,6 @@ class LiveRetrievalStrategy(RetrievalStrategy):
         if self._live_video and not self._disconnect:
             self._log_status("Disconnected")
             self._live_video.release()
-            del self._live_video
 
         self._disconnect = True
 

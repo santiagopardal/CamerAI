@@ -21,7 +21,7 @@ class Camera:
         self._last_frame = None
         self._frame_handler = FrameHandler() if frames_handler is None else frames_handler
         self._retrieval_strategy = retrieval_strategy
-        self._thread_pool = ThreadPoolExecutor(max_workers=1)
+        self._thread_pool = None
         if self.is_recording:
             self._do_record()
 
@@ -101,6 +101,7 @@ class Camera:
 
     def receive_video(self):
         self._should_receive_frames = True
+        self._thread_pool = ThreadPoolExecutor(max_workers=1)
         self._thread_pool.submit(self._receive_frames)
 
     def record(self):
@@ -117,6 +118,7 @@ class Camera:
         self._should_receive_frames = False
         self.retrieval_strategy.disconnect()
         self._thread_pool.shutdown(wait=True, cancel_futures=True)
+        self._thread_pool = None
 
     def _receive_frames(self):
         self._retrieval_strategy.connect()
