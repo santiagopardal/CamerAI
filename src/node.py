@@ -4,18 +4,20 @@ import src.api.api as API
 from concurrent.futures import ThreadPoolExecutor
 import src.api.node as node_api
 import src.api.cameras as cameras_api
-from src.tcp_listener import LISTENING_PORT
 from socket import gethostname, gethostbyname
 import time
 import logging
 from src.constants import NODE_INFO_PATH
 import json
 import os
-from src.Node_pb2_grpc import NodeServicer, add_NodeServicer_to_server
-from src.Node_pb2 import CameraIdParameterRequest, UpdateSensitivityRequest, ManyCameraIdsRequest, CameraInfo
+from libs.CamerAIProtos.Node_pb2_grpc import NodeServicer, add_NodeServicer_to_server
+from libs.CamerAIProtos.Node_pb2 import CameraIdParameterRequest, UpdateSensitivityRequest, ManyCameraIdsRequest, CameraInfo
 import grpc
 from google.protobuf.wrappers_pb2 import StringValue
 from google.protobuf.empty_pb2 import Empty as EmptyValue
+
+
+LISTENING_PORT = 50051
 
 
 class Node(NodeServicer):
@@ -35,9 +37,11 @@ class Node(NodeServicer):
         except Exception as e:
             logging.error(f"Error initializing node, {e}")
 
-    def stop(self, request, context):
+    def stop(self, request, context) -> EmptyValue:
         for camera in self.cameras:
             camera.stop_recording()
+
+        return EmptyValue()
 
     def update_sensitivity(self, request: UpdateSensitivityRequest, context) -> EmptyValue:
         camera = self._get_camera(request.camera_id)
@@ -155,8 +159,8 @@ if __name__ == '__main__':
 
     node = Node()
     node.run()
-    server = grpc.server(ThreadPoolExecutor(max_workers=5))
+    server = grpc.server(ThreadPoolExecutor(max_workers=len(node.cameras) + 1))
     add_NodeServicer_to_server(node, server)
-    server.add_insecure_port("0.0.0.0:50051")
+    server.add_insecure_port(f"0.0.0.0:{LISTENING_PORT}")
     server.start()
     server.wait_for_termination()
