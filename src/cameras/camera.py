@@ -21,7 +21,7 @@ class Camera:
         self._last_frame = None
         self._frame_handler = FrameHandler() if frames_handler is None else frames_handler
         self._retrieval_strategy = retrieval_strategy
-        self._thread_pool = None
+        self._thread_pool = ThreadPoolExecutor(max_workers=1)
         if self.is_recording:
             self._do_record()
 
