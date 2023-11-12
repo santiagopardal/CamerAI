@@ -24,9 +24,8 @@ class Camera:
         self._is_recording = False
         self._thread_pool = ThreadPoolExecutor(max_workers=1)
 
-    @classmethod
-    def from_json(cls, json: dict):
-        pass
+        if configurations.recording:
+            self.record()
 
     @property
     def id(self) -> int:

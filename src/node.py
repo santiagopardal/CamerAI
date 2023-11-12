@@ -12,7 +12,7 @@ from src.constants import NODE_INFO_PATH
 import json
 import os
 from src.Node_pb2_grpc import NodeServicer, add_NodeServicer_to_server
-from src.Node_pb2 import CameraIdParameterRequest, UpdateSensitivityRequest, ManyCameraIdsRequest
+from src.Node_pb2 import CameraIdParameterRequest, UpdateSensitivityRequest, ManyCameraIdsRequest, CameraInfo
 import grpc
 from google.protobuf.wrappers_pb2 import StringValue
 from google.protobuf.empty_pb2 import Empty as EmptyValue
@@ -62,7 +62,7 @@ class Node(NodeServicer):
 
         return EmptyValue()
 
-    def add_camera(self, camera: dict):
+    def add_camera(self, request: CameraInfo, context):
         camera = deserialize(camera)
         self.cameras.append(camera)
         camera.receive_video()
