@@ -62,7 +62,7 @@ class Node(NodeServicer):
 
         return EmptyValue()
 
-    def add_camera(self, request: CameraInfo, context):
+    def add_camera(self, request: CameraInfo, context) -> EmptyValue:
         camera = deserialize(
             id=request.id, name=request.name, model=request.model, ip=request.ip, http_port=request.http_port,
             streaming_port=request.streaming_port, user=request.user, password=request.password, width=request.width,
@@ -73,12 +73,15 @@ class Node(NodeServicer):
         camera.receive_video()
         logging.info(f"Added camera with id {request.id}")
 
+        return EmptyValue()
+
     def remove_camera(self, request: CameraIdParameterRequest, context) -> EmptyValue:
         camera = self._get_camera(request.camera_id)
         camera.stop_recording()
         camera.stop_receiving_video()
         self.cameras.remove(camera)
         logging.info(f"Removed camera with id {request.camera_id}")
+
         return EmptyValue()
 
     def get_snapshot_url(self, request: CameraIdParameterRequest, context) -> StringValue:

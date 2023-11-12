@@ -25,7 +25,7 @@ class FrameHandler:
         self._current_buffer_started_receiving = time.time()
 
     def stop(self):
-        self._thread_pool.shutdown(True)
+        self._thread_pool.shutdown(wait=True, cancel_futures=True)
 
     def add_motion_handler(self, handler: MotionHandler):
         if handler:
@@ -44,7 +44,7 @@ class FrameHandler:
             true_framerate = self.observer.frames_to_buffer() / (end - self._current_buffer_started_receiving) \
                 if self._current_buffer_started_receiving else constants.FRAME_RATE
 
-            self._check_movement(true_framerate)
+            self._thread_pool.submit(self._check_movement, (true_framerate,))
             self._current_buffer_started_receiving = end
 
     @staticmethod

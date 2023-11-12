@@ -121,7 +121,7 @@ class Camera:
     def stop_receiving_video(self):
         self._should_receive_frames = False
         self.retrieval_strategy.disconnect()
-        self._thread_pool.shutdown(True)
+        self._thread_pool.shutdown(wait=True, cancel_futures=True)
 
     def _receive_frames(self):
         self._retrieval_strategy.connect()
