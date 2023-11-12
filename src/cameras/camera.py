@@ -101,7 +101,6 @@ class Camera:
 
     def receive_video(self):
         self._should_receive_frames = True
-        self._thread_pool = ThreadPoolExecutor(max_workers=1)
         self._thread_pool.submit(self._receive_frames)
 
     def record(self):
@@ -116,8 +115,6 @@ class Camera:
 
     def stop_receiving_video(self):
         self._should_receive_frames = False
-        self._thread_pool.shutdown(wait=True, cancel_futures=True)
-        self._thread_pool = None
 
     def _receive_frames(self):
         self._retrieval_strategy.connect()
