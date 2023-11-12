@@ -14,6 +14,7 @@ import os
 from src.Node_pb2_grpc import NodeServicer, add_NodeServicer_to_server
 from src.Node_pb2 import CameraIdParameterRequest, URLResponse
 import grpc
+import google.protobuf.wrappers_pb2 as wrappers
 
 
 class Node(NodeServicer):
@@ -70,7 +71,7 @@ class Node(NodeServicer):
 
     def get_snapshot_url(self, request: CameraIdParameterRequest, context) -> URLResponse:
         camera = self._get_camera(request.camera_id)
-        return URLResponse(url=camera.snapshot_url)
+        return wrappers.StringValue(value=camera.snapshot_url)
 
     def _get_camera(self, camera_id: int) -> Camera:
         cameras = [camera for camera in self.cameras if camera.id == int(camera_id)]
