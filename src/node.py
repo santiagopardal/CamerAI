@@ -44,21 +44,23 @@ class Node(NodeServicer):
         camera.update_sensitivity(request.sensitivity)
         return EmptyValue()
 
-    def record(self, request, context):
+    def record(self, request, context) -> EmptyValue:
         cameras_ids = request.cameras_ids
         cameras: list[Camera] = [camera for camera in self.cameras
                                  if camera.id in cameras_ids] if cameras_ids else self.cameras
         for camera in cameras:
             camera.record()
 
-    def stop_recording(self, request, context):
+        return EmptyValue()
+
+    def stop_recording(self, request, context) -> EmptyValue:
         cameras_ids = request.cameras_ids
         cameras: list[Camera] = [camera for camera in self.cameras if
                                  camera.id in cameras_ids] if cameras_ids else self.cameras
         for camera in cameras:
             camera.stop_recording()
 
-        return {camera_id: False for camera_id in cameras_ids}
+        return EmptyValue()
 
     def add_camera(self, camera: dict):
         camera = deserialize(camera)
