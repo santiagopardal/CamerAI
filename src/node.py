@@ -10,8 +10,8 @@ import logging
 from src.constants import NODE_INFO_PATH
 import json
 import os
-from libs.CamerAIProtos.Node_pb2_grpc import NodeServicer, add_NodeServicer_to_server
-from libs.CamerAIProtos.Node_pb2 import CameraIdParameterRequest, UpdateSensitivityRequest, ManyCameraIdsRequest, CameraInfo
+from src.Node_pb2_grpc import NodeServicer, add_NodeServicer_to_server
+from src.Node_pb2 import CameraIdParameterRequest, UpdateSensitivityRequest, ManyCameraIdsRequest, CameraInfo
 import grpc
 from google.protobuf.wrappers_pb2 import StringValue
 from google.protobuf.empty_pb2 import Empty as EmptyValue
@@ -146,6 +146,8 @@ class Node(NodeServicer):
                 seconds = 2 ** i
                 logging.error(f"Could not fetch from API, retrying in {seconds} seconds: {e}")
                 time.sleep(seconds)
+
+        return []
 
 
 if __name__ == '__main__':

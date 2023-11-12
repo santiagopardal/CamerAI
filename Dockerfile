@@ -16,4 +16,6 @@ COPY container/supervisord.conf /etc/supervisor/conf.d/supervisord.conf
 
 RUN echo "0 3 * * * $(which python) /camerai/merge.py" | crontab -
 
+RUN python -m grpc_tools.protoc -I ./libs/CamerAIProtos/ --python_out=./src/ --grpc_python_out=./src/ ./libs/CamerAIProtos/Node.proto
+
 CMD ["/usr/bin/supervisord", "-n"]
