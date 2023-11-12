@@ -12,9 +12,10 @@ from src.constants import NODE_INFO_PATH
 import json
 import os
 from src.Node_pb2_grpc import NodeServicer, add_NodeServicer_to_server
-from src.Node_pb2 import CameraIdParameterRequest, URLResponse
+from src.Node_pb2 import CameraIdParameterRequest, UpdateSensitivityRequest
 import grpc
-import google.protobuf.wrappers_pb2 as wrappers
+from google.protobuf.wrappers_pb2 import StringValue
+from google.protobuf.empty_pb2 import Empty as EmptyValue
 
 
 class Node(NodeServicer):
@@ -34,13 +35,14 @@ class Node(NodeServicer):
         except Exception as e:
             logging.error(f"Error initializing node, {e}")
 
-    def update_sensitivity(self, request, context):
+    def stop(self, request, context):
+        for camera in self.cameras:
+            camera.stop_recording()
+
+    def update_sensitivity(self, request: UpdateSensitivityRequest, context) -> EmptyValue:
         camera = self._get_camera(request.camera_id)
         camera.update_sensitivity(request.sensitivity)
-
-    def is_recording(self, request, context) -> bool:
-        camera = self._get_camera(request.camera_id)
-        return camera.is_recording
+        return EmptyValue()
 
     def record(self, request, context):
         cameras_ids = request.cameras_ids
@@ -69,9 +71,9 @@ class Node(NodeServicer):
         camera.stop_receiving_video()
         self.cameras.remove(camera)
 
-    def get_snapshot_url(self, request: CameraIdParameterRequest, context) -> URLResponse:
+    def get_snapshot_url(self, request: CameraIdParameterRequest, context) -> StringValue:
         camera = self._get_camera(request.camera_id)
-        return wrappers.StringValue(value=camera.snapshot_url)
+        return StringValue(value=camera.snapshot_url)
 
     def _get_camera(self, camera_id: int) -> Camera:
         cameras = [camera for camera in self.cameras if camera.id == int(camera_id)]

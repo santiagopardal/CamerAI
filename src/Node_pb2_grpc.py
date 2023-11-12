@@ -26,11 +26,6 @@ class NodeStub(object):
                 request_serializer=Node__pb2.UpdateSensitivityRequest.SerializeToString,
                 response_deserializer=google_dot_protobuf_dot_empty__pb2.Empty.FromString,
                 )
-        self.is_recording = channel.unary_unary(
-                '/Node/is_recording',
-                request_serializer=Node__pb2.NodeIdParameterRequest.SerializeToString,
-                response_deserializer=google_dot_protobuf_dot_wrappers__pb2.BoolValue.FromString,
-                )
         self.record = channel.unary_unary(
                 '/Node/record',
                 request_serializer=Node__pb2.SwitchRecordingRequest.SerializeToString,
@@ -54,7 +49,7 @@ class NodeStub(object):
         self.get_snapshot_url = channel.unary_unary(
                 '/Node/get_snapshot_url',
                 request_serializer=Node__pb2.CameraIdParameterRequest.SerializeToString,
-                response_deserializer=Node__pb2.URLResponse.FromString,
+                response_deserializer=google_dot_protobuf_dot_wrappers__pb2.StringValue.FromString,
                 )
 
 
@@ -68,12 +63,6 @@ class NodeServicer(object):
         raise NotImplementedError('Method not implemented!')
 
     def update_sensitivity(self, request, context):
-        """Missing associated documentation comment in .proto file."""
-        context.set_code(grpc.StatusCode.UNIMPLEMENTED)
-        context.set_details('Method not implemented!')
-        raise NotImplementedError('Method not implemented!')
-
-    def is_recording(self, request, context):
         """Missing associated documentation comment in .proto file."""
         context.set_code(grpc.StatusCode.UNIMPLEMENTED)
         context.set_details('Method not implemented!')
@@ -122,11 +111,6 @@ def add_NodeServicer_to_server(servicer, server):
                     request_deserializer=Node__pb2.UpdateSensitivityRequest.FromString,
                     response_serializer=google_dot_protobuf_dot_empty__pb2.Empty.SerializeToString,
             ),
-            'is_recording': grpc.unary_unary_rpc_method_handler(
-                    servicer.is_recording,
-                    request_deserializer=Node__pb2.NodeIdParameterRequest.FromString,
-                    response_serializer=google_dot_protobuf_dot_wrappers__pb2.BoolValue.SerializeToString,
-            ),
             'record': grpc.unary_unary_rpc_method_handler(
                     servicer.record,
                     request_deserializer=Node__pb2.SwitchRecordingRequest.FromString,
@@ -150,7 +134,7 @@ def add_NodeServicer_to_server(servicer, server):
             'get_snapshot_url': grpc.unary_unary_rpc_method_handler(
                     servicer.get_snapshot_url,
                     request_deserializer=Node__pb2.CameraIdParameterRequest.FromString,
-                    response_serializer=Node__pb2.URLResponse.SerializeToString,
+                    response_serializer=google_dot_protobuf_dot_wrappers__pb2.StringValue.SerializeToString,
             ),
     }
     generic_handler = grpc.method_handlers_generic_handler(
@@ -193,23 +177,6 @@ class Node(object):
         return grpc.experimental.unary_unary(request, target, '/Node/update_sensitivity',
             Node__pb2.UpdateSensitivityRequest.SerializeToString,
             google_dot_protobuf_dot_empty__pb2.Empty.FromString,
-            options, channel_credentials,
-            insecure, call_credentials, compression, wait_for_ready, timeout, metadata)
-
-    @staticmethod
-    def is_recording(request,
-            target,
-            options=(),
-            channel_credentials=None,
-            call_credentials=None,
-            insecure=False,
-            compression=None,
-            wait_for_ready=None,
-            timeout=None,
-            metadata=None):
-        return grpc.experimental.unary_unary(request, target, '/Node/is_recording',
-            Node__pb2.NodeIdParameterRequest.SerializeToString,
-            google_dot_protobuf_dot_wrappers__pb2.BoolValue.FromString,
             options, channel_credentials,
             insecure, call_credentials, compression, wait_for_ready, timeout, metadata)
 
@@ -294,6 +261,6 @@ class Node(object):
             metadata=None):
         return grpc.experimental.unary_unary(request, target, '/Node/get_snapshot_url',
             Node__pb2.CameraIdParameterRequest.SerializeToString,
-            Node__pb2.URLResponse.FromString,
+            google_dot_protobuf_dot_wrappers__pb2.StringValue.FromString,
             options, channel_credentials,
             insecure, call_credentials, compression, wait_for_ready, timeout, metadata)

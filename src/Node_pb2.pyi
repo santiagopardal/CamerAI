@@ -8,30 +8,18 @@ from typing import ClassVar as _ClassVar, Iterable as _Iterable, Mapping as _Map
 DESCRIPTOR: _descriptor.FileDescriptor
 
 class UpdateSensitivityRequest(_message.Message):
-    __slots__ = ["node_id", "sensitivity"]
-    NODE_ID_FIELD_NUMBER: _ClassVar[int]
+    __slots__ = ["camera_id", "sensitivity"]
+    CAMERA_ID_FIELD_NUMBER: _ClassVar[int]
     SENSITIVITY_FIELD_NUMBER: _ClassVar[int]
-    node_id: int
+    camera_id: int
     sensitivity: float
-    def __init__(self, node_id: _Optional[int] = ..., sensitivity: _Optional[float] = ...) -> None: ...
-
-class NodeIdParameterRequest(_message.Message):
-    __slots__ = ["node_id"]
-    NODE_ID_FIELD_NUMBER: _ClassVar[int]
-    node_id: int
-    def __init__(self, node_id: _Optional[int] = ...) -> None: ...
+    def __init__(self, camera_id: _Optional[int] = ..., sensitivity: _Optional[float] = ...) -> None: ...
 
 class CameraIdParameterRequest(_message.Message):
     __slots__ = ["camera_id"]
     CAMERA_ID_FIELD_NUMBER: _ClassVar[int]
     camera_id: int
     def __init__(self, camera_id: _Optional[int] = ...) -> None: ...
-
-class URLResponse(_message.Message):
-    __slots__ = ["url"]
-    URL_FIELD_NUMBER: _ClassVar[int]
-    url: str
-    def __init__(self, url: _Optional[str] = ...) -> None: ...
 
 class SwitchRecordingRequest(_message.Message):
     __slots__ = ["cameras_ids"]

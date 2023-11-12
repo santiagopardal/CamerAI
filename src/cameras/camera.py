@@ -95,7 +95,9 @@ class Camera:
         self._retrieval_strategy = retrieval_strategy
 
     def update_sensitivity(self, sensitivity: float):
+        old_sensitivity = self._frame_handler.observer.sensitivity
         self._frame_handler.observer.sensitivity = sensitivity
+        logging.info(f"Updated sensitivity to camera with ID {self.id} from {old_sensitivity} to {sensitivity}")
 
     def screenshot(self) -> ndarray:
         return self._last_frame
