@@ -63,7 +63,12 @@ class Node(NodeServicer):
         return EmptyValue()
 
     def add_camera(self, request: CameraInfo, context):
-        camera = deserialize(camera)
+        camera = deserialize(
+            id=request.id, name=request.name, model=request.model, ip=request.ip, http_port=request.http_port,
+            streaming_port=request.streaming_port, user=request.user, password=request.password, width=request.width,
+            height=request.height, framerate=request.framerate, recording=request.configurations.recording,
+            sensitivity=request.configurations.sensitivity
+        )
         self.cameras.append(camera)
         camera.receive_video()
 
