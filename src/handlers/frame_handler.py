@@ -16,18 +16,20 @@ class FrameHandler:
         super().__init__()
         self.observer = DontLookBackObserver(model_factory, constants.MOVEMENT_SENSITIVITY) if observer is None else observer
         self._motion_handlers = [] if motion_handlers is None else motion_handlers
-        self._thread_pool = ThreadPoolExecutor(1)
+        self._thread_pool = None
         self._buffer = deque()
         self._cleared_buffer = True
         self._current_buffer_started_receiving = 0.0
         self._receive_frames = True
 
     def start(self):
+        self._thread_pool = ThreadPoolExecutor(1)
         self._current_buffer_started_receiving = time.time()
         self._receive_frames = True
 
     def stop(self):
         self._thread_pool.shutdown(wait=True, cancel_futures=True)
+        self._thread_pool = None
         self._receive_frames = False
         self._buffer.clear()
 
