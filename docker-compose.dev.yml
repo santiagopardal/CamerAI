@@ -45,7 +45,6 @@ services:
       - "./src:/camerai/src"
       - "./libs:/camerai/libs"
       - "./ai:/camerai/ai"
-      - "./node.json:/camerai/node.json"
       - "./camerai.log:/camerai/camerai.log"
   camerapp:
     build:
