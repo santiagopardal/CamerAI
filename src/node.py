@@ -71,12 +71,14 @@ class Node(NodeServicer):
         )
         self.cameras.append(camera)
         camera.receive_video()
+        logging.info(f"Added camera with id {request.id}")
 
     def remove_camera(self, request: CameraIdParameterRequest, context) -> EmptyValue:
         camera = self._get_camera(request.camera_id)
         camera.stop_recording()
         camera.stop_receiving_video()
         self.cameras.remove(camera)
+        logging.info(f"Removed camera with id {request.camera_id}")
         return EmptyValue()
 
     def get_snapshot_url(self, request: CameraIdParameterRequest, context) -> StringValue:
@@ -118,7 +120,17 @@ class Node(NodeServicer):
         while not cameras:
             try:
                 cameras = cameras_api.get_cameras(self.id)
-                return [deserialize(camera) for camera in cameras]
+                return [
+                    deserialize(
+                        id=camera["id"], name=camera["name"], model=camera["model"], ip=camera["ip"],
+                        http_port=camera["http_port"],
+                        streaming_port=camera["streaming_port"], user=camera["user"], password=camera["password"],
+                        width=camera["width"],
+                        height=camera["height"], framerate=camera["framerate"], recording=camera["configurations"]["recording"],
+                        sensitivity=camera["configurations"]["sensitivity"]
+                    )
+                    for camera in cameras
+                ]
             except Exception as e:
                 if i < 6:
                     i += 1
