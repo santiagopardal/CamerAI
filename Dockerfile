@@ -1,4 +1,4 @@
-FROM python:3.11.4-slim
+FROM tensorflow/tensorflow:2.14.0
 
 WORKDIR /camerai
 COPY . .
