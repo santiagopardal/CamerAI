@@ -1,15 +1,15 @@
-FROM python:3.11.4-slim
+FROM tensorflow/tensorflow:2.14.0
 
 WORKDIR /camerai
 
-COPY requirements.txt .
+COPY requirements-container.txt .
 
 RUN apt-get update
 RUN apt-get -y install cron ffmpeg libsm6 libxext6
 
 RUN pip install --upgrade pip
 RUN pip install --upgrade setuptools
-RUN pip install -r requirements.txt
+RUN pip install -r requirements-container.txt
 
 COPY . .
 

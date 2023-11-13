@@ -8,7 +8,7 @@ RUN apt-get -y install cron ffmpeg libsm6 libxext6 supervisor
 
 RUN pip install --upgrade pip
 RUN pip install --upgrade setuptools
-RUN pip install -r requirements.txt --no-cache-dir
+RUN pip install -r requirements-container.txt --no-cache-dir
 
 RUN touch /var/log/cron.log
 RUN mkdir -p /var/log/supervisor
