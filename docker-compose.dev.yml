@@ -46,6 +46,14 @@ services:
       - "./libs:/camerai/libs"
       - "./ai:/camerai/ai"
       - "./camerai.log:/camerai/camerai.log"
+  cameraivideosprocessor:
+    build:
+      context: ./VideosProcessor
+      dockerfile: Dockerfile.dev
+    container_name: cameraivideosprocessor
+    restart: unless-stopped
+    env_file:
+      - ./VideosProcessor/.env
   camerapp:
     build:
       context: ./CamerAPP/camerapp
