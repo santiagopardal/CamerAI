@@ -21,16 +21,18 @@ def add_temporal_video(camera_id: int, date: datetime, path: str):
     return API.post(api_endpoint, {"path": path})
 
 
-def upload(camera_id: int, date: datetime, path: str):
+def upload(camera_id: int, date: datetime, path: str) -> int:
     day, month, year = get_numbers_as_string(date)
 
     api_endpoint = "cameras/{}/temporal_videos/{}-{}-{}".format(camera_id, day, month, year)
 
     with open(path, 'rb') as file:
-        _upload_parts(file, api_endpoint, path)
+        video_id = _upload_parts(file, api_endpoint, path)
+
+    return video_id
 
 
-def _upload_parts(file, api_endpoint, old_path):
+def _upload_parts(file, api_endpoint, old_path) -> int:
     filename = file.name.split("/")[-1]
     size = os.path.getsize(file.name)
     parts = math.ceil(size / (1024 * 1024))
@@ -46,7 +48,7 @@ def _upload_parts(file, api_endpoint, old_path):
         }
         API.put(api_endpoint, body)
 
-    API.put(
+    response = API.put(
         api_endpoint,
         {
             "filename": filename,
@@ -55,6 +57,8 @@ def _upload_parts(file, api_endpoint, old_path):
             "upload_complete": True
         }
     )
+
+    return response.json()['temporal_video_id']
 
 
 def remove_video(id: int):

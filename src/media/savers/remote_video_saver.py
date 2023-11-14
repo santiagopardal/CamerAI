@@ -10,7 +10,8 @@ class RemoteVideoSaver(MediaSaver):
         self._camera_id = camera_id
         self._local_saver = local_saver
 
-    def save(self, frames: List[Frame]):
+    def save(self, frames: List[Frame]) -> int:
         path = self._local_saver.save(frames)
-        temporal_videos_api.upload(self._camera_id, frames[0].date, path)
+        video_id = temporal_videos_api.upload(self._camera_id, frames[0].date, path)
         os.remove(path)
+        return video_id

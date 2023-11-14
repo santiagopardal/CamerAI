@@ -54,6 +54,8 @@ services:
     restart: unless-stopped
     env_file:
       - ./VideosProcessor/.env
+    volumes:
+      - "./VideosProcessor:/videosprocessor"
   camerapp:
     build:
       context: ./CamerAPP/camerapp
