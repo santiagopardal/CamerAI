@@ -14,5 +14,8 @@ cd CamerAPI
 cd ../CamerAPP
 ./install
 
+cd ../VideosProcessor
+./install
+
 cd ..
 docker compose -f docker-compose.dev.yml build
