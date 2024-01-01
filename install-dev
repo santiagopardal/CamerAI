@@ -4,8 +4,7 @@ git submodule init
 git submodule update
 
 if [ ! -f ./.env ]; then
-    echo API_URL="http://camerapi:8080/api" >> ./.env
-    echo ABSOLUTE_PATH="/camerai" >> ./.env
+    cp .env.schema .env
 fi
 
 cd CamerAPI
