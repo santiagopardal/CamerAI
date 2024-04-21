@@ -1,7 +1,7 @@
+from keras.src.metrics import F1Score
 from .model import Model
 import numpy as np
 import tensorflow as tf
-from tensorflow_addons.metrics import F1Score
 from src.constants import TATIANA
 
 
