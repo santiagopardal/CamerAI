@@ -1,6 +1,7 @@
 from . import Camera, FI9803PV3, FI89182
 from .properties import Properties
 from .configurations import Configurations
+from typing import TypedDict
 
 _classes = {
     "FI89182": FI89182,
@@ -8,20 +9,48 @@ _classes = {
 }
 
 
+ConfigurationsJSON = TypedDict(
+    "ConfigurationsJSON",
+    {
+        "recording": bool,
+        "sensitivity": float
+    }
+)
+
+
+CameraJSON = TypedDict(
+    "CameraJSON",
+    {
+        "id": str,
+        "name": str,
+        "model": str,
+        "ip": str,
+        "http_port": int,
+        "user": str,
+        "password": str,
+        "width": int,
+        "height": int,
+        "framerate": int,
+        "streaming_port": int,
+        "configurations": ConfigurationsJSON
+    }
+)
+
+
 def deserialize(
-        id: int,
-        name: str,
-        model: str,
-        ip: str,
-        http_port: int,
-        user: str,
-        password: str,
-        width: int,
-        height: int,
-        framerate: int,
-        recording: bool,
-        sensitivity: float,
-        streaming_port: int = None
+    id: int,
+    name: str,
+    model: str,
+    ip: str,
+    http_port: int,
+    user: str,
+    password: str,
+    width: int,
+    height: int,
+    framerate: int,
+    recording: bool,
+    sensitivity: float,
+    streaming_port: int = None
 ) -> Camera:
 
     model = _classes[model]

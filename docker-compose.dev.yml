@@ -1,4 +1,3 @@
-version: "2.1"
 services:
   camerairabbit:
     image: rabbitmq:3.12-management-alpine
@@ -6,6 +5,7 @@ services:
     restart: unless-stopped
     ports:
       - 15672:15672
+      - 5672:5672
   camerapidatabase:
     image: postgres:15-alpine
     container_name: camerapidatabase
