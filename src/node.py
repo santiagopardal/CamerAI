@@ -10,8 +10,8 @@ import logging
 from src.constants import NODE_INFO_PATH
 import json
 import os
-from src.Node_pb2_grpc import NodeServicer, add_NodeServicer_to_server
-from src.Node_pb2 import CameraIdParameterRequest, UpdateSensitivityRequest, ManyCameraIdsRequest, CameraInfo
+from src.grpc_protos.Node_pb2_grpc import NodeServicer, add_NodeServicer_to_server
+from src.grpc_protos.Node_pb2 import CameraIdParameterRequest, UpdateSensitivityRequest, ManyCameraIdsRequest, CameraInfo
 import grpc
 from google.protobuf.wrappers_pb2 import StringValue
 from google.protobuf.empty_pb2 import Empty as EmptyValue

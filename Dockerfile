@@ -13,6 +13,6 @@ RUN pip install -r requirements-container.txt --no-cache-dir
 
 COPY . .
 
-RUN python -m grpc_tools.protoc -I ./libs/CamerAIProtos/ --python_out=./src/ --grpc_python_out=./src/ ./libs/CamerAIProtos/Node.proto
+RUN python -m grpc_tools.protoc -I ./libs/CamerAIProtos/ --python_out=./src/grpc_protos/ --grpc_python_out=./src/grpc_protos/ ./libs/CamerAIProtos/Node.proto
 
 CMD ["python", "-m", "src.node"]
