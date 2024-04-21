@@ -1,102 +1,98 @@
 from src.cameras.serializer import deserialize
 from src.cameras import Camera
-from threading import Semaphore
 import src.api.api as API
+from concurrent.futures import ThreadPoolExecutor
 import src.api.node as node_api
 import src.api.cameras as cameras_api
-from src.tcp_listener import TCPListener
+from socket import gethostname, gethostbyname
 import time
 import logging
 from src.constants import NODE_INFO_PATH
 import json
 import os
+from src.Node_pb2_grpc import NodeServicer, add_NodeServicer_to_server
+from src.Node_pb2 import CameraIdParameterRequest, UpdateSensitivityRequest, ManyCameraIdsRequest, CameraInfo
+import grpc
+from google.protobuf.wrappers_pb2 import StringValue
+from google.protobuf.empty_pb2 import Empty as EmptyValue
 
 
-class Node:
+LISTENING_PORT = 50051
+
+
+class Node(NodeServicer):
     def __init__(self):
         API.NODE = self
         self._id = None
-        self.cameras = []
-        self._listener = TCPListener(self)
-        self._waiter = Semaphore(0)
+        self._register()
+        self.cameras = self._fetch_cameras_from_api()
 
     def run(self):
         try:
-            logging.info('Starting node')
-
-            if self.id:
-                API.set_headers({"node_id": str(self.id)})
-
-            response = node_api.register(self._listener.ip, self._listener.port)
-            if not self.id:
-                self._id = response['id']
-                API.set_headers({"node_id": str(self._id)})
-                with open(NODE_INFO_PATH, "w") as node_info_file:
-                    node_info_file.write(json.dumps({"id": self.id}))
-
-            self.cameras = self._fetch_cameras_from_api()
             logging.info(f"Node running with {len(self.cameras)} cameras.")
-            self._listener.listen()
 
             for camera in self.cameras:
                 camera.receive_video()
 
-            self._waiter.acquire()
-
-            for camera in self.cameras:
-                camera.stop_recording()
-                camera.stop_receiving_video()
-
-            self._listener.stop_listening()
-            logging.info('Node stopped')
         except Exception as e:
             logging.error(f"Error initializing node, {e}")
 
-    def stop(self):
-        self._waiter.release(1)
+    def stop(self, request, context) -> EmptyValue:
+        for camera in self.cameras:
+            camera.stop_recording()
 
-    def update_sensitivity(self, args: dict):
-        camera = self._get_camera(args['camera_id'])
-        camera.update_sensitivity(args['sensitivity'])
+        return EmptyValue()
 
-    def is_recording(self, camera_id: int) -> bool:
-        camera = self._get_camera(camera_id)
-        return camera.is_recording
+    def update_sensitivity(self, request: UpdateSensitivityRequest, context) -> EmptyValue:
+        camera = self._get_camera(request.camera_id)
+        camera.update_sensitivity(request.sensitivity)
+        return EmptyValue()
 
-    def record(self, cameras_ids: list = None):
-        cameras_ids = [int(id) for id in cameras_ids]
+    def record(self, request: ManyCameraIdsRequest, context) -> EmptyValue:
+        cameras_ids = request.cameras_ids
         cameras: list[Camera] = [camera for camera in self.cameras
                                  if camera.id in cameras_ids] if cameras_ids else self.cameras
         for camera in cameras:
             camera.record()
 
-        return {camera_id: True for camera_id in cameras_ids}
+        logging.info(f"Cameras with id {[id for id in request.cameras_ids]} are going to record video")
 
-    def stop_recording(self, cameras_ids: list = None):
-        cameras_ids = [int(id) for id in cameras_ids]
+        return EmptyValue()
+
+    def stop_recording(self, request: ManyCameraIdsRequest, context) -> EmptyValue:
+        cameras_ids = request.cameras_ids
         cameras: list[Camera] = [camera for camera in self.cameras if
                                  camera.id in cameras_ids] if cameras_ids else self.cameras
         for camera in cameras:
             camera.stop_recording()
 
-        return {camera_id: False for camera_id in cameras_ids}
+        return EmptyValue()
 
-    def add_camera(self, camera: dict):
-        camera = deserialize(camera)
+    def add_camera(self, request: CameraInfo, context) -> EmptyValue:
+        camera = deserialize(
+            id=request.id, name=request.name, model=request.model, ip=request.ip, http_port=request.http_port,
+            streaming_port=request.streaming_port, user=request.user, password=request.password, width=request.width,
+            height=request.height, framerate=request.framerate, recording=request.configurations.recording,
+            sensitivity=request.configurations.sensitivity
+        )
         self.cameras.append(camera)
         camera.receive_video()
+        logging.info(f"Added camera with id {request.id}")
 
-    def remove_camera(self, camera_id: int):
-        camera = [camera for camera in self.cameras if camera.id == int(camera_id)]
-        if camera:
-            camera = camera.pop()
-            camera.stop_recording()
-            camera.stop_receiving_video()
-            self.cameras.remove(camera)
+        return EmptyValue()
 
-    def get_snapshot_url(self, camera_id: int):
-        camera = self._get_camera(camera_id)
-        return camera.snapshot_url
+    def remove_camera(self, request: CameraIdParameterRequest, context) -> EmptyValue:
+        camera = self._get_camera(request.camera_id)
+        camera.stop_recording()
+        camera.stop_receiving_video()
+        self.cameras.remove(camera)
+        logging.info(f"Removed camera with id {request.camera_id}")
+
+        return EmptyValue()
+
+    def get_snapshot_url(self, request: CameraIdParameterRequest, context) -> StringValue:
+        camera = self._get_camera(request.camera_id)
+        return StringValue(value=camera.snapshot_url)
 
     def _get_camera(self, camera_id: int) -> Camera:
         cameras = [camera for camera in self.cameras if camera.id == int(camera_id)]
@@ -115,6 +111,17 @@ class Node:
 
         return self._id
 
+    def _register(self):
+        if self.id:
+            API.set_headers({"node_id": str(self.id)})
+
+        response = node_api.register(gethostbyname(gethostname()), LISTENING_PORT)
+        if not self.id:
+            self._id = response['id']
+            API.set_headers({"node_id": str(self._id)})
+            with open(NODE_INFO_PATH, "w") as node_info_file:
+                node_info_file.write(json.dumps({"id": self.id}))
+
     def _fetch_cameras_from_api(self) -> list:
         i = 0
         cameras = []
@@ -122,13 +129,25 @@ class Node:
         while not cameras:
             try:
                 cameras = cameras_api.get_cameras(self.id)
-                return [deserialize(camera) for camera in cameras]
+                return [
+                    deserialize(
+                        id=camera["id"], name=camera["name"], model=camera["model"], ip=camera["ip"],
+                        http_port=camera["http_port"],
+                        streaming_port=camera["streaming_port"], user=camera["user"], password=camera["password"],
+                        width=camera["width"],
+                        height=camera["height"], framerate=camera["framerate"], recording=camera["configurations"]["recording"],
+                        sensitivity=camera["configurations"]["sensitivity"]
+                    )
+                    for camera in cameras
+                ]
             except Exception as e:
                 if i < 6:
                     i += 1
                 seconds = 2 ** i
                 logging.error(f"Could not fetch from API, retrying in {seconds} seconds: {e}")
                 time.sleep(seconds)
+
+        return []
 
 
 if __name__ == '__main__':
@@ -140,5 +159,10 @@ if __name__ == '__main__':
         style="{"
     )
 
-    sys = Node()
-    sys.run()
+    node = Node()
+    node.run()
+    server = grpc.server(ThreadPoolExecutor(max_workers=len(node.cameras) + 1))
+    add_NodeServicer_to_server(node, server)
+    server.add_insecure_port(f"0.0.0.0:{LISTENING_PORT}")
+    server.start()
+    server.wait_for_termination()

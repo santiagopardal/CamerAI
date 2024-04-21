@@ -13,10 +13,10 @@ To install the entire project, this is, CamerAI, CamerAPI and CamerAPP simply ru
 ./install
 ```
 
-If you decide that you don't want the API or the web app, you can just comment the services in the `docker-compose.yml` file and after doing so, running the `install` script.
-Note that if you don't want CamerAPI you can also comment out the database `camerapidatabase`. Keep in mind that you will need an API, so if you are going to comment CamerAPI out, you will need to implement your own.
+If you decide that you don't want the API or the web app, you can just just deploy the services you want by first running the `install` script and then `docker compose up -d [camerai || camerapi camerapidatabase || camerapp]`.
+Note that if you don't want CamerAPI you also don't need the database `camerapidatabase`. Keep in mind that you will need an API, so if you are not deploying CamerAPI, you will need to implement your own API.
 
-You may want to deploy multiple nodes, even in multiple devices. To do so, you can deploy the entire system in one device and in the rest just deploy CamerAI. In that case, you'll need to modify the `.env` file that the `install` script will create for you:
+You may want to deploy multiple nodes, even in multiple devices. To do so, you can deploy the entire system in one device and in the rest just deploy CamerAI `docker compose up -d camerai`. In that case, you'll need to modify the `.env` file that the `install` script will create for you:
 
  - 👉 Change the `API_URL` so that the node can hit the API.
 
@@ -28,7 +28,7 @@ there's been movement or not. The sensitivity can be modified either by editing 
 ![alt text](https://github.com/santiagopardal/CamerAI/blob/master/docs/Lite%20CNN%20architecture.png)
 
 # 💻 What about the hardware requirements?
-The program can run on any OS, RAM usage can be quite large depending on the quality of the CCTV cameras you are using. There is a trade-off between CPU performance and RAM usage, in order to make the program lighter on the CPU (because the idea is to run it on low end devices such as raspberry pi) modifications have been made so as not to load the CPU too much, these modifications come at the expense of a greater RAM usage. If you want to play with the performance you can do so by increasing or decreasing the detection batch size
+The system can run on any OS, RAM usage can be quite large depending on the quality of the CCTV cameras you are using. There is a trade-off between CPU performance and RAM usage, in order to make the program lighter on the CPU (because the idea is to run it on low end devices such as raspberry pi) modifications have been made so as not to load the CPU too much, these modifications come at the expense of a greater RAM usage. If you want to play with the performance you can do so by increasing or decreasing the detection batch size
 (DBS) on [Constants.py](https://github.com/santiagopardal/CamerAI/blob/master/Constants.py). Note that the DBS must be greater than 1.
 
 ## 🤔 How's the optimization process?

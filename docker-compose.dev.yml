@@ -5,6 +5,7 @@ services:
     restart: unless-stopped
     ports:
       - 15672:15672
+      - 5672:5672
   camerapidatabase:
     image: postgres:15-alpine
     container_name: camerapidatabase
@@ -19,19 +20,19 @@ services:
   camerapi:
     build:
       context: ./CamerAPI
-      dockerfile: Dockerfile
+      dockerfile: Dockerfile.dev
     container_name: camerapi
     restart: unless-stopped
     env_file: ./CamerAPI/.env
     ports:
       - "8080:8080"
     volumes:
-      - "./CamerAPI/temporal_videos:/camerapi/temporal_videos"
-      - "./CamerAPI/.env:/camerapi/.env"
+      - "./CamerAPI:/camerapi"
+      - /camerapi/node_modules
   camerai:
     build:
       context: .
-      dockerfile: Dockerfile
+      dockerfile: Dockerfile.dev
     container_name: camerai
     restart: unless-stopped
     env_file:
@@ -39,11 +40,12 @@ services:
     environment:
       - PYTHONPATH=/camerai/src
     ports:
-      - "5460:5460"
+      - "50051:50051"
     volumes:
-      - "./Images:/camerai/Images"
+      - "./src:/camerai/src"
+      - "./libs:/camerai/libs"
+      - "./ai:/camerai/ai"
       - "./camerai.log:/camerai/camerai.log"
-      - "./.env:/camerai/.env"
   cameraivideosprocessor:
     build:
       context: ./VideosProcessor
@@ -52,15 +54,18 @@ services:
     restart: unless-stopped
     env_file:
       - ./VideosProcessor/.env
+    volumes:
+      - "./VideosProcessor:/videosprocessor"
   camerapp:
     build:
       context: ./CamerAPP/camerapp
-      dockerfile: Dockerfile
+      dockerfile: Dockerfile.dev
     container_name: camerapp
     restart: unless-stopped
     env_file:
       - ./CamerAPP/camerapp/.env
     ports:
-      - "3000:4173"
+      - "3000:3000"
     volumes:
-      - "./CamerAPP/camerapp/.env:/camerapp/.env"
+      - "./CamerAPP/camerapp/:/camerapp/"
+      - /camerapp/node_modules

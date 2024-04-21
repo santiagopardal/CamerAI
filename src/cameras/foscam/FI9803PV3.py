@@ -26,23 +26,6 @@ class FI9803PV3(Camera):
 
         super().__init__(properties, configurations, video_url, snapshot_url, retrieval_strategy, frames_handler)
 
-    @classmethod
-    def from_json(cls, json: dict) -> Camera:
-        json["frame_width"] = WIDTH
-        json["frame_height"] = HEIGHT
-        json["frame_rate"] = FRAME_RATE
-
-        properties = Properties(**json)
-        configurations = Configurations(**json["configurations"])
-        configurations.recording = False
-
-        instance = cls(properties, configurations, json["user"], json["password"])
-
-        if json["configurations"]["recording"]:
-            instance.record()
-
-        return instance
-
     def __eq__(self, other):
         if isinstance(other, FI9803PV3):
             return super().__eq__(other)

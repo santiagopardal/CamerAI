@@ -162,25 +162,6 @@ class CameraUnitTest(unittest.TestCase):
         my_map[self.camera] = self.camera.name
         self.assertEqual(self.camera.name, my_map[self.camera])
 
-    def test_from_json(self):
-        """
-        Tests that we can deserialize a camera from a JSON.
-        """
-        json = {
-            "id": 1,
-            "ip": "192.168.0.133",
-            "http_port": 80,
-            "name": "Camera 2",
-            "frame_rate": 30,
-            "retrieval_strategy": self.retrieval_strategy
-        }
-        camera = Camera.from_json(json)
-        self.assertEqual(camera.id, json["id"])
-        self.assertEqual(camera.port, json["http_port"])
-        self.assertEqual(camera.name, json["name"])
-        self.assertEqual(camera.ip, json["ip"])
-        self.assertEqual(camera.ip, json["ip"])
-
 
 if __name__ == '__main__':
     unittest.main()

@@ -21,12 +21,9 @@ class Camera:
         self._last_frame = None
         self._frame_handler = FrameHandler() if frames_handler is None else frames_handler
         self._retrieval_strategy = retrieval_strategy
-        self._is_recording = False
         self._thread_pool = ThreadPoolExecutor(max_workers=1)
-
-    @classmethod
-    def from_json(cls, json: dict):
-        pass
+        if self.is_recording:
+            self._do_record()
 
     @property
     def id(self) -> int:
@@ -95,7 +92,9 @@ class Camera:
         self._retrieval_strategy = retrieval_strategy
 
     def update_sensitivity(self, sensitivity: float):
+        old_sensitivity = self._frame_handler.observer.sensitivity
         self._frame_handler.observer.sensitivity = sensitivity
+        logging.info(f"Updated sensitivity to camera with ID {self.id} from {old_sensitivity} to {sensitivity}")
 
     def screenshot(self) -> ndarray:
         return self._last_frame
@@ -106,21 +105,16 @@ class Camera:
 
     def record(self):
         if not self.is_recording:
-            self._frame_handler.observer = DontLookBackObserver(model_factory, self._configurations.sensitivity)
-            self._frame_handler.add_motion_handler(BufferedMotionHandler(self, SECONDS_TO_BUFFER))
-            self._frame_handler.start()
-            self._is_recording = True
+            self._do_record()
 
     def stop_recording(self):
         if self.is_recording:
+            self._configurations.recording = False
             self._frame_handler.stop()
             self._frame_handler.set_motion_handlers([])
-            self._is_recording = False
 
     def stop_receiving_video(self):
         self._should_receive_frames = False
-        self.retrieval_strategy.disconnect()
-        self._thread_pool.shutdown(True)
 
     def _receive_frames(self):
         self._retrieval_strategy.connect()
@@ -135,6 +129,12 @@ class Camera:
 
         self._retrieval_strategy.disconnect()
         self._frame_handler.stop()
+
+    def _do_record(self):
+        self._frame_handler.observer = DontLookBackObserver(model_factory, self._configurations.sensitivity)
+        self._frame_handler.add_motion_handler(BufferedMotionHandler(self, SECONDS_TO_BUFFER))
+        self._frame_handler.start()
+        self._configurations.recording = True
 
     def __hash__(self):
         return "{}:{}@{}".format(self.ip, self.port, self.name).__hash__()

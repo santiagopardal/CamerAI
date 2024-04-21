@@ -16,36 +16,42 @@ class FrameHandler:
         super().__init__()
         self.observer = DontLookBackObserver(model_factory, constants.MOVEMENT_SENSITIVITY) if observer is None else observer
         self._motion_handlers = [] if motion_handlers is None else motion_handlers
-        self._thread_pool = ThreadPoolExecutor(1)
+        self._thread_pool = None
         self._buffer = deque()
         self._cleared_buffer = True
         self._current_buffer_started_receiving = 0.0
+        self._receive_frames = True
 
     def start(self):
+        self._thread_pool = ThreadPoolExecutor(1)
         self._current_buffer_started_receiving = time.time()
+        self._receive_frames = True
 
     def stop(self):
-        self._thread_pool.shutdown(True)
+        self._thread_pool.shutdown(wait=True, cancel_futures=True)
+        self._thread_pool = None
+        self._receive_frames = False
+        self._buffer.clear()
 
     def add_motion_handler(self, handler: MotionHandler):
-        if handler:
-            self._motion_handlers.append(handler)
+        self._motion_handlers.append(handler)
 
     def set_motion_handlers(self, handlers: list):
         self._motion_handlers = handlers
 
     def handle(self, frame: np.ndarray):
-        self._buffer.append(frame)
+        if self._receive_frames and self._motion_handlers:
+            self._buffer.append(frame)
 
-        if self._cleared_buffer and len(self._buffer) >= self.observer.frames_to_buffer():
-            self._cleared_buffer = False
-            end = time.time()
+            if self._cleared_buffer and len(self._buffer) >= self.observer.frames_to_buffer():
+                self._cleared_buffer = False
+                end = time.time()
 
-            true_framerate = self.observer.frames_to_buffer() / (end - self._current_buffer_started_receiving) \
-                if self._current_buffer_started_receiving else constants.FRAME_RATE
+                true_framerate = self.observer.frames_to_buffer() / (end - self._current_buffer_started_receiving) \
+                    if self._current_buffer_started_receiving else constants.FRAME_RATE
 
-            self._check_movement(true_framerate)
-            self._current_buffer_started_receiving = end
+                self._thread_pool.submit(self._check_movement, true_framerate)
+                self._current_buffer_started_receiving = end
 
     @staticmethod
     def _calculate_time_taken(tme, frame_rate, i):
