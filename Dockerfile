@@ -10,6 +10,10 @@ RUN apt-get -y install ffmpeg libsm6 libxext6
 RUN pip install --upgrade pip
 RUN pip install --upgrade setuptools
 RUN pip install -r requirements-container.txt --no-cache-dir
+RUN apt-get clean
+RUN apt-get autoremove
+RUN rm -rf /var/lib/apt/lists/*
+RUN pip cache purge
 
 COPY . .
 
