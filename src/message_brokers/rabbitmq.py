@@ -1,6 +1,6 @@
 import json
 import os
-from typing import Optional
+from typing import Optional, Generator
 
 from pika import PlainCredentials, ConnectionParameters, BlockingConnection
 from pika.adapters.blocking_connection import BlockingChannel
@@ -25,11 +25,11 @@ class RabbitMQ(MessageBrokerPublisher):
 
     def publish(self, data: dict, routing_key: str, exchange: str, exchange_type: str = "direct"):
         if exchange not in self._declared_exchanges:
-            self.channel.exchange_declare(exchange=exchange_type, exchange_type=exchange_type)
+            self.channel.exchange_declare(exchange=exchange, exchange_type=exchange_type)
             self._declared_exchanges.add(exchange)
 
         body = json.dumps(data)
-        self.channel.basic_publish(exchange=exchange_type, routing_key=routing_key, body=body)
+        self.channel.basic_publish(exchange=exchange, routing_key=routing_key, body=body)
 
     @property
     def channel(self) -> BlockingChannel:
@@ -46,6 +46,10 @@ class RabbitMQ(MessageBrokerPublisher):
         return self._connection
 
 
-def get_rabbit_publisher() -> MessageBrokerPublisher:
+def rabbit_publisher_generator() -> Generator[MessageBrokerPublisher, None, None]:
     rabbit_publisher = RabbitMQ()
     yield rabbit_publisher
+
+
+def get_rabbit_publisher() -> MessageBrokerPublisher:
+    return next(rabbit_publisher_generator())
