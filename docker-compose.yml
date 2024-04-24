@@ -27,14 +27,14 @@ services:
       - "./Images:/camerai/Images"
       - "./camerai.log:/camerai/camerai.log"
       - "./.env:/camerai/.env"
-  cameraivideosprocessor:
+  cameraivideos_processor:
     build:
-      context: ./VideosProcessor
+      context: ./videos_processor
       dockerfile: Dockerfile.dev
-    container_name: cameraivideosprocessor
+    container_name: cameraivideos_processor
     restart: unless-stopped
     env_file:
-      - ./VideosProcessor/.env
+      - ./videos_processor/.env
   camerapp:
     build:
       context: ./CamerAPP/camerapp

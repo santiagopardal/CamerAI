@@ -9,7 +9,7 @@ cd CamerAPI
 cd ../CamerAPP
 ./install
 
-cd ../VideosProcessor
+cd ../videos_processor
 ./install
 
 cd ..
