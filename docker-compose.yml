@@ -27,7 +27,7 @@ services:
       - "./Images:/camerai/Images"
       - "./camerai.log:/camerai/camerai.log"
       - "./.env:/camerai/.env"
-  cameraivideos_processor:
+  videos_processor:
     build:
       context: ./videos_processor
       dockerfile: Dockerfile.dev

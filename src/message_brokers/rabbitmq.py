@@ -25,7 +25,7 @@ class RabbitMQ(MessageBrokerPublisher):
 
     def publish(self, data: dict, routing_key: str, exchange: str, exchange_type: str = "direct"):
         if exchange not in self._declared_exchanges:
-            self.channel.exchange_declare(exchange=exchange, exchange_type=exchange_type)
+            self.channel.exchange_declare(exchange=exchange, exchange_type=exchange_type, durable=True)
             self._declared_exchanges.add(exchange)
 
         body = json.dumps(data)

@@ -28,7 +28,7 @@ services:
       - "./libs:/camerai/libs"
       - "./ai:/camerai/ai"
       - "./camerai.log:/camerai/camerai.log"
-  cameraivideos_processor:
+  videos_processor:
     build:
       context: ./videos_processor
       dockerfile: Dockerfile.dev
