@@ -1,22 +1,4 @@
 services:
-  camerairabbit:
-    image: rabbitmq:3.12-management-alpine
-    container_name: camerairabbit
-    restart: unless-stopped
-    ports:
-      - 15672:15672
-      - 5672:5672
-  camerapidatabase:
-    image: postgres:15-alpine
-    container_name: camerapidatabase
-    restart: unless-stopped
-    environment:
-      POSTGRES_DB: camerapi
-      POSTGRES_PASSWORD: admin
-    ports:
-      - "5432:5432"
-    volumes:
-      - "./pgdata:/var/lib/postgresql/data"
   camerapi:
     build:
       context: ./CamerAPI
@@ -46,16 +28,16 @@ services:
       - "./libs:/camerai/libs"
       - "./ai:/camerai/ai"
       - "./camerai.log:/camerai/camerai.log"
-  cameraivideosprocessor:
+  videos_processor:
     build:
-      context: ./VideosProcessor
+      context: ./videos_processor
       dockerfile: Dockerfile.dev
-    container_name: cameraivideosprocessor
+    container_name: cameraivideos_processor
     restart: unless-stopped
     env_file:
-      - ./VideosProcessor/.env
+      - ./videos_processor/.env
     volumes:
-      - "./VideosProcessor:/videosprocessor"
+      - "./videos_processor:/videos_processor"
   camerapp:
     build:
       context: ./CamerAPP/camerapp

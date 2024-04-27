@@ -7,6 +7,6 @@
 [submodule "libs/CamerAIProtos"]
 	path = libs/CamerAIProtos
 	url = git@github.com:santiagopardal/CamerAIProtos.git
-[submodule "VideosProcessor"]
-	path = VideosProcessor
-	url = git@github.com:santiagopardal/VideosProcessor.git
+[submodule "videos_processor"]
+	path = videos_processor
+	url = git@github.com:santiagopardal/videos_processor.git
