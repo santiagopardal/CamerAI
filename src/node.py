@@ -10,9 +10,11 @@ import logging
 from src.constants import NODE_INFO_PATH
 import json
 import os
-from src.grpc_protos.Node_pb2_grpc import NodeServicer, add_NodeServicer_to_server
+from src.grpc_protos import Node_pb2_grpc
+from src.grpc_protos.Node_pb2_grpc import NodeServicer
 from src.grpc_protos.Node_pb2 import CameraIdParameterRequest, UpdateSensitivityRequest, ManyCameraIdsRequest, CameraInfo
 import grpc
+from grpc import Server
 from google.protobuf.wrappers_pb2 import StringValue
 from google.protobuf.empty_pb2 import Empty as EmptyValue
 
@@ -26,10 +28,18 @@ class Node(NodeServicer):
         self._id = None
         self._register()
         self.cameras = self._fetch_cameras_from_api()
+        self.server = grpc.server(
+            ThreadPoolExecutor(max_workers=len(self.cameras) + 1)
+        )
 
     def run(self):
         try:
             logging.info(f"Node running with {len(self.cameras)} cameras.")
+
+            Node_pb2_grpc.add_NodeServicer_to_server(self, self.server)
+
+            self.server.add_insecure_port(f"0.0.0.0:{LISTENING_PORT}")
+            self.server.start()
 
             for camera in self.cameras:
                 camera.receive_video()
@@ -40,6 +50,8 @@ class Node(NodeServicer):
     def stop(self, request, context) -> EmptyValue:
         for camera in self.cameras:
             camera.stop_recording()
+
+        self.server.stop(None)
 
         return EmptyValue()
 
@@ -158,11 +170,6 @@ if __name__ == '__main__':
         format="{asctime} {levelname:<8} {message}",
         style="{"
     )
-
     node = Node()
     node.run()
-    server = grpc.server(ThreadPoolExecutor(max_workers=len(node.cameras) + 1))
-    add_NodeServicer_to_server(node, server)
-    server.add_insecure_port(f"0.0.0.0:{LISTENING_PORT}")
-    server.start()
-    server.wait_for_termination()
+    node.server.wait_for_termination()
