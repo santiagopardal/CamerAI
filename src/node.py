@@ -12,9 +12,14 @@ import json
 import os
 from src.grpc_protos import Node_pb2_grpc
 from src.grpc_protos.Node_pb2_grpc import NodeServicer
-from src.grpc_protos.Node_pb2 import CameraIdParameterRequest, UpdateSensitivityRequest, ManyCameraIdsRequest, CameraInfo
+from src.grpc_protos.Node_pb2 import (
+    CameraIdParameterRequest,
+    UpdateSensitivityRequest,
+    ManyCameraIdsRequest,
+    CameraInfo,
+    StreamVideoRequest
+)
 import grpc
-from grpc import Server
 from google.protobuf.wrappers_pb2 import StringValue
 from google.protobuf.empty_pb2 import Empty as EmptyValue
 
@@ -105,6 +110,10 @@ class Node(NodeServicer):
     def get_snapshot_url(self, request: CameraIdParameterRequest, context) -> StringValue:
         camera = self._get_camera(request.camera_id)
         return StringValue(value=camera.snapshot_url)
+
+    def stream_video(self, request: StreamVideoRequest, context) -> EmptyValue:
+        print(f"Got request to stream video: {request.video_id}")
+        return EmptyValue()
 
     def _get_camera(self, camera_id: int) -> Camera:
         cameras = [camera for camera in self.cameras if camera.id == int(camera_id)]
