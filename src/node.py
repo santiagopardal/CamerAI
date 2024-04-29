@@ -55,6 +55,7 @@ class Node(NodeServicer):
     def stop(self, request, context) -> EmptyValue:
         for camera in self.cameras:
             camera.stop_recording()
+            camera.stop_receiving_video()
 
         self.server.stop(None)
 

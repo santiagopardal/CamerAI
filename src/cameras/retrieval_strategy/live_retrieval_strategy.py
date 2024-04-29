@@ -43,7 +43,7 @@ class LiveRetrievalStrategy(RetrievalStrategy):
     def retrieve(self) -> ndarray:
         grabbed, frame = self._live_video.read()
 
-        while not grabbed:
+        while not grabbed and not self._disconnect:
             self._log_status("Lost connection to camera, reconnecting...")
             self.connect()
             grabbed, frame = self._live_video.read()
