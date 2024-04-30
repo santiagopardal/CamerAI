@@ -101,19 +101,16 @@ class Camera:
 
     def record(self):
         if not self.is_recording:
-            self._do_record()
+            self._frame_handler.observer = DontLookBackObserver(model_factory, self._configurations.sensitivity)
+            self._frame_handler.add_motion_handler(BufferedMotionHandler(self, SECONDS_TO_BUFFER))
+            self._frame_handler.start()
+            self._configurations.recording = True
 
     def stop_recording(self):
         if self.is_recording:
             self._configurations.recording = False
             self._frame_handler.stop()
             self._frame_handler.set_motion_handlers([])
-
-    def _do_record(self):
-        self._frame_handler.observer = DontLookBackObserver(model_factory, self._configurations.sensitivity)
-        self._frame_handler.add_motion_handler(BufferedMotionHandler(self, SECONDS_TO_BUFFER))
-        self._frame_handler.start()
-        self._configurations.recording = True
 
     def __hash__(self):
         return hash(f"{self.ip}:{self.port}@{self.name}")
