@@ -17,7 +17,7 @@ class Camera:
         self._snapshot_url = snapshot_url
         self._should_receive_frames = False
         self._last_frame = None
-        self._frame_handler = FrameHandler() if frames_handler is None else frames_handler
+        self._frame_handler = frames_handler or FrameHandler()
         if self.is_recording:
             self._do_record()
 

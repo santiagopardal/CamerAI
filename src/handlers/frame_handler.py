@@ -12,10 +12,10 @@ from src.handlers import MotionHandler
 
 
 class FrameHandler:
-    def __init__(self, observer: Observer = None, motion_handlers: list = None):
+    def __init__(self, observer: Observer = None, motion_handlers: list[MotionHandler] = None):
         super().__init__()
-        self.observer = DontLookBackObserver(model_factory, constants.MOVEMENT_SENSITIVITY) if observer is None else observer
-        self._motion_handlers = [] if motion_handlers is None else motion_handlers
+        self.observer = observer or DontLookBackObserver(model_factory, constants.MOVEMENT_SENSITIVITY)
+        self._motion_handlers = motion_handlers or []
         self._thread_pool = None
         self._buffer = deque()
         self._cleared_buffer = True
