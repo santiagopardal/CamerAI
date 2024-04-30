@@ -1,5 +1,5 @@
 from src.cameras.serializer import deserialize
-from src.cameras import Camera, LiveRetrievalStrategy
+from src.cameras import Camera, LiveRetrievalStrategy, RetrievalStrategy
 import src.api.api as API
 from concurrent.futures import ThreadPoolExecutor
 import src.api.node as node_api
@@ -35,7 +35,7 @@ class Node(NodeServicer):
         self.server = grpc.server(
             ThreadPoolExecutor(max_workers=len(self.cameras) + 1)
         )
-        self.video_retrievers = {}
+        self.video_retrievers: dict[Camera, RetrievalStrategy] = {}
 
     def run(self):
         try:
@@ -48,6 +48,7 @@ class Node(NodeServicer):
 
             for camera in self.cameras:
                 self.video_retrievers[camera] = LiveRetrievalStrategy(camera)
+                self.video_retrievers[camera].receive_video()
 
         except Exception as e:
             logging.error(f"Error initializing node, {e}")
