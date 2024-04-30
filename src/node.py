@@ -1,3 +1,5 @@
+from numpy import ndarray
+
 from src.cameras.serializer import deserialize
 from src.cameras import Camera, LiveRetrievalStrategy, RetrievalStrategy
 import src.api.api as API
@@ -7,7 +9,7 @@ import src.api.cameras as cameras_api
 from socket import gethostname, gethostbyname
 import time
 import logging
-from src.constants import NODE_INFO_PATH
+from src.constants import NODE_INFO_PATH, API_URL
 import json
 import os
 from src.grpc_protos import Node_pb2_grpc
@@ -17,11 +19,13 @@ from src.grpc_protos.Node_pb2 import (
     UpdateSensitivityRequest,
     ManyCameraIdsRequest,
     CameraInfo,
-    StreamVideoRequest
+    StreamVideoRequest,
+    Frame
 )
 import grpc
 from google.protobuf.wrappers_pb2 import StringValue
 from google.protobuf.empty_pb2 import Empty as EmptyValue
+from src.media import RemoteVideo
 
 LISTENING_PORT = 50051
 
@@ -118,9 +122,12 @@ class Node(NodeServicer):
         camera = self._get_camera(request.camera_id)
         return StringValue(value=camera.snapshot_url)
 
-    def stream_video(self, request: StreamVideoRequest, context) -> EmptyValue:
-        print(f"Got request to stream video: {request.video_id}")
-        return EmptyValue()
+    def stream_video(self, request: StreamVideoRequest, context) -> Frame:
+        endpoint = '{}/temporal_videos/{}/stream'.format(API_URL, request.video_id)
+        video = RemoteVideo(request.video_id, "", endpoint)
+
+        for frame in video:
+            yield Frame(height=frame.height, width=frame.width, data=frame.tobytes())
 
     def _get_camera(self, camera_id: int) -> Camera:
         cameras = [camera for camera in self.cameras if camera.id == int(camera_id)]
