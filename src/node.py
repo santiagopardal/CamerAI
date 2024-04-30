@@ -7,7 +7,7 @@ import src.api.cameras as cameras_api
 from socket import gethostname, gethostbyname
 import time
 import logging
-from src.constants import NODE_INFO_PATH, SECONDS_TO_BUFFER
+from src.constants import NODE_INFO_PATH
 import json
 import os
 from src.grpc_protos import Node_pb2_grpc
