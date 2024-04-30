@@ -78,8 +78,10 @@ class FrameHandler:
             self._cleared_buffer = True
             last_time_stored = self._last_time_stored(frame_rate, len(frames))
 
-            frames = [Frame(frame, self._calculate_time_taken(last_time_stored, frame_rate, i + 1))
-                      for i, frame in enumerate(frames)]
+            frames = [
+                Frame(frame, self._calculate_time_taken(last_time_stored, frame_rate, i + 1))
+                for i, frame in enumerate(frames)
+            ]
 
             movement = self.observer.observe(frames)
 
