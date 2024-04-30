@@ -1,5 +1,5 @@
 from src.cameras.serializer import deserialize
-from src.cameras import Camera
+from src.cameras import Camera, LiveRetrievalStrategy
 import src.api.api as API
 from concurrent.futures import ThreadPoolExecutor
 import src.api.node as node_api
@@ -7,7 +7,7 @@ import src.api.cameras as cameras_api
 from socket import gethostname, gethostbyname
 import time
 import logging
-from src.constants import NODE_INFO_PATH
+from src.constants import NODE_INFO_PATH, SECONDS_TO_BUFFER
 import json
 import os
 from src.grpc_protos import Node_pb2_grpc
@@ -23,7 +23,6 @@ import grpc
 from google.protobuf.wrappers_pb2 import StringValue
 from google.protobuf.empty_pb2 import Empty as EmptyValue
 
-
 LISTENING_PORT = 50051
 
 
@@ -36,6 +35,7 @@ class Node(NodeServicer):
         self.server = grpc.server(
             ThreadPoolExecutor(max_workers=len(self.cameras) + 1)
         )
+        self.video_retrievers = {}
 
     def run(self):
         try:
@@ -47,7 +47,7 @@ class Node(NodeServicer):
             self.server.start()
 
             for camera in self.cameras:
-                camera.receive_video()
+                self.video_retrievers[camera] = LiveRetrievalStrategy(camera)
 
         except Exception as e:
             logging.error(f"Error initializing node, {e}")
@@ -55,7 +55,7 @@ class Node(NodeServicer):
     def stop(self, request, context) -> EmptyValue:
         for camera in self.cameras:
             camera.stop_recording()
-            camera.stop_receiving_video()
+            self.video_retrievers[camera].stop_receiving_video()
 
         self.server.stop(None)
 
@@ -68,8 +68,11 @@ class Node(NodeServicer):
 
     def record(self, request: ManyCameraIdsRequest, context) -> EmptyValue:
         cameras_ids = request.cameras_ids
-        cameras: list[Camera] = [camera for camera in self.cameras
-                                 if camera.id in cameras_ids] if cameras_ids else self.cameras
+        cameras: list[Camera] = [
+            camera for camera in self.cameras
+            if camera.id in cameras_ids
+        ] if cameras_ids else self.cameras
+
         for camera in cameras:
             camera.record()
 
@@ -94,7 +97,8 @@ class Node(NodeServicer):
             sensitivity=request.configurations.sensitivity
         )
         self.cameras.append(camera)
-        camera.receive_video()
+        self.video_retrievers[camera] = LiveRetrievalStrategy(camera)
+        self.video_retrievers[camera].receive_video()
         logging.info(f"Added camera with id {request.id}")
 
         return EmptyValue()
@@ -102,8 +106,9 @@ class Node(NodeServicer):
     def remove_camera(self, request: CameraIdParameterRequest, context) -> EmptyValue:
         camera = self._get_camera(request.camera_id)
         camera.stop_recording()
-        camera.stop_receiving_video()
+        self.video_retrievers[camera].stop_receiving_video()
         self.cameras.remove(camera)
+        del self.video_retrievers[camera]
         logging.info(f"Removed camera with id {request.camera_id}")
 
         return EmptyValue()
