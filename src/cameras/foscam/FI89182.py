@@ -25,6 +25,9 @@ class FI89182(Camera):
 
         super().__init__(properties, configurations, video_url, snapshot_url, frames_handler)
 
+    def __hash__(self):
+        return hash(super())
+
     def __eq__(self, other):
         if isinstance(other, FI89182):
             return super().__eq__(other)

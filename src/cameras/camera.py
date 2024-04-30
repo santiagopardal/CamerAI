@@ -116,7 +116,7 @@ class Camera:
         self._configurations.recording = True
 
     def __hash__(self):
-        return "{}:{}@{}".format(self.ip, self.port, self.name).__hash__()
+        return hash(f"{self.ip}:{self.port}@{self.name}")
 
     def __eq__(self, other):
         return isinstance(other, Camera) and other.ip == self.ip and other.port == self.port
