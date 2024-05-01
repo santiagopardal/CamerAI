@@ -20,7 +20,7 @@ from src.grpc_protos.Node_pb2 import (
     ManyCameraIdsRequest,
     CameraInfo,
     StreamVideoRequest,
-    Frame
+    ByteStream
 )
 import grpc
 from google.protobuf.wrappers_pb2 import StringValue
@@ -122,12 +122,11 @@ class Node(NodeServicer):
         camera = self._get_camera(request.camera_id)
         return StringValue(value=camera.snapshot_url)
 
-    def stream_video(self, request: StreamVideoRequest, context) -> Frame:
-        endpoint = '{}/temporal_videos/{}/stream'.format(API_URL, request.video_id)
-        video = RemoteVideo(request.video_id, "", endpoint)
+    def stream_video(self, request: StreamVideoRequest, context) -> ByteStream:
+        with open(request.path, "rb") as video:
+            while byte := video.read(1024):
+                yield ByteStream(data=byte)
 
-        for frame in video:
-            yield Frame(height=frame.height, width=frame.width, data=frame.tobytes())
 
     def _get_camera(self, camera_id: int) -> Camera:
         cameras = [camera for camera in self.cameras if camera.id == int(camera_id)]

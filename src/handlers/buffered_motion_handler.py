@@ -2,8 +2,6 @@ from src.handlers import MotionHandler
 from collections import deque
 import os
 from src.constants import STORING_PATH
-from src.media import MediaSaver
-from src.media import RemoteVideoSaver
 from src.media import LocalVideoSaver
 
 from src.message_brokers.message_broker import MessageBrokerPublisher
@@ -15,15 +13,13 @@ class BufferedMotionHandler(MotionHandler):
         self,
         camera,
         seconds_to_buffer: int = 2,
-        media_saver: MediaSaver = None,
         message_broker_publisher: MessageBrokerPublisher = None
     ):
         self._frames = deque()
         self._frames.append([])
         self._camera = camera
         storing_path = os.path.join(STORING_PATH, camera.name)
-        local_video_saver = LocalVideoSaver(camera.id, storing_path, camera.frame_rate)
-        self._media_saver = media_saver if media_saver else RemoteVideoSaver(camera.id, local_video_saver)
+        self._media_saver = LocalVideoSaver(camera.id, storing_path, camera.frame_rate)
         self._buffer_size = seconds_to_buffer*camera.frame_rate
 
         self._message_broker_publisher = message_broker_publisher
@@ -39,12 +35,15 @@ class BufferedMotionHandler(MotionHandler):
             if len(self._frames[0]) >= self._buffer_size:
                 to_store = self._frames.popleft()
                 self._frames.append([])
-                video_id = self._media_saver.save(to_store)
-                self._publish_new_video(video_id)
+                path = self._media_saver.save(to_store)
+                self._publish_new_video(path)
 
-    def _publish_new_video(self, video_id: int):
+    def _publish_new_video(self, path: str):
+        payload = {
+            "path": path
+        }
         self._message_broker_publisher.publish(
-            {"video_id": video_id},
+            payload,
             f"{self._camera.id}",
             exchange="camerai"
         )
