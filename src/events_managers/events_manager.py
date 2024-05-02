@@ -37,8 +37,7 @@ class EventsManager:
     def unsubscribe(self, subscriber: EventsSubscriber, event_type: str, publisher: object = None):
         def should_remain(subscription: Subscription) -> bool:
             if publisher is None:
-                if subscription["subscriber"] == subscriber:
-                    return False
+                return subscription["subscriber"] != subscriber
             
             return subscription["subscriber"] != subscriber or subscription["publisher"] != publisher
         
