@@ -48,8 +48,13 @@ class RabbitMQ(MessageBrokerPublisher):
 
 def rabbit_publisher_generator() -> Generator[MessageBrokerPublisher, None, None]:
     rabbit_publisher = RabbitMQ()
-    yield rabbit_publisher
+
+    while True:
+        yield rabbit_publisher
+
+
+rabbit_generator = rabbit_publisher_generator()
 
 
 def get_rabbit_publisher() -> MessageBrokerPublisher:
-    return next(rabbit_publisher_generator())
+    return next(rabbit_generator)

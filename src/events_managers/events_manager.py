@@ -1,4 +1,4 @@
-from typing import Iterator, TypedDict
+from typing import TypedDict, Generator
 
 from src.events_managers.events_subscriber import EventsSubscriber
 
@@ -60,14 +60,15 @@ class EventsManager:
                 )
 
 
-def get_event_manager_context() -> Iterator[EventsManager]:
+def get_event_manager_generator() -> Generator[EventsManager, None, None]:
     manager = EventsManager()
+
     while True:
         yield manager
 
 
-context = get_event_manager_context()
+event_manager_generator = get_event_manager_generator()
 
 
 def get_events_manager() -> EventsManager:
-    return next(context)
+    return next(event_manager_generator)
