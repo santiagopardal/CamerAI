@@ -40,8 +40,12 @@ class BufferedMotionHandler(MotionHandler):
                 self._publish_new_video(path)
 
     def _publish_new_video(self, path: str):
+        path_split = path.split("/")
         payload = {
             "node": self._node_id,
+            "camera": self._camera.id,
+            "date": path_split[-2],
+            "time": path_split[-1].replace(".mp4", "").replace("-", ":"),
             "path": path
         }
         self._message_broker_publisher.publish(
