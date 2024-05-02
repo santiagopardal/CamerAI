@@ -128,8 +128,9 @@ class Node(NodeServicer):
         return StringValue(value=camera.snapshot_url)
 
     def stream_video(self, request: StreamVideoRequest, context) -> ByteStream:
+        byte_stream_size = 1024 ** 2
         with open(request.path, "rb") as video:
-            while byte := video.read(1024):
+            while byte := video.read(byte_stream_size):
                 yield ByteStream(data=byte)
 
     def _get_camera(self, camera_id: int) -> Camera:
