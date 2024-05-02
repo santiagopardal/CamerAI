@@ -84,7 +84,6 @@ class Node(NodeServicer):
 
         for camera in cameras:
             camera.record()
-            self.video_retrievers[camera].receive_video()
 
         logging.info(f"Cameras with id {[id for id in request.cameras_ids]} are going to record video")
 
