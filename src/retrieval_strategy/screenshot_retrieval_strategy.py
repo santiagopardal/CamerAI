@@ -1,4 +1,4 @@
-from src.cameras.retrieval_strategy.retrieval_strategy import RetrievalStrategy
+from src.retrieval_strategy.retrieval_strategy import RetrievalStrategy
 import cv2
 from numpy import ndarray
 import requests

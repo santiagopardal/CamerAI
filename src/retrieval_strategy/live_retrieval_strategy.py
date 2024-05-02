@@ -1,6 +1,6 @@
 from datetime import datetime
 from src.cameras import Camera
-from src.cameras.retrieval_strategy.retrieval_strategy import RetrievalStrategy
+from src.retrieval_strategy.retrieval_strategy import RetrievalStrategy
 import src.api.cameras as api
 from cv2 import VideoCapture, CAP_PROP_FPS, CAP_PROP_FRAME_WIDTH, CAP_PROP_FRAME_HEIGHT, CAP_PROP_BUFFERSIZE, CAP_FFMPEG
 from numpy import ndarray

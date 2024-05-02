@@ -1,5 +1,6 @@
 from src.cameras.serializer import deserialize
-from src.cameras import Camera, LiveRetrievalStrategy, RetrievalStrategy
+from src.cameras import Camera
+from src.retrieval_strategy import RetrievalStrategy, LiveRetrievalStrategy
 import src.api.api as API
 from concurrent.futures import ThreadPoolExecutor
 import src.api.node as node_api
@@ -191,7 +192,7 @@ class Node(NodeServicer):
         frames_handler.observer = DontLookBackObserver(
             model_factory, camera.configurations.sensitivity
         )
-        motion_handler = BufferedMotionHandler(camera, self, SECONDS_TO_BUFFER)
+        motion_handler = BufferedMotionHandler(camera, self.id, SECONDS_TO_BUFFER)
         frames_handler.add_motion_handler(motion_handler)
         return frames_handler
 

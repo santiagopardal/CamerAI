@@ -2,7 +2,7 @@ import unittest
 from unittest.mock import MagicMock
 from src.cameras.camera import Camera
 from src.handlers import FrameHandler
-from src.cameras.retrieval_strategy.live_retrieval_strategy import LiveRetrievalStrategy
+from src.retrieval_strategy import LiveRetrievalStrategy
 from time import sleep
 
 

@@ -1,6 +1,6 @@
 import unittest
 from unittest.mock import patch, MagicMock, call
-from src.cameras.retrieval_strategy.live_retrieval_strategy import LiveRetrievalStrategy
+from src.retrieval_strategy import LiveRetrievalStrategy
 from src.cameras.camera import Camera
 
 
