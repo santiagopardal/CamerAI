@@ -74,6 +74,8 @@ class Camera:
         self._last_frame = last_frame
 
     def update_sensitivity(self, sensitivity: float):
+        old_sensitivity = self.configurations.sensitivity
+        self.configurations.sensitivity = sensitivity
         logging.info(f"Updated sensitivity to camera with ID {self.id} from {old_sensitivity} to {sensitivity}")
 
     def screenshot(self) -> ndarray:
