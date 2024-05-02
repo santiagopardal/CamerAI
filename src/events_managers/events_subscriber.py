@@ -1,0 +1,3 @@
+class EventsSubscriber:
+    def notify(self, event_type: str, publisher: object, **event_data):
+        ...

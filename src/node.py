@@ -1,5 +1,6 @@
 from src.cameras.serializer import deserialize
 from src.cameras import Camera
+from src.events_managers.events_manager import get_events_manager
 from src.retrieval_strategy import RetrievalStrategy, LiveRetrievalStrategy
 import src.api.api as API
 from concurrent.futures import ThreadPoolExecutor
@@ -194,6 +195,9 @@ class Node(NodeServicer):
         )
         motion_handler = BufferedMotionHandler(camera, self.id, SECONDS_TO_BUFFER)
         frames_handler.add_motion_handler(motion_handler)
+        events_manager = get_events_manager()
+        events_manager.subscribe(frames_handler.observer, camera.SENSITIVITY_UPDATE_EVENT, camera)
+        events_manager.subscribe(frames_handler, camera.RECORDING_SWITCHED_EVENT, camera)
         return frames_handler
 
 

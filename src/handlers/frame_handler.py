@@ -4,6 +4,8 @@ from src import constants
 import numpy as np
 import time
 from collections import deque
+
+from src.events_managers.events_subscriber import EventsSubscriber
 from src.media import Frame
 from src.observations import Observer
 from src.observations import DontLookBackObserver
@@ -11,7 +13,7 @@ import src.observations.models.factory as model_factory
 from src.handlers import MotionHandler
 
 
-class FrameHandler:
+class FrameHandler(EventsSubscriber):
     def __init__(self, observer: Observer = None, motion_handlers: list[MotionHandler] = None):
         super().__init__()
         self.observer = observer or DontLookBackObserver(model_factory, constants.MOVEMENT_SENSITIVITY)
@@ -21,6 +23,14 @@ class FrameHandler:
         self._cleared_buffer = True
         self._current_buffer_started_receiving = 0.0
         self._receive_frames = False
+
+    def notify(self, event_type: str, publisher: object, **event_data):
+        recording = event_data.get("recording", False)
+
+        if recording:
+            self.start()
+        else:
+            self.stop()
 
     def start(self):
         if not self._receive_frames:

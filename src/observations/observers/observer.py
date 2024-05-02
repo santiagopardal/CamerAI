@@ -1,14 +1,19 @@
 import cv2
+
+from src.events_managers.events_subscriber import EventsSubscriber
 from src.media import Frame
 from src import constants
 import numpy as np
 from src.media.frame_editor import resize_frame, black_and_white
 
 
-class Observer:
+class Observer(EventsSubscriber):
     def __init__(self, model_factory, sensitivity: float):
         self._model = model_factory.create_model()
         self._sensitivity = sensitivity
+
+    def notify(self, event_type: str, publisher: object, **event_data):
+        self._sensitivity = event_data["sensitivity"]
 
     def observe(self, frames: list) -> list:
         pass

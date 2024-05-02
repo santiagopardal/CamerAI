@@ -3,8 +3,13 @@ from src.cameras.properties import Properties
 from src.cameras.configurations import Configurations
 import logging
 
+from src.events_managers.events_manager import get_events_manager
+
 
 class Camera:
+    SENSITIVITY_UPDATE_EVENT = "SENSITIVITY_UPDATE"
+    RECORDING_SWITCHED_EVENT = "RECORDING_SWITCHED_EVENT"
+
     def __init__(self, properties: Properties, configurations: Configurations, video_url: str, snapshot_url: str):
         self._properties = properties
         self._configurations = configurations
@@ -76,6 +81,11 @@ class Camera:
     def update_sensitivity(self, sensitivity: float):
         old_sensitivity = self.configurations.sensitivity
         self.configurations.sensitivity = sensitivity
+        get_events_manager().notify(
+            event_type=self.SENSITIVITY_UPDATE_EVENT,
+            publisher=self,
+            sensitivity=sensitivity
+        )
         logging.info(f"Updated sensitivity to camera with ID {self.id} from {old_sensitivity} to {sensitivity}")
 
     def screenshot(self) -> ndarray:
@@ -84,10 +94,20 @@ class Camera:
     def record(self):
         if not self.is_recording:
             self._configurations.recording = True
+            get_events_manager().notify(
+                event_type=self.SENSITIVITY_UPDATE_EVENT,
+                publisher=self,
+                recording=True
+            )
 
     def stop_recording(self):
         if self.is_recording:
             self._configurations.recording = False
+            get_events_manager().notify(
+                event_type=self.SENSITIVITY_UPDATE_EVENT,
+                publisher=self,
+                recording=False
+            )
 
     def __hash__(self):
         return hash(f"{self.ip}:{self.port}@{self.name}")
