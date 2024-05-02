@@ -1,9 +1,5 @@
 from src.handlers import FrameHandler
-from src.handlers import BufferedMotionHandler
-from src.observations import DontLookBackObserver
-from src.constants import SECONDS_TO_BUFFER
 from numpy import ndarray
-import src.observations.models.factory as model_factory
 from src.cameras.properties import Properties
 from src.cameras.configurations import Configurations
 import logging
@@ -17,9 +13,6 @@ class Camera:
         self._snapshot_url = snapshot_url
         self._should_receive_frames = False
         self._last_frame = None
-        self._frame_handler = frames_handler or FrameHandler()
-        if self.is_recording:
-            self._do_record()
 
     @property
     def id(self) -> int:
@@ -58,10 +51,6 @@ class Camera:
         return self._properties.frame_width
 
     @property
-    def frame_handler(self) -> FrameHandler:
-        return self._frame_handler
-
-    @property
     def is_recording(self) -> bool:
         return self._configurations.recording
 
@@ -81,19 +70,11 @@ class Camera:
     def port(self, port: int):
         self._properties.port = port
 
-    @frame_handler.setter
-    def frame_handler(self, frames_handler: FrameHandler):
-        self._frame_handler.stop()
-        self._frame_handler = frames_handler
-        self._frame_handler.start()
-
     @last_frame.setter
     def last_frame(self, last_frame: ndarray):
         self._last_frame = last_frame
 
     def update_sensitivity(self, sensitivity: float):
-        old_sensitivity = self._frame_handler.observer.sensitivity
-        self._frame_handler.observer.sensitivity = sensitivity
         logging.info(f"Updated sensitivity to camera with ID {self.id} from {old_sensitivity} to {sensitivity}")
 
     def screenshot(self) -> ndarray:
@@ -101,18 +82,11 @@ class Camera:
 
     def record(self):
         if not self.is_recording:
-            self._do_record()
+            self._configurations.recording = True
 
     def stop_recording(self):
         if self.is_recording:
             self._configurations.recording = False
-            self._frame_handler.stop()
-
-    def _do_record(self):
-        self._frame_handler.observer = DontLookBackObserver(model_factory, self._configurations.sensitivity)
-        self._frame_handler.add_motion_handler(BufferedMotionHandler(self, SECONDS_TO_BUFFER))
-        self._frame_handler.start()
-        self._configurations.recording = True
 
     def __hash__(self):
         return hash(f"{self.ip}:{self.port}@{self.name}")

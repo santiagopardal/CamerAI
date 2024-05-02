@@ -7,10 +7,12 @@ from numpy import ndarray
 import logging
 import time
 
+from src.handlers import FrameHandler
+
 
 class LiveRetrievalStrategy(RetrievalStrategy):
-    def __init__(self, camera: Camera):
-        super().__init__(camera)
+    def __init__(self, camera: Camera, frames_handler: FrameHandler):
+        super().__init__(camera, frames_handler)
         self._live_video = None
         self._disconnect = False
 

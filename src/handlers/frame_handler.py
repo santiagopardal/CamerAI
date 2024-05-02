@@ -20,18 +20,20 @@ class FrameHandler:
         self._buffer = deque()
         self._cleared_buffer = True
         self._current_buffer_started_receiving = 0.0
-        self._receive_frames = True
+        self._receive_frames = False
 
     def start(self):
-        self._thread_pool = ThreadPoolExecutor(1)
-        self._current_buffer_started_receiving = time.time()
-        self._receive_frames = True
+        if not self._receive_frames:
+            self._thread_pool = ThreadPoolExecutor(1)
+            self._current_buffer_started_receiving = time.time()
+            self._receive_frames = True
 
     def stop(self):
-        self._thread_pool.shutdown(wait=True, cancel_futures=True)
-        self._thread_pool = None
-        self._receive_frames = False
-        self._buffer.clear()
+        if self._receive_frames:
+            self._thread_pool.shutdown(wait=True, cancel_futures=True)
+            self._thread_pool = None
+            self._receive_frames = False
+            self._buffer.clear()
 
     def add_motion_handler(self, handler: MotionHandler):
         self._motion_handlers.append(handler)

@@ -1,5 +1,3 @@
-from numpy import ndarray
-
 from src.cameras.serializer import deserialize
 from src.cameras import Camera, LiveRetrievalStrategy, RetrievalStrategy
 import src.api.api as API
@@ -9,7 +7,7 @@ import src.api.cameras as cameras_api
 from socket import gethostname, gethostbyname
 import time
 import logging
-from src.constants import NODE_INFO_PATH, API_URL
+from src.constants import NODE_INFO_PATH, SECONDS_TO_BUFFER
 import json
 import os
 from src.grpc_protos import Node_pb2_grpc
@@ -25,7 +23,10 @@ from src.grpc_protos.Node_pb2 import (
 import grpc
 from google.protobuf.wrappers_pb2 import StringValue
 from google.protobuf.empty_pb2 import Empty as EmptyValue
-from src.media import RemoteVideo
+
+from src.handlers import FrameHandler, BufferedMotionHandler
+import src.observations.models.factory as model_factory
+from src.observations import DontLookBackObserver
 
 LISTENING_PORT = 50051
 
@@ -51,7 +52,8 @@ class Node(NodeServicer):
             self.server.start()
 
             for camera in self.cameras:
-                self.video_retrievers[camera] = LiveRetrievalStrategy(camera)
+                frames_handler = self._create_frames_handler_for_camera(camera)
+                self.video_retrievers[camera] = LiveRetrievalStrategy(camera, frames_handler)
                 self.video_retrievers[camera].receive_video()
 
         except Exception as e:
@@ -80,6 +82,7 @@ class Node(NodeServicer):
 
         for camera in cameras:
             camera.record()
+            self.video_retrievers[camera].receive_video()
 
         logging.info(f"Cameras with id {[id for id in request.cameras_ids]} are going to record video")
 
@@ -102,7 +105,8 @@ class Node(NodeServicer):
             sensitivity=request.configurations.sensitivity
         )
         self.cameras.append(camera)
-        self.video_retrievers[camera] = LiveRetrievalStrategy(camera)
+        frames_handler = self._create_frames_handler_for_camera(camera)
+        self.video_retrievers[camera] = LiveRetrievalStrategy(camera, frames_handler)
         self.video_retrievers[camera].receive_video()
         logging.info(f"Added camera with id {request.id}")
 
@@ -181,6 +185,15 @@ class Node(NodeServicer):
                 time.sleep(seconds)
 
         return []
+
+    def _create_frames_handler_for_camera(self, camera: Camera) -> FrameHandler:
+        frames_handler = FrameHandler()
+        frames_handler.observer = DontLookBackObserver(
+            model_factory, camera.configurations.sensitivity
+        )
+        motion_handler = BufferedMotionHandler(camera, self, SECONDS_TO_BUFFER)
+        frames_handler.add_motion_handler(motion_handler)
+        return frames_handler
 
 
 if __name__ == '__main__':

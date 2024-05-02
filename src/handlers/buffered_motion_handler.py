@@ -1,3 +1,4 @@
+from src.cameras import Camera
 from src.handlers import MotionHandler
 from collections import deque
 import os
@@ -6,18 +7,21 @@ from src.media import LocalVideoSaver
 
 from src.message_brokers.message_broker import MessageBrokerPublisher
 from src.message_brokers.rabbitmq import get_rabbit_publisher
+from src.node import Node
 
 
 class BufferedMotionHandler(MotionHandler):
     def __init__(
         self,
-        camera,
+        camera: Camera,
+        node: Node,
         seconds_to_buffer: int = 2,
         message_broker_publisher: MessageBrokerPublisher = None
     ):
         self._frames = deque()
         self._frames.append([])
         self._camera = camera
+        self._node = node
         storing_path = os.path.join(STORING_PATH, camera.name)
         self._media_saver = LocalVideoSaver(camera.id, storing_path, camera.frame_rate)
         self._buffer_size = seconds_to_buffer*camera.frame_rate
@@ -40,6 +44,7 @@ class BufferedMotionHandler(MotionHandler):
 
     def _publish_new_video(self, path: str):
         payload = {
+            "node": self._node.id,
             "path": path
         }
         self._message_broker_publisher.publish(
