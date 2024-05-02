@@ -44,12 +44,12 @@ class EventsManager:
         
         self._subscriptions["event_type"] = [
             subscription
-            for subscription in self._subscriptions[event_type] or []
+            for subscription in self._subscriptions.get(event_type, [])
             if should_remain(subscription)
         ]
 
     def notify(self, event_type: str, publisher: object, **event_data):
-        subscriptions = self._subscriptions[event_type] or []
+        subscriptions = self._subscriptions.get(event_type, [])
         
         for subscription in subscriptions:
             if subscription["publisher"] == publisher:
@@ -63,8 +63,12 @@ class EventsManager:
 
 def get_event_manager_context() -> Iterator[EventsManager]:
     manager = EventsManager()
-    yield manager
+    while True:
+        yield manager
+
+
+context = get_event_manager_context()
 
 
 def get_events_manager() -> EventsManager:
-    return next(get_event_manager_context())
+    return next(context)

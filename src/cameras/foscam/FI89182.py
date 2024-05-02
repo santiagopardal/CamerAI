@@ -25,7 +25,7 @@ class FI89182(Camera):
         super().__init__(properties, configurations, video_url, snapshot_url)
 
     def __hash__(self):
-        return hash(super())
+        return hash(f"{self.ip}:{self.port}@{self.name}")
 
     def __eq__(self, other):
         if isinstance(other, FI89182):

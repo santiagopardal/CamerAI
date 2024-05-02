@@ -95,7 +95,7 @@ class Camera:
         if not self.is_recording:
             self._configurations.recording = True
             get_events_manager().notify(
-                event_type=self.SENSITIVITY_UPDATE_EVENT,
+                event_type=self.RECORDING_SWITCHED_EVENT,
                 publisher=self,
                 recording=True
             )
@@ -104,13 +104,10 @@ class Camera:
         if self.is_recording:
             self._configurations.recording = False
             get_events_manager().notify(
-                event_type=self.SENSITIVITY_UPDATE_EVENT,
+                event_type=self.RECORDING_SWITCHED_EVENT,
                 publisher=self,
                 recording=False
             )
-
-    def __hash__(self):
-        return hash(f"{self.ip}:{self.port}@{self.name}")
 
     def __eq__(self, other):
         return isinstance(other, Camera) and other.ip == self.ip and other.port == self.port
