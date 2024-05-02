@@ -1,5 +1,4 @@
 import urllib
-from src.handlers import FrameHandler
 from src.cameras.camera import Camera
 from src.cameras.properties import Properties
 from src.cameras.configurations import Configurations
@@ -15,7 +14,7 @@ FRAME_RATE = 23
 class FI9803PV3(Camera):
     def __init__(
         self, properties: Properties, configurations: Configurations, user: str,
-        password: str, frames_handler: FrameHandler = None
+        password: str
     ):
         user = urllib.parse.quote(user)
         password = urllib.parse.quote(password)
@@ -23,7 +22,7 @@ class FI9803PV3(Camera):
         video_url = LIVE_VIDEO_URL.format(user, password, properties.ip, properties.streaming_port)
         snapshot_url = SNAPSHOT_URL.format(properties.ip, properties.port, user, password)
 
-        super().__init__(properties, configurations, video_url, snapshot_url, frames_handler)
+        super().__init__(properties, configurations, video_url, snapshot_url)
 
     def __hash__(self):
         return hash(super())

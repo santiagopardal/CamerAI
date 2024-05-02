@@ -1,4 +1,3 @@
-from src.handlers import FrameHandler
 from numpy import ndarray
 from src.cameras.properties import Properties
 from src.cameras.configurations import Configurations
@@ -6,7 +5,7 @@ import logging
 
 
 class Camera:
-    def __init__(self, properties: Properties, configurations: Configurations, video_url: str, snapshot_url: str, frames_handler: FrameHandler = None):
+    def __init__(self, properties: Properties, configurations: Configurations, video_url: str, snapshot_url: str):
         self._properties = properties
         self._configurations = configurations
         self._video_url = video_url
