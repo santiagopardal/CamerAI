@@ -25,9 +25,7 @@ class BufferedMotionHandler(MotionHandler):
         self._media_saver = LocalVideoSaver(camera.id, storing_path, camera.frame_rate)
         self._buffer_size = seconds_to_buffer*camera.frame_rate
 
-        self._message_broker_publisher = message_broker_publisher
-        if not message_broker_publisher:
-            self._message_broker_publisher = get_rabbit_publisher()
+        self._message_broker_publisher = message_broker_publisher or get_rabbit_publisher()
 
         super().__init__()
 
