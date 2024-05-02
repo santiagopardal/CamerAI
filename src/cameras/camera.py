@@ -107,7 +107,6 @@ class Camera:
         if self.is_recording:
             self._configurations.recording = False
             self._frame_handler.stop()
-            self._frame_handler.set_motion_handlers([])
 
     def _do_record(self):
         self._frame_handler.observer = DontLookBackObserver(model_factory, self._configurations.sensitivity)
