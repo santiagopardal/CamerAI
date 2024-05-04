@@ -133,6 +133,8 @@ class Node(NodeServicer):
             while byte := video.read(byte_stream_size):
                 yield ByteStream(data=byte)
 
+        os.remove(request.path)
+
     def _get_camera(self, camera_id: int) -> Camera:
         cameras = [camera for camera in self.cameras if camera.id == int(camera_id)]
         if cameras:
