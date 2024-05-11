@@ -141,7 +141,7 @@ class Node(NodeServicer):
 
 
     def stream_video(self, request: StreamVideoRequest, context) -> BytesValue:
-        byte_stream_size = min(math.floor((1024 ** 2) * 3.5), os.path.getsize(request.path))
+        byte_stream_size = min(64 * 1024, os.path.getsize(request.path))
         with open(request.path, "rb") as video:
             while byte := video.read(byte_stream_size):
                 yield BytesValue(value=byte)
