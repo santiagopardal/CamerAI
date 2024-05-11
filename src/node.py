@@ -1,5 +1,3 @@
-import math
-
 import cv2
 from src.cameras.serializer import deserialize
 from src.cameras import Camera
