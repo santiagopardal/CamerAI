@@ -96,6 +96,8 @@ class Node(NodeServicer):
         for camera in cameras:
             camera.stop_recording()
 
+        logging.info(f"Cameras with id {[id for id in request.cameras_ids]} stopped recording video")
+
         return EmptyValue()
 
     def add_camera(self, request: CameraInfo, context) -> EmptyValue:
