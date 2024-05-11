@@ -1,3 +1,4 @@
+import cv2
 from src.cameras.serializer import deserialize
 from src.cameras import Camera
 from src.events_managers.events_manager import get_events_manager
@@ -128,6 +129,15 @@ class Node(NodeServicer):
     def get_snapshot_url(self, request: CameraIdParameterRequest, context) -> StringValue:
         camera = self._get_camera(request.camera_id)
         return StringValue(value=camera.snapshot_url)
+
+    def get_snapshot(self, request: CameraIdParameterRequest, context) -> ByteStream:
+        camera = self._get_camera(request.camera_id)
+        last_snapshot = camera.last_frame
+
+        is_success, buffer = cv2.imencode(".jpg", last_snapshot)
+
+        return ByteStream(data=buffer.tobytes())
+
 
     def stream_video(self, request: StreamVideoRequest, context) -> ByteStream:
         byte_stream_size = min((1024 ** 2) * 4, os.path.getsize(request.path))
