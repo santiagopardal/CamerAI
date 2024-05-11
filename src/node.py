@@ -20,11 +20,10 @@ from src.grpc_protos.Node_pb2 import (
     UpdateSensitivityRequest,
     ManyCameraIdsRequest,
     CameraInfo,
-    StreamVideoRequest,
-    ByteStream
+    StreamVideoRequest
 )
 import grpc
-from google.protobuf.wrappers_pb2 import StringValue
+from google.protobuf.wrappers_pb2 import StringValue, BytesValue
 from google.protobuf.empty_pb2 import Empty as EmptyValue
 
 from src.handlers import FrameHandler, BufferedMotionHandler
@@ -130,20 +129,20 @@ class Node(NodeServicer):
         camera = self._get_camera(request.camera_id)
         return StringValue(value=camera.snapshot_url)
 
-    def get_snapshot(self, request: CameraIdParameterRequest, context) -> ByteStream:
+    def get_snapshot(self, request: CameraIdParameterRequest, context) -> BytesValue:
         camera = self._get_camera(request.camera_id)
         last_snapshot = camera.last_frame
 
         is_success, buffer = cv2.imencode(".jpg", last_snapshot)
 
-        return ByteStream(data=buffer.tobytes())
+        return BytesValue(value=buffer.tobytes())
 
 
-    def stream_video(self, request: StreamVideoRequest, context) -> ByteStream:
+    def stream_video(self, request: StreamVideoRequest, context) -> BytesValue:
         byte_stream_size = min((1024 ** 2) * 4, os.path.getsize(request.path))
         with open(request.path, "rb") as video:
             while byte := video.read(byte_stream_size):
-                yield ByteStream(data=byte)
+                yield BytesValue(value=byte)
 
         os.remove(request.path)
 
