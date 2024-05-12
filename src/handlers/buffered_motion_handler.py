@@ -22,8 +22,8 @@ class BufferedMotionHandler(MotionHandler):
         self._camera = camera
         self._node_id = node_id
         storing_path = os.path.join(STORING_PATH, camera.name)
-        self._media_saver = LocalVideoSaver(camera.id, storing_path, camera.frame_rate)
-        self._buffer_size = seconds_to_buffer*camera.frame_rate
+        self._media_saver = LocalVideoSaver(camera.id, storing_path, camera.framerate)
+        self._buffer_size = seconds_to_buffer*camera.framerate
 
         self._message_broker_publisher = message_broker_publisher or get_rabbit_publisher()
 

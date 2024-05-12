@@ -1,6 +1,5 @@
 import cv2
-from src.cameras.serializer import deserialize
-from src.cameras import Camera
+from src.cameras import Camera, SENSITIVITY_UPDATE_EVENT, RECORDING_SWITCHED_EVENT
 from src.events_managers.events_manager import get_events_manager
 from src.retrieval_strategy import RetrievalStrategy, LiveRetrievalStrategy
 import src.api.api as API
@@ -101,12 +100,7 @@ class Node(NodeServicer):
         return EmptyValue()
 
     def add_camera(self, request: CameraInfo, context) -> EmptyValue:
-        camera = deserialize(
-            id=request.id, name=request.name, model=request.model, ip=request.ip, http_port=request.http_port,
-            streaming_port=request.streaming_port, user=request.user, password=request.password, width=request.width,
-            height=request.height, framerate=request.framerate, recording=request.configurations.recording,
-            sensitivity=request.configurations.sensitivity
-        )
+        camera = Camera(**dict(request))
         self.cameras.append(camera)
         frames_handler = self._create_frames_handler_for_camera(camera)
         self.video_retrievers[camera] = LiveRetrievalStrategy(camera, frames_handler)
@@ -180,17 +174,7 @@ class Node(NodeServicer):
         while not cameras:
             try:
                 cameras = cameras_api.get_cameras(self.id)
-                return [
-                    deserialize(
-                        id=camera["id"], name=camera["name"], model=camera["model"], ip=camera["ip"],
-                        http_port=camera["http_port"],
-                        streaming_port=camera["streaming_port"], user=camera["user"], password=camera["password"],
-                        width=camera["width"],
-                        height=camera["height"], framerate=camera["framerate"], recording=camera["configurations"]["recording"],
-                        sensitivity=camera["configurations"]["sensitivity"]
-                    )
-                    for camera in cameras
-                ]
+                return [Camera(**camera) for camera in cameras]
             except Exception as e:
                 if i < 6:
                     i += 1
@@ -208,8 +192,8 @@ class Node(NodeServicer):
         motion_handler = BufferedMotionHandler(camera, self.id, SECONDS_TO_BUFFER)
         frames_handler.add_motion_handler(motion_handler)
         events_manager = get_events_manager()
-        events_manager.subscribe(frames_handler.observer, camera.SENSITIVITY_UPDATE_EVENT, camera)
-        events_manager.subscribe(frames_handler, camera.RECORDING_SWITCHED_EVENT, camera)
+        events_manager.subscribe(frames_handler.observer, SENSITIVITY_UPDATE_EVENT, camera)
+        events_manager.subscribe(frames_handler, RECORDING_SWITCHED_EVENT, camera)
         return frames_handler
 
 

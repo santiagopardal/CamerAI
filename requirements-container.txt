@@ -8,3 +8,4 @@ python-dotenv>=0.19.2
 pika
 grpcio
 grpcio-tools
+pydantic

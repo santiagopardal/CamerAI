@@ -1,22 +1,15 @@
+from pydantic import BaseModel, field_validator
 
-CONFIGURATIONS_KEYS = ["sensitivity", "recording"]
 
-
-class Configurations:
-    _sensitivity: float
+class Configurations(BaseModel):
+    id: int
+    sensitivity: float
     recording: bool
 
-    def __init__(self, **configurations):
-        self._sensitivity = configurations["sensitivity"]
-        self.recording = configurations["recording"]
-
-    @property
-    def sensitivity(self) -> float:
-        return self._sensitivity
-
-    @sensitivity.setter
-    def sensitivity(self, sensitivity: float):
-        if sensitivity < 0 or sensitivity > 1:
+    @field_validator("sensitivity")
+    @classmethod
+    def sensitivity(cls, sensitivity: float) -> float:
+        if not 0 <= sensitivity <= 1:
             raise Exception("Sensitivity must be a number between 0 and 1")
 
-        self._sensitivity = sensitivity
+        return sensitivity

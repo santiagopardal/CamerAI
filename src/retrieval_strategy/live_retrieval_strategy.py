@@ -25,9 +25,9 @@ class LiveRetrievalStrategy(RetrievalStrategy):
                     self._live_video.release()
 
                 self._live_video = VideoCapture(self._camera.video_url, CAP_FFMPEG)
-                self._live_video.set(CAP_PROP_FPS, self._camera.frame_rate)
-                self._live_video.set(CAP_PROP_FRAME_WIDTH, self._camera.frame_width)
-                self._live_video.set(CAP_PROP_FRAME_HEIGHT, self._camera.frame_height)
+                self._live_video.set(CAP_PROP_FPS, self._camera.framerate)
+                self._live_video.set(CAP_PROP_FRAME_WIDTH, self._camera.width)
+                self._live_video.set(CAP_PROP_FRAME_HEIGHT, self._camera.height)
                 self._live_video.set(CAP_PROP_BUFFERSIZE, 3)
 
                 connected, frame = self._live_video.read()
@@ -62,5 +62,5 @@ class LiveRetrievalStrategy(RetrievalStrategy):
 
     def _log_status(self, status: str):
         api.log_connection_status(self._camera.id, status, datetime.now())
-        message_to_log = f"Status updated for {self._camera.name} @ {self._camera.ip}:{self._camera.port}: {status}"
+        message_to_log = f"Status updated for {self._camera.name} @ {self._camera.ip}:{self._camera.http_port}: {status}"
         logging.info(message_to_log)

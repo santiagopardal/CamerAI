@@ -10,3 +10,4 @@ pika
 pika-stubs
 grpcio
 grpcio-tools
+pydantic
