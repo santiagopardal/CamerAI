@@ -144,9 +144,11 @@ class Node(NodeServicer):
         os.remove(request.path)
 
     def _get_camera(self, camera_id: int) -> Camera:
-        cameras = [camera for camera in self.cameras if camera.id == int(camera_id)]
-        if cameras:
-            camera = cameras.pop()
+        camera = next(
+            (camera for camera in self.cameras if camera.id == int(camera_id)),
+            None
+        )
+        if camera:
             return camera
 
         raise Exception('There is no camera with such id')
