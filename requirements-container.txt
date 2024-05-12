@@ -9,3 +9,4 @@ pika
 grpcio
 grpcio-tools
 pydantic
+aiofiles

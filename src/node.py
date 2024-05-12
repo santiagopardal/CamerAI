@@ -1,3 +1,5 @@
+import asyncio
+import aiofiles
 import cv2
 from src.cameras import Camera, SENSITIVITY_UPDATE_EVENT, RECORDING_SWITCHED_EVENT
 from src.events_managers.events_manager import get_events_manager
@@ -29,7 +31,9 @@ from src.handlers import FrameHandler, BufferedMotionHandler
 import src.observations.models.factory as model_factory
 from src.observations import DontLookBackObserver
 
+
 LISTENING_PORT = 50051
+_64_KB_IN_BYTES = 64 * 1024
 
 
 class Node(NodeServicer):
@@ -38,19 +42,19 @@ class Node(NodeServicer):
         self._id = None
         self._register()
         self.cameras = self._fetch_cameras_from_api()
-        self.server = grpc.server(
+        self.server = grpc.aio.server(
             ThreadPoolExecutor(max_workers=len(self.cameras) + 1)
         )
         self.video_retrievers: dict[Camera, RetrievalStrategy] = {}
 
-    def run(self):
+    async def run(self):
         try:
             logging.info(f"Node running with {len(self.cameras)} cameras.")
 
             Node_pb2_grpc.add_NodeServicer_to_server(self, self.server)
 
             self.server.add_insecure_port(f"0.0.0.0:{LISTENING_PORT}")
-            self.server.start()
+            await self.server.start()
 
             for camera in self.cameras:
                 frames_handler = self._create_frames_handler_for_camera(camera)
@@ -60,21 +64,21 @@ class Node(NodeServicer):
         except Exception as e:
             logging.error(f"Error initializing node, {e}")
 
-    def stop(self, request, context) -> EmptyValue:
+    async def stop(self, request, context) -> EmptyValue:
         for camera in self.cameras:
             camera.stop_recording()
             self.video_retrievers[camera].stop_receiving_video()
 
-        self.server.stop(None)
+        await self.server.stop(None)
 
         return EmptyValue()
 
-    def update_sensitivity(self, request: UpdateSensitivityRequest, context) -> EmptyValue:
+    async def update_sensitivity(self, request: UpdateSensitivityRequest, context) -> EmptyValue:
         camera = self._get_camera(request.camera_id)
         camera.update_sensitivity(request.sensitivity)
         return EmptyValue()
 
-    def record(self, request: ManyCameraIdsRequest, context) -> EmptyValue:
+    async def record(self, request: ManyCameraIdsRequest, context) -> EmptyValue:
         cameras_ids = request.cameras_ids
         cameras: list[Camera] = [
             camera for camera in self.cameras
@@ -88,7 +92,7 @@ class Node(NodeServicer):
 
         return EmptyValue()
 
-    def stop_recording(self, request: ManyCameraIdsRequest, context) -> EmptyValue:
+    async def stop_recording(self, request: ManyCameraIdsRequest, context) -> EmptyValue:
         cameras_ids = request.cameras_ids
         cameras: list[Camera] = [camera for camera in self.cameras if
                                  camera.id in cameras_ids] if cameras_ids else self.cameras
@@ -99,7 +103,7 @@ class Node(NodeServicer):
 
         return EmptyValue()
 
-    def add_camera(self, request: CameraInfo, context) -> EmptyValue:
+    async def add_camera(self, request: CameraInfo, context) -> EmptyValue:
         camera = Camera(**dict(request))
         self.cameras.append(camera)
         frames_handler = self._create_frames_handler_for_camera(camera)
@@ -109,7 +113,7 @@ class Node(NodeServicer):
 
         return EmptyValue()
 
-    def remove_camera(self, request: CameraIdParameterRequest, context) -> EmptyValue:
+    async def remove_camera(self, request: CameraIdParameterRequest, context) -> EmptyValue:
         camera = self._get_camera(request.camera_id)
         camera.stop_recording()
         self.video_retrievers[camera].stop_receiving_video()
@@ -119,11 +123,11 @@ class Node(NodeServicer):
 
         return EmptyValue()
 
-    def get_snapshot_url(self, request: CameraIdParameterRequest, context) -> StringValue:
+    async def get_snapshot_url(self, request: CameraIdParameterRequest, context) -> StringValue:
         camera = self._get_camera(request.camera_id)
         return StringValue(value=camera.snapshot_url)
 
-    def get_snapshot(self, request: CameraIdParameterRequest, context) -> BytesValue:
+    async def get_snapshot(self, request: CameraIdParameterRequest, context) -> BytesValue:
         camera = self._get_camera(request.camera_id)
         last_snapshot = camera.last_frame
 
@@ -131,10 +135,10 @@ class Node(NodeServicer):
 
         return BytesValue(value=buffer.tobytes())
 
-    def stream_video(self, request: StreamVideoRequest, context) -> BytesValue:
-        byte_stream_size = min(64 * 1024, os.path.getsize(request.path))
-        with open(request.path, "rb") as video:
-            while byte := video.read(byte_stream_size):
+    async def stream_video(self, request: StreamVideoRequest, context) -> BytesValue:
+        byte_stream_size = min(_64_KB_IN_BYTES, os.path.getsize(request.path))
+        async with aiofiles.open(request.path, "rb") as video:
+            while byte := await video.read(byte_stream_size):
                 yield BytesValue(value=byte)
 
         os.remove(request.path)
@@ -206,5 +210,7 @@ if __name__ == '__main__':
         style="{"
     )
     node = Node()
-    node.run()
-    node.server.wait_for_termination()
+    loop = asyncio.get_event_loop()
+    asyncio.set_event_loop(loop)
+    loop.run_until_complete(node.run())
+    loop.run_until_complete(node.server.wait_for_termination())
