@@ -203,6 +203,12 @@ class Node(NodeServicer):
         return frames_handler
 
 
+async def serve():
+    node = Node()
+    await node.run()
+    await node.server.wait_for_termination()
+
+
 if __name__ == '__main__':
     logging.basicConfig(
         filename='camerai.log',
@@ -211,8 +217,4 @@ if __name__ == '__main__':
         format="{asctime} {levelname:<8} {message}",
         style="{"
     )
-    node = Node()
-    loop = asyncio.get_event_loop()
-    asyncio.set_event_loop(loop)
-    loop.run_until_complete(node.run())
-    loop.run_until_complete(node.server.wait_for_termination())
+    asyncio.run(serve())
