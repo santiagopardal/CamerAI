@@ -3,7 +3,6 @@ numpy>=1.19.3
 opencv-python>=4.4.0.46
 tensorflow
 urllib3>=1.26.2
-scipy>=1.5.4
 python-dotenv>=0.19.2
 pika
 pika-stubs
