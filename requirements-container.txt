@@ -6,6 +6,5 @@ scipy>=1.5.4
 python-dotenv>=0.19.2
 pika
 grpcio
-grpcio-tools
 pydantic
 aiofiles

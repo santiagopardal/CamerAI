@@ -17,6 +17,8 @@ RUN pip cache purge
 
 COPY . .
 
+RUN pip install grpcio-tools
 RUN python -m grpc_tools.protoc -I ./libs/CamerAIProtos/ --python_out=./src/grpc_protos/ --grpc_python_out=./src/grpc_protos/ ./libs/CamerAIProtos/Node.proto
+RUN pip uninstall grpcio-tools -y
 
 CMD ["python", "-m", "src.node"]
