@@ -4,7 +4,7 @@ from typing import Optional, Generator
 
 from pika import PlainCredentials, ConnectionParameters, BlockingConnection
 from pika.adapters.blocking_connection import BlockingChannel
-
+from pika.exchange_type import ExchangeType
 from src.message_brokers.message_broker import MessageBrokerPublisher
 
 
@@ -23,7 +23,7 @@ class RabbitMQ(MessageBrokerPublisher):
         self._channel: Optional[BlockingChannel] = None
         self._declared_exchanges = set()
 
-    def publish(self, data: dict, routing_key: str, exchange: str, exchange_type: str = "direct"):
+    def publish(self, data: dict, routing_key: str, exchange: str, exchange_type: str = ExchangeType.direct):
         if exchange not in self._declared_exchanges:
             self.channel.exchange_declare(exchange=exchange, exchange_type=exchange_type, durable=True)
             self._declared_exchanges.add(exchange)
