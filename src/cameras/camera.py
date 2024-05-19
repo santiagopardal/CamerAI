@@ -4,7 +4,6 @@ from typing import Optional
 
 from numpy import ndarray
 from pydantic import BaseModel, field_validator, PositiveInt, Field, model_validator
-from src.cameras.configurations import Configurations
 import logging
 
 from src.events_managers.events_manager import get_events_manager
@@ -34,7 +33,8 @@ class Camera(BaseModel):
     width: PositiveInt
     height: PositiveInt
     framerate: PositiveInt
-    configurations: Configurations
+    sensitivity: float
+    recording: bool
 
     video_url: Optional[str] = Field(default=None)
     snapshot_url: Optional[str] = Field(default=None)
@@ -66,9 +66,17 @@ class Camera(BaseModel):
 
         return port
 
+    @field_validator("sensitivity")
+    @classmethod
+    def sensitivity(cls, sensitivity: float) -> float:
+        if not 0 <= sensitivity <= 1:
+            raise Exception("Sensitivity must be a number between 0 and 1")
+
+        return sensitivity
+
     def update_sensitivity(self, sensitivity: float):
-        old_sensitivity = self.configurations.sensitivity
-        self.configurations.sensitivity = sensitivity
+        old_sensitivity = self.sensitivity
+        self.sensitivity = sensitivity
         get_events_manager().notify(
             event_type=SENSITIVITY_UPDATE_EVENT,
             publisher=self,
@@ -77,8 +85,8 @@ class Camera(BaseModel):
         logging.info(f"Updated sensitivity to camera with ID {self.id} from {old_sensitivity} to {sensitivity}")
 
     def record(self):
-        if not self.configurations.recording:
-            self.configurations.recording = True
+        if not self.recording:
+            self.recording = True
             get_events_manager().notify(
                 event_type=RECORDING_SWITCHED_EVENT,
                 publisher=self,
@@ -86,8 +94,8 @@ class Camera(BaseModel):
             )
 
     def stop_recording(self):
-        if self.configurations.recording:
-            self.configurations.recording = False
+        if self.recording:
+            self.recording = False
             get_events_manager().notify(
                 event_type=RECORDING_SWITCHED_EVENT,
                 publisher=self,
