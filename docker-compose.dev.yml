@@ -1,53 +1,53 @@
 services:
-  camerapi:
-    build:
-      context: ./CamerAPI
-      dockerfile: Dockerfile.dev
-    container_name: camerapi
-    restart: unless-stopped
-    env_file: ./CamerAPI/.env
-    ports:
-      - "8080:8080"
-    volumes:
-      - "./CamerAPI:/camerapi"
-      - /camerapi/node_modules
-  camerai:
-    build:
-      context: .
-      dockerfile: Dockerfile.dev
-    container_name: camerai
-    restart: unless-stopped
-    env_file:
-      - .env
-    environment:
-      - PYTHONPATH=/camerai/src
-    ports:
-      - "50051:50051"
-    volumes:
-      - "./src:/camerai/src"
-      - "./libs:/camerai/libs"
-      - "./ai:/camerai/ai"
-      - "./camerai.log:/camerai/camerai.log"
-  videos_processor:
-    build:
-      context: ./videos_processor
-      dockerfile: Dockerfile
-    container_name: cameraivideos_processor
-    restart: unless-stopped
-    env_file:
-      - ./videos_processor/.env
-    volumes:
-      - "./videos_processor:/videos_processor"
-  camerapp:
-    build:
-      context: ./CamerAPP/camerapp
-      dockerfile: Dockerfile.dev
-    container_name: camerapp
-    restart: unless-stopped
-    env_file:
-      - ./CamerAPP/camerapp/.env
-    ports:
-      - "3000:4173"
-    volumes:
-      - "./CamerAPP/camerapp/:/camerapp/"
-      - /camerapp/node_modules
+    camerapi:
+        build:
+            context: ./CamerAPI
+            dockerfile: Dockerfile.dev
+        container_name: camerapi
+        restart: unless-stopped
+        env_file: ./CamerAPI/.env
+        ports:
+            - "8080:8080"
+        volumes:
+            - "./CamerAPI:/camerapi"
+            - /camerapi/node_modules
+    camerai:
+        build:
+            context: .
+            dockerfile: Dockerfile.dev
+        container_name: camerai
+        restart: unless-stopped
+        env_file:
+            - .env
+        environment:
+            - PYTHONPATH=/camerai/src
+        ports:
+            - "50051:50051"
+        volumes:
+            - "./src:/camerai/src"
+            - "./libs:/camerai/libs"
+            - "./ai:/camerai/ai"
+            - "./camerai.log:/camerai/camerai.log"
+    videos_processor:
+        build:
+            context: ./videos_processor
+            dockerfile: Dockerfile
+        container_name: cameraivideos_processor
+        restart: unless-stopped
+        env_file:
+            - ./videos_processor/.env
+        volumes:
+            - "./videos_processor:/videos_processor"
+    camerapp:
+        build:
+            context: ./CamerAPP/camerapp
+            dockerfile: Dockerfile.dev
+        container_name: camerapp
+        restart: unless-stopped
+        env_file:
+            - ./CamerAPP/camerapp/.env
+        ports:
+            - "3000:4173"
+        volumes:
+            - "./CamerAPP/camerapp/:/camerapp/"
+            - /camerapp/node_modules
