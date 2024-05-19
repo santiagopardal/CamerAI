@@ -4,7 +4,6 @@ from typing import List
 from .media_saver import MediaSaver
 from src.media import Frame
 import src.api.temporal_videos as temporal_videos_api
-from src.utils.date_utils import get_numbers_as_string
 
 
 class LocalVideoSaver(MediaSaver):
@@ -21,10 +20,10 @@ class LocalVideoSaver(MediaSaver):
         temporal_videos_api.add_temporal_video(self._camera_id, frames[0].date, path)
         return path
 
-    def _store_video(self, frames, filename):
-        day, month, year = get_numbers_as_string(frames[0].date)
+    def _store_video(self, frames: list[Frame], filename: str):
+        video_date = frames[0].date
 
-        date_str = "{}-{}-{}".format(year, month, day)
+        date_str = f"{video_date.year}-{video_date.month}-{video_date.day}"
 
         storing_path = os.path.join(self._folder, date_str)
 
