@@ -31,7 +31,7 @@ services:
   videos_processor:
     build:
       context: ./videos_processor
-      dockerfile: Dockerfile.dev
+      dockerfile: Dockerfile
     container_name: cameraivideos_processor
     restart: unless-stopped
     env_file:
