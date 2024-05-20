@@ -51,5 +51,5 @@ class BufferedMotionHandler(MotionHandler):
         self._message_broker_publisher.publish(
             payload,
             f"{self._camera.id}",
-            exchange="camerai"
+            exchange="camerai.cameras.motion"
         )
