@@ -28,7 +28,7 @@ class Observer(EventsSubscriber):
     @sensitivity.setter
     def sensitivity(self, sensitivity: float):
         if sensitivity < 0 or sensitivity > 1:
-            raise Exception('Sensitivity must be a value between 0 and 1')
+            raise ValueError('Sensitivity must be a value between 0 and 1')
 
         self._sensitivity = sensitivity
 

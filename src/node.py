@@ -151,7 +151,7 @@ class Node(NodeServicer):
         if camera:
             return camera
 
-        raise Exception('There is no camera with such id')
+        raise ValueError('There is no camera with such id')
 
     @property
     def id(self):

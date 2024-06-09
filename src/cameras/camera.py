@@ -62,7 +62,7 @@ class Camera(BaseModel):
     @classmethod
     def validate_port(cls, port: Optional[PositiveInt]) -> Optional[PositiveInt]:
         if port is not None and not 0 <= port <= 65535:
-            raise Exception('The port number must be a number between 0 and 65535')
+            raise ValueError('The port number must be a number between 0 and 65535')
 
         return port
 
@@ -70,7 +70,7 @@ class Camera(BaseModel):
     @classmethod
     def sensitivity(cls, sensitivity: float) -> float:
         if not 0 <= sensitivity <= 1:
-            raise Exception("Sensitivity must be a number between 0 and 1")
+            raise ValueError("Sensitivity must be a number between 0 and 1")
 
         return sensitivity
 

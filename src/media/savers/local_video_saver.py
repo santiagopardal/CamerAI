@@ -1,3 +1,4 @@
+import logging
 import os
 import cv2
 from typing import List
@@ -39,8 +40,8 @@ class LocalVideoSaver(MediaSaver):
         for frame in frames:
             try:
                 video.write(frame.frame)
-            except Exception:
-                pass
+            except Exception as e:
+                logging.error(f"Error storing video: {e}")
 
         video.release()
 
