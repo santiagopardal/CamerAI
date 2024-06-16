@@ -4,12 +4,24 @@ from collections import deque
 import os
 from src.constants import STORING_PATH
 from src.media import LocalVideoSaver
+from typing import TypedDict
 
 from src.message_brokers.message_broker import MessageBrokerPublisher
 from src.message_brokers.rabbitmq import get_rabbit_publisher
 
 
 VIDEO_MOTION_EXCHANGE_NAME = "camerai.video.motion"
+
+VideoMotionMessage = TypedDict(
+    "VideoMotionMessage",
+    {
+        "node": int,
+        "camera": int,
+        "date": str,
+        "time": str,
+        "path": str
+    }
+)
 
 
 class BufferedMotionHandler(MotionHandler):
@@ -44,13 +56,13 @@ class BufferedMotionHandler(MotionHandler):
 
     def _publish_new_video(self, path: str):
         path_split = path.split("/")
-        payload = {
-            "node": self._node_id,
-            "camera": self._camera.id,
-            "date": path_split[-2],
-            "time": path_split[-1].replace(".mp4", "").replace("-", ":"),
-            "path": path
-        }
+        payload = VideoMotionMessage(
+            node=self._node_id,
+            camera=self._camera.id,
+            date=path_split[-2],
+            time=path_split[-1].replace(".mp4", "").replace("-", ":"),
+            path=path
+        )
         self._message_broker_publisher.publish(
             payload,
             f"{self._camera.id}",
