@@ -44,6 +44,6 @@ services:
         env_file:
             - ./CamerAPP/camerapp/.env
         ports:
-            - "3000:3000"
+            - "3000:4173"
         volumes:
             - "./CamerAPP/camerapp/.env:/camerapp/.env"
