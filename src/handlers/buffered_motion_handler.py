@@ -9,6 +9,9 @@ from src.message_brokers.message_broker import MessageBrokerPublisher
 from src.message_brokers.rabbitmq import get_rabbit_publisher
 
 
+VIDEO_MOTION_EXCHANGE_NAME = "camerai.video.motion"
+
+
 class BufferedMotionHandler(MotionHandler):
     def __init__(
         self,
@@ -51,5 +54,5 @@ class BufferedMotionHandler(MotionHandler):
         self._message_broker_publisher.publish(
             payload,
             f"{self._camera.id}",
-            exchange="camerai.video.motion"
+            exchange=VIDEO_MOTION_EXCHANGE_NAME
         )
