@@ -32,7 +32,7 @@ services:
         build:
             context: ./videos_processor
             dockerfile: Dockerfile
-        container_name: cameraivideos_processor
+        container_name: camerai_videos_processor
         restart: unless-stopped
         env_file:
             - ./videos_processor/.env
