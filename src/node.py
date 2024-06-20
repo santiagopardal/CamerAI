@@ -80,10 +80,9 @@ class Node(NodeServicer):
 
     async def record(self, request: ManyCameraIdsRequest, context) -> EmptyValue:
         cameras_ids = request.cameras_ids
-        cameras: list[Camera] = [
-            camera for camera in self.cameras
-            if camera.id in cameras_ids
-        ] if cameras_ids else self.cameras
+        cameras: list[Camera] = self.cameras
+        if cameras_ids:
+            cameras = [camera for camera in self.cameras if camera.id in cameras_ids]
 
         for camera in cameras:
             camera.record()
