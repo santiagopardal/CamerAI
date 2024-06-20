@@ -6,7 +6,7 @@ from numpy import ndarray
 from pydantic import BaseModel, field_validator, PositiveInt, Field, model_validator
 import logging
 
-from src.events_managers.events_manager import get_events_manager
+from src.events_managers import events_manager
 
 
 SENSITIVITY_UPDATE_EVENT = "SENSITIVITY_UPDATE"
@@ -77,7 +77,7 @@ class Camera(BaseModel):
     def update_sensitivity(self, sensitivity: float):
         old_sensitivity = self.sensitivity
         self.sensitivity = sensitivity
-        get_events_manager().notify(
+        events_manager.get_events_manager().notify(
             event_type=SENSITIVITY_UPDATE_EVENT,
             publisher=self,
             sensitivity=sensitivity
@@ -87,7 +87,7 @@ class Camera(BaseModel):
     def record(self):
         if not self.recording:
             self.recording = True
-            get_events_manager().notify(
+            events_manager.get_events_manager().notify(
                 event_type=RECORDING_SWITCHED_EVENT,
                 publisher=self,
                 recording=True
@@ -96,7 +96,7 @@ class Camera(BaseModel):
     def stop_recording(self):
         if self.recording:
             self.recording = False
-            get_events_manager().notify(
+            events_manager.get_events_manager().notify(
                 event_type=RECORDING_SWITCHED_EVENT,
                 publisher=self,
                 recording=False
