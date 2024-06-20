@@ -4,4 +4,10 @@ node.json
 .dockerignore
 **git**
 *git*
-pagdata
+pgdata
+Images
+CamerAPI
+CamerAPP
+docs
+tests
+venv

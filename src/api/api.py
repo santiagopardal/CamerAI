@@ -41,15 +41,6 @@ def post(endpoint: str, body: dict = None) -> Response:
     return _execute_and_retry_on_failure(do_post, f"Error posting @ {endpoint}")
 
 
-def put(endpoint: str, body: dict = None) -> Response:
-    api_endpoint = "{}/{}".format(API_URL, endpoint)
-
-    def do_put() -> Response:
-        return SESSION.put(api_endpoint, data=body)
-
-    return _execute_and_retry_on_failure(do_put, f"Error putting @ {endpoint}")
-
-
 def delete(endpoint: str) -> Response:
     api_endpoint = "{}/{}".format(API_URL, endpoint)
 

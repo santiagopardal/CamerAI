@@ -84,3 +84,5 @@ Images
 *.cpython*
 *.env
 node.json
+Pipfile
+*_pb*

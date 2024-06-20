@@ -4,6 +4,9 @@
 [submodule "CamerAPP"]
 	path = CamerAPP
 	url = git@github.com:santiagopardal/CamerAPP.git
-[submodule "libs/VideosMerger"]
-	path = libs/VideosMerger
-	url = git@github.com:santiagopardal/VideosMerger.git
+[submodule "libs/CamerAIProtos"]
+	path = libs/CamerAIProtos
+	url = git@github.com:santiagopardal/CamerAIProtos.git
+[submodule "videos_processor"]
+	path = videos_processor
+	url = git@github.com:santiagopardal/videos_processor.git

@@ -4,6 +4,8 @@ from src import constants
 import numpy as np
 import time
 from collections import deque
+
+from src.events_managers.events_subscriber import EventsSubscriber
 from src.media import Frame
 from src.observations import Observer
 from src.observations import DontLookBackObserver
@@ -11,41 +13,57 @@ import src.observations.models.factory as model_factory
 from src.handlers import MotionHandler
 
 
-class FrameHandler:
-    def __init__(self, observer: Observer = None, motion_handlers: list = None):
+class FrameHandler(EventsSubscriber):
+    def __init__(self, observer: Observer = None, motion_handlers: list[MotionHandler] = None):
         super().__init__()
-        self.observer = DontLookBackObserver(model_factory, constants.MOVEMENT_SENSITIVITY) if observer is None else observer
-        self._motion_handlers = [] if motion_handlers is None else motion_handlers
-        self._thread_pool = ThreadPoolExecutor(1)
+        self.observer = observer or DontLookBackObserver(model_factory, constants.MOVEMENT_SENSITIVITY)
+        self._motion_handlers = motion_handlers or []
+        self._thread_pool = None
         self._buffer = deque()
         self._cleared_buffer = True
         self._current_buffer_started_receiving = 0.0
+        self._receive_frames = False
+
+    def notify(self, event_type: str, publisher: object, **event_data):
+        recording = event_data.get("recording", False)
+
+        if recording:
+            self.start()
+        else:
+            self.stop()
 
     def start(self):
-        self._current_buffer_started_receiving = time.time()
+        if not self._receive_frames:
+            self._thread_pool = ThreadPoolExecutor(1)
+            self._current_buffer_started_receiving = time.time()
+            self._receive_frames = True
 
     def stop(self):
-        self._thread_pool.shutdown(True)
+        if self._receive_frames:
+            self._thread_pool.shutdown(wait=True, cancel_futures=True)
+            self._thread_pool = None
+            self._receive_frames = False
+            self._buffer.clear()
 
     def add_motion_handler(self, handler: MotionHandler):
-        if handler:
-            self._motion_handlers.append(handler)
+        self._motion_handlers.append(handler)
 
     def set_motion_handlers(self, handlers: list):
         self._motion_handlers = handlers
 
     def handle(self, frame: np.ndarray):
-        self._buffer.append(frame)
+        if self._receive_frames and self._motion_handlers:
+            self._buffer.append(frame)
 
-        if self._cleared_buffer and len(self._buffer) >= self.observer.frames_to_buffer():
-            self._cleared_buffer = False
-            end = time.time()
+            if self._cleared_buffer and len(self._buffer) >= self.observer.frames_to_buffer():
+                self._cleared_buffer = False
+                end = time.time()
 
-            true_framerate = self.observer.frames_to_buffer() / (end - self._current_buffer_started_receiving) \
-                if self._current_buffer_started_receiving else constants.FRAME_RATE
+                true_framerate = self.observer.frames_to_buffer() / (end - self._current_buffer_started_receiving) \
+                    if self._current_buffer_started_receiving else constants.FRAME_RATE
 
-            self._check_movement(true_framerate)
-            self._current_buffer_started_receiving = end
+                self._thread_pool.submit(self._check_movement, true_framerate)
+                self._current_buffer_started_receiving = end
 
     @staticmethod
     def _calculate_time_taken(tme, frame_rate, i):
@@ -72,8 +90,10 @@ class FrameHandler:
             self._cleared_buffer = True
             last_time_stored = self._last_time_stored(frame_rate, len(frames))
 
-            frames = [Frame(frame, self._calculate_time_taken(last_time_stored, frame_rate, i + 1))
-                      for i, frame in enumerate(frames)]
+            frames = [
+                Frame(frame, self._calculate_time_taken(last_time_stored, frame_rate, i + 1))
+                for i, frame in enumerate(frames)
+            ]
 
             movement = self.observer.observe(frames)
 

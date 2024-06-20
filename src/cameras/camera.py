@@ -1,143 +1,109 @@
-from src.handlers import FrameHandler
-from src.handlers import BufferedMotionHandler
-from src.observations import DontLookBackObserver
-from concurrent.futures import ThreadPoolExecutor
-from src.constants import SECONDS_TO_BUFFER
-from src.cameras.retrieval_strategy.retrieval_strategy import RetrievalStrategy
+import enum
+import urllib
+from typing import Optional
+
 from numpy import ndarray
-import src.observations.models.factory as model_factory
-from src.cameras.properties import Properties
-from src.cameras.configurations import Configurations
+from pydantic import BaseModel, field_validator, PositiveInt, Field, model_validator
 import logging
 
+from src.events_managers.events_manager import get_events_manager
 
-class Camera:
-    def __init__(self, properties: Properties, configurations: Configurations, video_url: str, snapshot_url: str, retrieval_strategy: RetrievalStrategy = None, frames_handler: FrameHandler = None):
-        self._properties = properties
-        self._configurations = configurations
-        self._video_url = video_url
-        self._snapshot_url = snapshot_url
-        self._should_receive_frames = False
-        self._last_frame = None
-        self._frame_handler = FrameHandler() if frames_handler is None else frames_handler
-        self._retrieval_strategy = retrieval_strategy
-        self._is_recording = False
-        self._thread_pool = ThreadPoolExecutor(max_workers=1)
 
+SENSITIVITY_UPDATE_EVENT = "SENSITIVITY_UPDATE"
+RECORDING_SWITCHED_EVENT = "RECORDING_SWITCHED_EVENT"
+
+
+class LiveVideoURLs(enum.StrEnum):
+    FI9803PV3 = "rtsp://{}:{}@{}:{}/videoMain"
+    FI89182 = "http://{}:{}/videostream.cgi?user={}&pwd={}"
+
+
+class SnapshotURLs(enum.StrEnum):
+    FI9803PV3 = "http://{}:{}/cgi-bin/CGIProxy.fcgi?cmd=snapPicture2&usr={}&pwd={}"
+    FI89182 = "http://{}:{}/cgi-bin/CGIProxy.fcgi?cmd=snapPicture2&usr={}&pwd={}"
+
+
+class Camera(BaseModel):
+    id: PositiveInt
+    name: str
+    model: str
+    ip: str
+    streaming_port: Optional[PositiveInt]
+    http_port: PositiveInt
+    width: PositiveInt
+    height: PositiveInt
+    framerate: PositiveInt
+    sensitivity: float
+    recording: bool
+
+    video_url: Optional[str] = Field(default=None)
+    snapshot_url: Optional[str] = Field(default=None)
+
+    last_frame: Optional[ndarray] = Field(default_factory=lambda: None)
+
+    class Config:
+        arbitrary_types_allowed = True
+
+    @model_validator(mode="before")
     @classmethod
-    def from_json(cls, json: dict):
-        pass
+    def validate_camera(cls, data: dict) -> dict:
+        user = urllib.parse.quote(data["user"])
+        password = urllib.parse.quote(data["password"])
+        ip = data["ip"]
+        streaming_port = data["streaming_port"]
+        http_port = data["http_port"]
 
-    @property
-    def id(self) -> int:
-        return self._properties.id
+        data["video_url"] = LiveVideoURLs[data["model"]].format(user, password, ip, streaming_port)
+        data["snapshot_url"] = SnapshotURLs[data["model"]].format(ip, http_port, user, password)
 
-    @property
-    def name(self) -> str:
-        return self._properties.name
+        return data
 
-    @property
-    def ip(self) -> str:
-        return self._properties.ip
+    @field_validator("streaming_port", "http_port")
+    @classmethod
+    def validate_port(cls, port: Optional[PositiveInt]) -> Optional[PositiveInt]:
+        if port is not None and not 0 <= port <= 65535:
+            raise ValueError('The port number must be a number between 0 and 65535')
 
-    @property
-    def port(self) -> int:
-        return self._properties.port
+        return port
 
-    @property
-    def video_url(self) -> str:
-        return self._video_url
+    @field_validator("sensitivity")
+    @classmethod
+    def sensitivity(cls, sensitivity: float) -> float:
+        if not 0 <= sensitivity <= 1:
+            raise ValueError("Sensitivity must be a number between 0 and 1")
 
-    @property
-    def snapshot_url(self) -> str:
-        return self._snapshot_url
-
-    @property
-    def frame_rate(self) -> int:
-        return self._properties.frame_rate
-
-    @property
-    def frame_width(self) -> int:
-        return self._properties.frame_width
-
-    @property
-    def frame_height(self) -> int:
-        return self._properties.frame_width
-
-    @property
-    def frame_handler(self) -> FrameHandler:
-        return self._frame_handler
-
-    @property
-    def retrieval_strategy(self) -> RetrievalStrategy:
-        return self._retrieval_strategy
-
-    @property
-    def is_recording(self) -> bool:
-        return self._configurations.recording
-
-    @ip.setter
-    def ip(self, ip: str):
-        self._properties.ip = ip
-
-    @port.setter
-    def port(self, port: int):
-        self._properties.port = port
-
-    @frame_handler.setter
-    def frame_handler(self, frames_handler: FrameHandler):
-        self._frame_handler.stop()
-        self._frame_handler = frames_handler
-        self._frame_handler.start()
-
-    @retrieval_strategy.setter
-    def retrieval_strategy(self, retrieval_strategy: RetrievalStrategy):
-        self._retrieval_strategy = retrieval_strategy
+        return sensitivity
 
     def update_sensitivity(self, sensitivity: float):
-        self._frame_handler.observer.sensitivity = sensitivity
-
-    def screenshot(self) -> ndarray:
-        return self._last_frame
-
-    def receive_video(self):
-        self._should_receive_frames = True
-        self._thread_pool.submit(self._receive_frames)
+        old_sensitivity = self.sensitivity
+        self.sensitivity = sensitivity
+        get_events_manager().notify(
+            event_type=SENSITIVITY_UPDATE_EVENT,
+            publisher=self,
+            sensitivity=sensitivity
+        )
+        logging.info(f"Updated sensitivity to camera with ID {self.id} from {old_sensitivity} to {sensitivity}")
 
     def record(self):
-        if not self.is_recording:
-            self._frame_handler.observer = DontLookBackObserver(model_factory, self._configurations.sensitivity)
-            self._frame_handler.add_motion_handler(BufferedMotionHandler(self, SECONDS_TO_BUFFER))
-            self._frame_handler.start()
-            self._is_recording = True
+        if not self.recording:
+            self.recording = True
+            get_events_manager().notify(
+                event_type=RECORDING_SWITCHED_EVENT,
+                publisher=self,
+                recording=True
+            )
 
     def stop_recording(self):
-        if self.is_recording:
-            self._frame_handler.stop()
-            self._frame_handler.set_motion_handlers([])
-            self._is_recording = False
-
-    def stop_receiving_video(self):
-        self._should_receive_frames = False
-        self.retrieval_strategy.disconnect()
-        self._thread_pool.shutdown(True)
-
-    def _receive_frames(self):
-        self._retrieval_strategy.connect()
-
-        while self._should_receive_frames:
-            try:
-                frame = self._retrieval_strategy.retrieve()
-                self._last_frame = frame
-                self._frame_handler.handle(frame)
-            except Exception as e:
-                logging.error(f"Error downloading image from camera {self.name} @ {self.ip}:{self.port}: {e}")
-
-        self._retrieval_strategy.disconnect()
-        self._frame_handler.stop()
-
-    def __hash__(self):
-        return "{}:{}@{}".format(self.ip, self.port, self.name).__hash__()
+        if self.recording:
+            self.recording = False
+            get_events_manager().notify(
+                event_type=RECORDING_SWITCHED_EVENT,
+                publisher=self,
+                recording=False
+            )
 
     def __eq__(self, other):
-        return isinstance(other, Camera) and other.ip == self.ip and other.port == self.port
+        return isinstance(other, Camera) and other.ip == self.ip and other.http_port == self.http_port
+
+    def __hash__(self):
+        return hash(f"{self.ip}:{self.http_port}@{self.name}")

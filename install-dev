@@ -3,6 +3,10 @@ touch camerai.log
 git submodule init
 git submodule update
 
+if [ ! -f ./.env ]; then
+    cp .env.schema .env
+fi
+
 cd CamerAPI
 ./install
 
@@ -13,4 +17,4 @@ cd ../videos_processor
 ./install
 
 cd ..
-docker compose build
+docker compose -f docker-compose.dev.yml build
