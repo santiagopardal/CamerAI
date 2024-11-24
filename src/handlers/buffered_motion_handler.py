@@ -7,7 +7,7 @@ from src.media import LocalVideoSaver
 from typing import TypedDict
 
 from src.message_brokers.message_broker import MessageBrokerPublisher
-from src.message_brokers.rabbitmq import get_rabbit_publisher
+from src.message_brokers import rabbitmq
 
 
 VIDEO_MOTION_EXCHANGE_NAME = "camerai.video.motion"
@@ -40,7 +40,7 @@ class BufferedMotionHandler(MotionHandler):
         self._media_saver = LocalVideoSaver(camera.id, storing_path, camera.framerate)
         self._buffer_size = seconds_to_buffer*camera.framerate
 
-        self._message_broker_publisher = message_broker_publisher or get_rabbit_publisher()
+        self._message_broker_publisher = message_broker_publisher or rabbitmq.get_rabbit_publisher()
 
         super().__init__()
 

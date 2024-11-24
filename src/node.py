@@ -8,7 +8,7 @@ import src.api.api as API
 from concurrent.futures import ThreadPoolExecutor
 import src.api.node as node_api
 import src.api.cameras as cameras_api
-from socket import gethostname, gethostbyname
+import socket
 import time
 import logging
 from src.constants import NODE_INFO_PATH, SECONDS_TO_BUFFER
@@ -166,7 +166,7 @@ class Node(NodeServicer):
         if self.id:
             API.set_headers({"node_id": str(self.id)})
 
-        response = node_api.register(gethostbyname(gethostname()), LISTENING_PORT)
+        response = node_api.register(socket.gethostbyname(socket.gethostname()), LISTENING_PORT)
         if not self.id:
             self._id = response['id']
             API.set_headers({"node_id": str(self._id)})

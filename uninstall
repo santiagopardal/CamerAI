@@ -1,5 +1,0 @@
-sudo rm -rf Images
-sudo rm camerai.log
-sudo rm -rf pgdata
-cd CamerAPI
-./uninstall
