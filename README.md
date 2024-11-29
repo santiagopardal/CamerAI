@@ -10,7 +10,7 @@ CameraAI is a program which can retrieve images from CCTV cameras recognizing mo
 To install the entire project, this is, CamerAI, CamerAPI and CamerAPP simply run:
 
 ```bash
-./install
+make install
 ```
 
 If you decide that you don't want the API or the web app, you can just just deploy the services you want by first running the `install` script and then `docker compose up -d [camerai || camerapi || camerapp]`.
