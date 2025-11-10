@@ -1,3 +1,5 @@
+from pathlib import Path
+
 import numpy as np
 from numpy import sqrt
 import os
@@ -43,7 +45,7 @@ DBS = calculate_dbs()
 RESOLUTION = (180, 180)
 CNN_INPUT_SHAPE = (180, 180, 1)
 
-ABSOLUTE_PATH = os.environ["ABSOLUTE_PATH"]
+ABSOLUTE_PATH = Path(__file__).parent.parent
 
 NODE_INFO_PATH = os.path.join(ABSOLUTE_PATH, "node.json")
 
