@@ -1,8 +1,7 @@
-from abc import ABC, abstractmethod
+from typing import Protocol
 
 
-class MessageBrokerPublisher(ABC):
+class MessageBrokerPublisher(Protocol):
 
-    @abstractmethod
     def publish(self, data: dict, routing_key: str, exchange: str, exchange_type: str = "direct"):
         ...
