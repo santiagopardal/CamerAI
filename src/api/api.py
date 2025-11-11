@@ -14,7 +14,7 @@ def set_headers(headers: dict):
     wait=tenacity.wait_exponential(
         multiplier=1,
         min=4,
-        max=10,
+        max=60,
         exp_base=2
     ),
     stop=tenacity.stop_after_attempt(6)
@@ -28,7 +28,7 @@ def get(endpoint: str) -> Response:
     wait=tenacity.wait_exponential(
         multiplier=1,
         min=4,
-        max=10,
+        max=60,
         exp_base=2
     ),
     stop=tenacity.stop_after_attempt(6)
@@ -42,7 +42,7 @@ def post(endpoint: str, body: dict = None) -> Response:
     wait=tenacity.wait_exponential(
         multiplier=1,
         min=4,
-        max=10,
+        max=60,
         exp_base=2
     ),
     stop=tenacity.stop_after_attempt(6)
