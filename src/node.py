@@ -1,6 +1,8 @@
 import asyncio
 import aiofiles
 import cv2
+import tenacity
+
 from src.cameras import Camera, SENSITIVITY_UPDATE_EVENT, RECORDING_SWITCHED_EVENT
 from src.events_managers import events_manager
 from src.retrieval_strategy import RetrievalStrategy, LiveRetrievalStrategy
@@ -173,22 +175,14 @@ class Node(NodeServicer):
             with open(NODE_INFO_PATH, "w") as node_info_file:
                 node_info_file.write(json.dumps({"id": self.id}))
 
+    @tenacity.retry(
+        wait=tenacity.wait_exponential(multiplier=1, min=1, max=60),
+        stop=tenacity.stop_after_attempt(6),
+        retry_error_callback=lambda retry_state: []
+    )
     def _fetch_cameras_from_api(self) -> list:
-        i = 0
-        cameras = []
-
-        while not cameras:
-            try:
-                cameras = cameras_api.get_cameras(self.id)
-                return [Camera(**camera) for camera in cameras]
-            except Exception as e:
-                if i < 6:
-                    i += 1
-                seconds = 2 ** i
-                logging.error(f"Could not fetch from API, retrying in {seconds} seconds: {e}")
-                time.sleep(seconds)
-
-        return []
+        cameras = cameras_api.get_cameras(self.id)
+        return [Camera(**camera) for camera in cameras]
 
     def _create_frames_handler_for_camera(self, camera: Camera) -> FrameHandler:
         frames_handler = FrameHandler()
