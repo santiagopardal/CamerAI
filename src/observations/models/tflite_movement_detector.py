@@ -2,10 +2,7 @@ from .model import Model
 from src import constants
 import numpy as np
 from threading import Lock
-try:
-    from tensorflow.lite.python.interpreter import Interpreter
-except:
-    from tflite_runtime.interpreter import Interpreter
+from ai_edge_litert.interpreter import Interpreter
 
 
 class TFLiteModelDetector(Model):
