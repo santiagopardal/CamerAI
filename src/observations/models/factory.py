@@ -9,5 +9,5 @@ def create_model() -> Model:
         import tensorflow as tf
 
         return Tatiana() if tf.config.list_physical_devices("GPU") else TFLiteModelDetector()
-    except:
+    except Exception:
         return TFLiteModelDetector()

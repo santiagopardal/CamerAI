@@ -5,7 +5,7 @@ from threading import Lock
 
 try:
     from tensorflow.lite.python.interpreter import Interpreter
-except:
+except Exception:
     from tflite_runtime.interpreter import Interpreter
 
 
