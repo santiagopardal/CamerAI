@@ -37,6 +37,10 @@ clean:
 	sudo rm -f node.json
 
 
+run:
+	uv run python -m src.node
+
+
 fresh: clean install
 
 
