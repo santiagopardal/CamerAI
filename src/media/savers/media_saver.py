@@ -1,3 +1,5 @@
-class MediaSaver:
-    def save(self, media):
-        pass
+from typing import Protocol
+
+
+class MediaSaver(Protocol):
+    def save(self, media): ...

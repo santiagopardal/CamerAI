@@ -59,8 +59,11 @@ class FrameHandler(EventsSubscriber):
                 self._cleared_buffer = False
                 end = time.time()
 
-                true_framerate = self.observer.frames_to_buffer() / (end - self._current_buffer_started_receiving) \
-                    if self._current_buffer_started_receiving else constants.FRAME_RATE
+                true_framerate = (
+                    self.observer.frames_to_buffer() / (end - self._current_buffer_started_receiving)
+                    if self._current_buffer_started_receiving
+                    else constants.FRAME_RATE
+                )
 
                 self._thread_pool.submit(self._check_movement, true_framerate)
                 self._current_buffer_started_receiving = end

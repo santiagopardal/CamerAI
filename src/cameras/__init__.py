@@ -1,1 +1,7 @@
 from .camera import Camera, SENSITIVITY_UPDATE_EVENT, RECORDING_SWITCHED_EVENT
+
+__all__ = [
+    "Camera",
+    "SENSITIVITY_UPDATE_EVENT",
+    "RECORDING_SWITCHED_EVENT",
+]

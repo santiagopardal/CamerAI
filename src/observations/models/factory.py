@@ -7,6 +7,7 @@ from .tflite_movement_detector import TFLiteModelDetector
 def create_model() -> Model:
     try:
         import tensorflow as tf
-        return Tatiana() if tf.config.list_physical_devices('GPU') else TFLiteModelDetector()
-    except:
+
+        return Tatiana() if tf.config.list_physical_devices("GPU") else TFLiteModelDetector()
+    except Exception:
         return TFLiteModelDetector()

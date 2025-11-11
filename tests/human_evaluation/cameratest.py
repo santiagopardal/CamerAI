@@ -8,7 +8,9 @@ from src.constants import CNN_INPUT_SHAPE
 
 MODEL = Tatiana()
 POOL = concurrent.futures.ThreadPoolExecutor(5)
-CAMERA_URL = "rtsp://{}:{}@192.168.0.131:554/videoMain".format(urllib.parse.quote("admin"), urllib.parse.quote("*{-4s#aG*_>2"))
+CAMERA_URL = "rtsp://{}:{}@192.168.0.131:554/videoMain".format(
+    urllib.parse.quote("admin"), urllib.parse.quote("*{-4s#aG*_>2")
+)
 
 
 def resize(frame):
@@ -49,21 +51,21 @@ def show_video():
     while cap.isOpened() and not close:
         ret, frame = cap.read()
 
-        cv2.imshow('Video', frame)
+        cv2.imshow("Video", frame)
         diff = diff_without_resize(previous_image, frame)
-        cv2.imshow('Diff', diff)
+        cv2.imshow("Diff", diff)
         diff = resize(diff)
-        cv2.imshow('CNN', diff)
+        cv2.imshow("CNN", diff)
 
         POOL.submit(detect_movement, diff)
         previous_image = frame
 
-        if cv2.waitKey(20) & 0xFF == ord('q'):
+        if cv2.waitKey(20) & 0xFF == ord("q"):
             close = True
 
     cap.release()
     cv2.destroyAllWindows()
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     show_video()

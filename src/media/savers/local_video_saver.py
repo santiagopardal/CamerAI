@@ -16,7 +16,7 @@ class LocalVideoSaver(MediaSaver):
             os.mkdir(self._folder)
 
     def save(self, frames: List[Frame]):
-        filename = "{}.mp4".format(frames[0].time).replace(':', '-')
+        filename = "{}.mp4".format(frames[0].time).replace(":", "-")
         path = self._store_video(frames, filename)
         temporal_videos_api.add_temporal_video(self._camera_id, frames[0].date, path)
         return path
@@ -34,7 +34,7 @@ class LocalVideoSaver(MediaSaver):
         storing_path = os.path.join(storing_path, filename)
         height, width, layers = frames[0].frame.shape
 
-        fourcc = cv2.VideoWriter_fourcc(*'mp4v')
+        fourcc = cv2.VideoWriter_fourcc(*"mp4v")
         video = cv2.VideoWriter(storing_path, fourcc, self._frame_rate, (width, height))
 
         for frame in frames:

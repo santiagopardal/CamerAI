@@ -3,10 +3,15 @@ import urllib
 from typing import Optional
 
 from numpy import ndarray
-from pydantic import BaseModel, field_validator, PositiveInt, Field, model_validator
+from pydantic import (
+    BaseModel,
+    PositiveInt,
+    Field,
+    model_validator,
+)
 import logging
 
-from src.events_managers.events_manager import get_events_manager
+from src.events_managers import events_manager
 
 
 SENSITIVITY_UPDATE_EVENT = "SENSITIVITY_UPDATE"
@@ -28,12 +33,12 @@ class Camera(BaseModel):
     name: str
     model: str
     ip: str
-    streaming_port: Optional[PositiveInt]
-    http_port: PositiveInt
+    streaming_port: int | None = Field(ge=0, le=65535, default=None)
+    http_port: int = Field(ge=0, le=65535)
     width: PositiveInt
     height: PositiveInt
-    framerate: PositiveInt
-    sensitivity: float
+    framerate: PositiveInt = Field(default=30)
+    sensitivity: float = Field(ge=0, le=1)
     recording: bool
 
     video_url: Optional[str] = Field(default=None)
@@ -58,48 +63,26 @@ class Camera(BaseModel):
 
         return data
 
-    @field_validator("streaming_port", "http_port")
-    @classmethod
-    def validate_port(cls, port: Optional[PositiveInt]) -> Optional[PositiveInt]:
-        if port is not None and not 0 <= port <= 65535:
-            raise ValueError('The port number must be a number between 0 and 65535')
-
-        return port
-
-    @field_validator("sensitivity")
-    @classmethod
-    def sensitivity(cls, sensitivity: float) -> float:
-        if not 0 <= sensitivity <= 1:
-            raise ValueError("Sensitivity must be a number between 0 and 1")
-
-        return sensitivity
-
     def update_sensitivity(self, sensitivity: float):
         old_sensitivity = self.sensitivity
         self.sensitivity = sensitivity
-        get_events_manager().notify(
-            event_type=SENSITIVITY_UPDATE_EVENT,
-            publisher=self,
-            sensitivity=sensitivity
+        events_manager.get_events_manager().notify(
+            event_type=SENSITIVITY_UPDATE_EVENT, publisher=self, sensitivity=sensitivity
         )
         logging.info(f"Updated sensitivity to camera with ID {self.id} from {old_sensitivity} to {sensitivity}")
 
     def record(self):
         if not self.recording:
             self.recording = True
-            get_events_manager().notify(
-                event_type=RECORDING_SWITCHED_EVENT,
-                publisher=self,
-                recording=True
+            events_manager.get_events_manager().notify(
+                event_type=RECORDING_SWITCHED_EVENT, publisher=self, recording=True
             )
 
     def stop_recording(self):
         if self.recording:
             self.recording = False
-            get_events_manager().notify(
-                event_type=RECORDING_SWITCHED_EVENT,
-                publisher=self,
-                recording=False
+            events_manager.get_events_manager().notify(
+                event_type=RECORDING_SWITCHED_EVENT, publisher=self, recording=False
             )
 
     def __eq__(self, other):

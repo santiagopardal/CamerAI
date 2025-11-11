@@ -1,23 +1,25 @@
 import json
-import os
 from typing import Optional, Generator
 
 from pika import PlainCredentials, ConnectionParameters, BlockingConnection
 from pika.adapters.blocking_connection import BlockingChannel
 from pika.exchange_type import ExchangeType
+
+from src import config
 from src.message_brokers.message_broker import MessageBrokerPublisher
 
 
-class RabbitMQ(MessageBrokerPublisher):
+settings = config.get_settings()
 
+
+class RabbitMQ(MessageBrokerPublisher):
     def __init__(self):
         self._credentials = PlainCredentials(
-            username=os.environ.get('RABBIT_USER'),
-            password=os.environ.get('RABBIT_PASSWORD')
+            username=settings.rabbitmq_settings.USER,
+            password=settings.rabbitmq_settings.PASSWORD.get_secret_value(),
         )
         self._connection_parameters = ConnectionParameters(
-            host=os.environ.get('RABBIT_HOST'),
-            credentials=self._credentials
+            host=settings.rabbitmq_settings.HOST, credentials=self._credentials
         )
         self._connection: Optional[BlockingConnection] = None
         self._channel: Optional[BlockingChannel] = None
