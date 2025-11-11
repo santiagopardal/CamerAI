@@ -6,7 +6,6 @@ import numpy as np
 
 
 class ScreenshotRetrievalStrategy(RetrievalStrategy):
-
     def retrieve(self) -> ndarray:
         response = requests.get(self._camera.snapshot_url, stream=True).raw
         frame = np.asarray(bytearray(response.read()), dtype="uint8")

@@ -1,6 +1,8 @@
 import asyncio
 import aiofiles
 import cv2
+import tenacity
+
 from src.cameras import Camera, SENSITIVITY_UPDATE_EVENT, RECORDING_SWITCHED_EVENT
 from src.events_managers import events_manager
 from src.retrieval_strategy import RetrievalStrategy, LiveRetrievalStrategy
@@ -9,7 +11,6 @@ from concurrent.futures import ThreadPoolExecutor
 import src.api.node as node_api
 import src.api.cameras as cameras_api
 import socket
-import time
 import logging
 from src.constants import NODE_INFO_PATH, SECONDS_TO_BUFFER
 import json
@@ -21,7 +22,7 @@ from src.grpc_protos.Node_pb2 import (
     UpdateSensitivityRequest,
     ManyCameraIdsRequest,
     CameraInfo,
-    StreamVideoRequest
+    StreamVideoRequest,
 )
 import grpc
 from google.protobuf.wrappers_pb2 import StringValue, BytesValue
@@ -42,9 +43,7 @@ class Node(NodeServicer):
         self._id = None
         self._register()
         self.cameras = self._fetch_cameras_from_api()
-        self.server = grpc.aio.server(
-            ThreadPoolExecutor(max_workers=len(self.cameras) + 1)
-        )
+        self.server = grpc.aio.server(ThreadPoolExecutor(max_workers=len(self.cameras) + 1))
         self.video_retrievers: dict[Camera, RetrievalStrategy] = {}
 
     async def run(self):
@@ -144,21 +143,18 @@ class Node(NodeServicer):
         os.remove(request.path)
 
     def _get_camera(self, camera_id: int) -> Camera:
-        camera = next(
-            (camera for camera in self.cameras if camera.id == int(camera_id)),
-            None
-        )
+        camera = next((camera for camera in self.cameras if camera.id == int(camera_id)), None)
         if camera:
             return camera
 
-        raise ValueError('There is no camera with such id')
+        raise ValueError("There is no camera with such id")
 
     @property
     def id(self):
         if not self._id and os.path.exists(NODE_INFO_PATH):
             with open(NODE_INFO_PATH) as file:
                 data = json.load(file)
-                self._id = data['id']
+                self._id = data["id"]
 
         return self._id
 
@@ -168,33 +164,23 @@ class Node(NodeServicer):
 
         response = node_api.register(socket.gethostbyname(socket.gethostname()), LISTENING_PORT)
         if not self.id:
-            self._id = response['id']
+            self._id = response["id"]
             API.set_headers({"node_id": str(self._id)})
             with open(NODE_INFO_PATH, "w") as node_info_file:
                 node_info_file.write(json.dumps({"id": self.id}))
 
+    @tenacity.retry(
+        wait=tenacity.wait_exponential(multiplier=1, min=1, max=60),
+        stop=tenacity.stop_after_attempt(6),
+        retry_error_callback=lambda retry_state: [],
+    )
     def _fetch_cameras_from_api(self) -> list:
-        i = 0
-        cameras = []
-
-        while not cameras:
-            try:
-                cameras = cameras_api.get_cameras(self.id)
-                return [Camera(**camera) for camera in cameras]
-            except Exception as e:
-                if i < 6:
-                    i += 1
-                seconds = 2 ** i
-                logging.error(f"Could not fetch from API, retrying in {seconds} seconds: {e}")
-                time.sleep(seconds)
-
-        return []
+        cameras = cameras_api.get_cameras(self.id)
+        return [Camera(**camera) for camera in cameras]
 
     def _create_frames_handler_for_camera(self, camera: Camera) -> FrameHandler:
         frames_handler = FrameHandler()
-        frames_handler.observer = DontLookBackObserver(
-            model_factory, camera.sensitivity
-        )
+        frames_handler.observer = DontLookBackObserver(model_factory, camera.sensitivity)
         motion_handler = BufferedMotionHandler(camera, self.id, SECONDS_TO_BUFFER)
         frames_handler.add_motion_handler(motion_handler)
         global_events_manager = events_manager.get_events_manager()
@@ -209,12 +195,8 @@ async def serve():
     await node.server.wait_for_termination()
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     logging.basicConfig(
-        filename='camerai.log',
-        filemode='a',
-        level=logging.INFO,
-        format="{asctime} {levelname:<8} {message}",
-        style="{"
+        filename="camerai.log", filemode="a", level=logging.INFO, format="{asctime} {levelname:<8} {message}", style="{"
     )
     asyncio.run(serve())

@@ -33,12 +33,12 @@ class LiveRetrievalStrategy(RetrievalStrategy):
                 connected, frame = self._live_video.read()
 
                 if not connected:
-                    self._log_status(f"Connection failed")
+                    self._log_status("Connection failed")
             except Exception as e:
                 self._log_status(f"Connection failed: {e}")
 
             if not connected and not self._disconnect:
-                seconds = 2 ** i
+                seconds = 2**i
                 time.sleep(seconds)
                 i = min(i + 1, 10)
         self._log_status("Connected")
@@ -62,5 +62,7 @@ class LiveRetrievalStrategy(RetrievalStrategy):
 
     def _log_status(self, status: str):
         api.log_connection_status(self._camera.id, status, datetime.now())
-        message_to_log = f"Status updated for {self._camera.name} @ {self._camera.ip}:{self._camera.http_port}: {status}"
+        message_to_log = (
+            f"Status updated for {self._camera.name} @ {self._camera.ip}:{self._camera.http_port}: {status}"
+        )
         logging.info(message_to_log)

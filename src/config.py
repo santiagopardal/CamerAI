@@ -9,9 +9,7 @@ class RabbitMQSettings(BaseSettings):
     USER: str = Field(validation_alias="RABBIT_USER")
     PASSWORD: SecretStr = Field(validation_alias="RABBIT_PASSWORD")
 
-    model_config = SettingsConfigDict(
-        env_file=".env", case_sensitive=True, extra="ignore"
-    )
+    model_config = SettingsConfigDict(env_file=".env", case_sensitive=True, extra="ignore")
 
 
 class Settings(BaseSettings):
@@ -20,9 +18,7 @@ class Settings(BaseSettings):
     rabbitmq_settings: RabbitMQSettings = RabbitMQSettings()
     API_URL: str
 
-    model_config = SettingsConfigDict(
-        env_file=".env", case_sensitive=True, extra="ignore"
-    )
+    model_config = SettingsConfigDict(env_file=".env", case_sensitive=True, extra="ignore")
 
 
 @functools.lru_cache(maxsize=1)

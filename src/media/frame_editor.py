@@ -8,4 +8,3 @@ def resize_frame(frame: ndarray, resolution: tuple) -> ndarray:
 
 def black_and_white(frame: ndarray) -> ndarray:
     return cvtColor(frame, COLOR_RGB2GRAY)
-

@@ -10,11 +10,11 @@ DETECTION_BATCH_SIZE = config.get_settings().DETECTION_BATCH_SIZE
 
 
 def cost_function(b):
-    return DETECTION_BATCH_SIZE / b + 1 + MOVEMENT_BURSTS * (b-1)
+    return DETECTION_BATCH_SIZE / b + 1 + MOVEMENT_BURSTS * (b - 1)
 
 
 def cost_derivative(b):
-    return MOVEMENT_BURSTS - DETECTION_BATCH_SIZE/(b**2)
+    return MOVEMENT_BURSTS - DETECTION_BATCH_SIZE / (b**2)
 
 
 def calculate_jump():
@@ -29,7 +29,7 @@ def calculate_dbs():
     if DETECTION_BATCH_SIZE % JUMP == 0:
         return DETECTION_BATCH_SIZE + 2
     else:
-        return round(JUMP * round(DETECTION_BATCH_SIZE/JUMP)) + 2
+        return round(JUMP * round(DETECTION_BATCH_SIZE / JUMP)) + 2
 
 
 FRAME_RATE = 23

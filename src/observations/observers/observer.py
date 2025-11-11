@@ -1,3 +1,5 @@
+from abc import abstractmethod
+
 import cv2
 
 from src.events_managers.events_subscriber import EventsSubscriber
@@ -15,11 +17,11 @@ class Observer(EventsSubscriber):
     def notify(self, event_type: str, publisher: object, **event_data):
         self._sensitivity = event_data["sensitivity"]
 
-    def observe(self, frames: list) -> list:
-        pass
+    @abstractmethod
+    def observe(self, frames: list) -> list: ...
 
-    def frames_to_buffer(self) -> int:
-        pass
+    @abstractmethod
+    def frames_to_buffer(self) -> int: ...
 
     @property
     def sensitivity(self) -> float:
@@ -27,8 +29,7 @@ class Observer(EventsSubscriber):
 
     @sensitivity.setter
     def sensitivity(self, sensitivity: float):
-        if sensitivity < 0 or sensitivity > 1:
-            raise ValueError('Sensitivity must be a value between 0 and 1')
+        assert 0 <= sensitivity <= 1, "Sensitivity must be a value between 0 and 1"
 
         self._sensitivity = sensitivity
 

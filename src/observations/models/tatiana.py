@@ -11,7 +11,7 @@ class Tatiana(Model):
     def __new__(cls, *args, **kwargs):
         if cls._model is None:
             # FIXME Remove custom objects from model
-            custom_objects = {'f1_score': F1Score(num_classes=1, threshold=0.5)}
+            custom_objects = {"f1_score": F1Score(num_classes=1, threshold=0.5)}
             cls._model = tf.keras.models.load_model(TATIANA, custom_objects=custom_objects)
 
         return super().__new__(cls, *args, **kwargs)

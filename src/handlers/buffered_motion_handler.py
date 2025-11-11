@@ -13,14 +13,7 @@ from src.message_brokers import rabbitmq
 VIDEO_MOTION_EXCHANGE_NAME = "camerai.video.motion"
 
 VideoMotionMessage = TypedDict(
-    "VideoMotionMessage",
-    {
-        "node": int,
-        "camera": int,
-        "date": str,
-        "time": str,
-        "path": str
-    }
+    "VideoMotionMessage", {"node": int, "camera": int, "date": str, "time": str, "path": str}
 )
 
 
@@ -30,7 +23,7 @@ class BufferedMotionHandler(MotionHandler):
         camera: Camera,
         node_id: int,
         seconds_to_buffer: int = 2,
-        message_broker_publisher: MessageBrokerPublisher = None
+        message_broker_publisher: MessageBrokerPublisher = None,
     ):
         self._frames = deque()
         self._frames.append([])
@@ -38,7 +31,7 @@ class BufferedMotionHandler(MotionHandler):
         self._node_id = node_id
         storing_path = os.path.join(STORING_PATH, camera.name)
         self._media_saver = LocalVideoSaver(camera.id, storing_path, camera.framerate)
-        self._buffer_size = seconds_to_buffer*camera.framerate
+        self._buffer_size = seconds_to_buffer * camera.framerate
 
         self._message_broker_publisher = message_broker_publisher or rabbitmq.get_rabbit_publisher()
 
@@ -61,10 +54,6 @@ class BufferedMotionHandler(MotionHandler):
             camera=self._camera.id,
             date=path_split[-2],
             time=path_split[-1].replace(".mp4", "").replace("-", ":"),
-            path=path
+            path=path,
         )
-        self._message_broker_publisher.publish(
-            payload,
-            f"{self._camera.id}",
-            exchange=VIDEO_MOTION_EXCHANGE_NAME
-        )
+        self._message_broker_publisher.publish(payload, f"{self._camera.id}", exchange=VIDEO_MOTION_EXCHANGE_NAME)

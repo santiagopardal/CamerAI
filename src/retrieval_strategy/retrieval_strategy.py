@@ -1,20 +1,20 @@
 import logging
+from abc import ABC, abstractmethod
 from concurrent.futures import ThreadPoolExecutor
 from numpy import ndarray
 from src.cameras import Camera
 from src.handlers import FrameHandler
 
 
-class RetrievalStrategy:
-
+class RetrievalStrategy(ABC):
     def __init__(self, camera: Camera, frames_handler: FrameHandler):
         self._camera = camera
         self._should_receive_frames = False
         self._thread_pool = None
         self._frame_handler = frames_handler
 
-    def connect(self):
-        pass
+    @abstractmethod
+    def connect(self): ...
 
     def receive_video(self):
         self._frame_handler.start()
@@ -27,11 +27,11 @@ class RetrievalStrategy:
         self._thread_pool.shutdown()
         self._frame_handler.stop()
 
-    def retrieve(self) -> ndarray:
-        pass
+    @abstractmethod
+    def retrieve(self) -> ndarray: ...
 
-    def disconnect(self):
-        pass
+    @abstractmethod
+    def disconnect(self): ...
 
     def _receive_frames(self):
         self.connect()
