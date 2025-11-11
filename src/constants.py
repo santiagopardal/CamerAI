@@ -3,10 +3,10 @@ from pathlib import Path
 import numpy as np
 from numpy import sqrt
 import os
-from dotenv import load_dotenv
 
+from src import config
 
-load_dotenv()
+DETECTION_BATCH_SIZE = config.get_settings().DETECTION_BATCH_SIZE
 
 
 def cost_function(b):
@@ -35,7 +35,6 @@ def calculate_dbs():
 FRAME_RATE = 23
 
 MOVEMENT_SENSITIVITY = 0.5
-DETECTION_BATCH_SIZE = 92
 MOVEMENT_BURSTS = 2
 SECONDS_TO_BUFFER = 2
 
@@ -57,8 +56,6 @@ LITE_MODEL_PATH = os.path.join(AI_PATH, "lite")
 LITE_MODEL_PATH = os.path.join(LITE_MODEL_PATH, "model.tflite")
 
 TATIANA = os.path.join(AI_PATH, "Tatiana")
-
-API_URL = os.environ["API_URL"]
 
 if not os.path.exists(STORING_PATH):
     os.mkdir(STORING_PATH)

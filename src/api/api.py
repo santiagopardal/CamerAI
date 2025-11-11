@@ -1,9 +1,12 @@
 import tenacity
 from requests import Session, Response
-from src.constants import API_URL
+
+from src import config
 
 
 SESSION = Session()
+
+API_URL = config.get_settings().API_URL
 
 
 def set_headers(headers: dict):
