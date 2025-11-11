@@ -18,12 +18,10 @@ class Observer(EventsSubscriber):
         self._sensitivity = event_data["sensitivity"]
 
     @abstractmethod
-    def observe(self, frames: list) -> list:
-        ...
+    def observe(self, frames: list) -> list: ...
 
     @abstractmethod
-    def frames_to_buffer(self) -> int:
-        ...
+    def frames_to_buffer(self) -> int: ...
 
     @property
     def sensitivity(self) -> float:

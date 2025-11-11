@@ -7,7 +7,6 @@ from src.handlers import FrameHandler
 
 
 class RetrievalStrategy(ABC):
-
     def __init__(self, camera: Camera, frames_handler: FrameHandler):
         self._camera = camera
         self._should_receive_frames = False
@@ -15,8 +14,7 @@ class RetrievalStrategy(ABC):
         self._frame_handler = frames_handler
 
     @abstractmethod
-    def connect(self):
-        ...
+    def connect(self): ...
 
     def receive_video(self):
         self._frame_handler.start()
@@ -30,12 +28,10 @@ class RetrievalStrategy(ABC):
         self._frame_handler.stop()
 
     @abstractmethod
-    def retrieve(self) -> ndarray:
-        ...
+    def retrieve(self) -> ndarray: ...
 
     @abstractmethod
-    def disconnect(self):
-        ...
+    def disconnect(self): ...
 
     def _receive_frames(self):
         self.connect()

@@ -67,9 +67,7 @@ class Camera(BaseModel):
         old_sensitivity = self.sensitivity
         self.sensitivity = sensitivity
         events_manager.get_events_manager().notify(
-            event_type=SENSITIVITY_UPDATE_EVENT,
-            publisher=self,
-            sensitivity=sensitivity
+            event_type=SENSITIVITY_UPDATE_EVENT, publisher=self, sensitivity=sensitivity
         )
         logging.info(f"Updated sensitivity to camera with ID {self.id} from {old_sensitivity} to {sensitivity}")
 
@@ -77,18 +75,14 @@ class Camera(BaseModel):
         if not self.recording:
             self.recording = True
             events_manager.get_events_manager().notify(
-                event_type=RECORDING_SWITCHED_EVENT,
-                publisher=self,
-                recording=True
+                event_type=RECORDING_SWITCHED_EVENT, publisher=self, recording=True
             )
 
     def stop_recording(self):
         if self.recording:
             self.recording = False
             events_manager.get_events_manager().notify(
-                event_type=RECORDING_SWITCHED_EVENT,
-                publisher=self,
-                recording=False
+                event_type=RECORDING_SWITCHED_EVENT, publisher=self, recording=False
             )
 
     def __eq__(self, other):

@@ -14,13 +14,7 @@ def set_headers(headers: dict):
 
 
 @tenacity.retry(
-    wait=tenacity.wait_exponential(
-        multiplier=1,
-        min=4,
-        max=60,
-        exp_base=2
-    ),
-    stop=tenacity.stop_after_attempt(6)
+    wait=tenacity.wait_exponential(multiplier=1, min=4, max=60, exp_base=2), stop=tenacity.stop_after_attempt(6)
 )
 def get(endpoint: str) -> Response:
     api_endpoint = "{}/{}".format(API_URL, endpoint)
@@ -28,13 +22,7 @@ def get(endpoint: str) -> Response:
 
 
 @tenacity.retry(
-    wait=tenacity.wait_exponential(
-        multiplier=1,
-        min=4,
-        max=60,
-        exp_base=2
-    ),
-    stop=tenacity.stop_after_attempt(6)
+    wait=tenacity.wait_exponential(multiplier=1, min=4, max=60, exp_base=2), stop=tenacity.stop_after_attempt(6)
 )
 def post(endpoint: str, body: dict = None) -> Response:
     api_endpoint = "{}/{}".format(API_URL, endpoint)
@@ -42,13 +30,7 @@ def post(endpoint: str, body: dict = None) -> Response:
 
 
 @tenacity.retry(
-    wait=tenacity.wait_exponential(
-        multiplier=1,
-        min=4,
-        max=60,
-        exp_base=2
-    ),
-    stop=tenacity.stop_after_attempt(6)
+    wait=tenacity.wait_exponential(multiplier=1, min=4, max=60, exp_base=2), stop=tenacity.stop_after_attempt(6)
 )
 def delete(endpoint: str) -> Response:
     api_endpoint = "{}/{}".format(API_URL, endpoint)

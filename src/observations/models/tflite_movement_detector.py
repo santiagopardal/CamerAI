@@ -2,6 +2,7 @@ from .model import Model
 from src import constants
 import numpy as np
 from threading import Lock
+
 try:
     from tensorflow.lite.python.interpreter import Interpreter
 except:
@@ -9,7 +10,6 @@ except:
 
 
 class TFLiteModelDetector(Model):
-
     _instance = None
     _mutex = None
 
@@ -35,10 +35,10 @@ class TFLiteModelDetector(Model):
         return result
 
     def _predict(self, data) -> float:
-        self._interpreter.set_tensor(self._interpreter.get_input_details()[0]['index'], [data])
+        self._interpreter.set_tensor(self._interpreter.get_input_details()[0]["index"], [data])
 
         self._interpreter.invoke()
 
-        output_data = self._interpreter.get_tensor(self._interpreter.get_output_details()[0]['index'])
+        output_data = self._interpreter.get_tensor(self._interpreter.get_output_details()[0]["index"])
 
         return float(np.squeeze(output_data))

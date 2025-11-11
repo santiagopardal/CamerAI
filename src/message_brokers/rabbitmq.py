@@ -13,15 +13,13 @@ settings = config.get_settings()
 
 
 class RabbitMQ(MessageBrokerPublisher):
-
     def __init__(self):
         self._credentials = PlainCredentials(
             username=settings.rabbitmq_settings.USER,
             password=settings.rabbitmq_settings.PASSWORD.get_secret_value(),
         )
         self._connection_parameters = ConnectionParameters(
-            host=settings.rabbitmq_settings.HOST,
-            credentials=self._credentials
+            host=settings.rabbitmq_settings.HOST, credentials=self._credentials
         )
         self._connection: Optional[BlockingConnection] = None
         self._channel: Optional[BlockingChannel] = None
