@@ -3,7 +3,6 @@ from .tatiana import Tatiana
 from .tflite_movement_detector import TFLiteModelDetector
 
 
-# FIXME Add Tatiana lite model
 def create_model() -> Model:
     try:
         import tensorflow as tf
