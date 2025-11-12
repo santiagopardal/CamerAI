@@ -1,0 +1,15 @@
+[Unit]
+Description=CamerAI service
+After=network.target
+StartLimitIntervalSec=0
+
+[Service]
+Type=simple
+Restart=always
+User=your_username
+WorkingDirectory=/path/to/CamerAI
+ExecStart=/path/to/uv_binary/uv run python -m src.node
+EnvironmentFile=/path/to/CamerAI/.env
+
+[Install]
+WantedBy=multi-user.target
