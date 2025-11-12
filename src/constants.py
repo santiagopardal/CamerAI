@@ -53,7 +53,7 @@ STORING_PATH = os.path.join(ABSOLUTE_PATH, "Images")
 AI_PATH = os.path.join(ABSOLUTE_PATH, "ai")
 
 LITE_MODEL_PATH = os.path.join(AI_PATH, "lite")
-LITE_MODEL_PATH = os.path.join(LITE_MODEL_PATH, "model.tflite")
+LITE_MODEL_PATH = os.path.join(LITE_MODEL_PATH, "tatiana.tflite")
 
 TATIANA = os.path.join(AI_PATH, "Tatiana")
 
