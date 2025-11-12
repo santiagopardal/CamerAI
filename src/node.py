@@ -197,6 +197,6 @@ async def serve():
 
 if __name__ == "__main__":
     logging.basicConfig(
-        filename="camerai.log", filemode="a", level=logging.INFO, format="{asctime} {levelname:<8} {message}", style="{"
+        level=logging.INFO, format="{asctime} {levelname:<8} {message}", style="{"
     )
     asyncio.run(serve())
