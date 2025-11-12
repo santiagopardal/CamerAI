@@ -7,9 +7,9 @@ StartLimitIntervalSec=0
 Type=simple
 Restart=always
 User=your_username
-WorkingDirectory=/home/santiago/CamerAI
+WorkingDirectory=/path/to/CamerAI
 ExecStart=/path/to/uv_binary/uv run python -m src.node
-EnvironmentFile=/home/santiago/CamerAI/.env
+EnvironmentFile=/path/to/CamerAI/.env
 
 [Install]
 WantedBy=multi-user.target
