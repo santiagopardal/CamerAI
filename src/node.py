@@ -180,7 +180,7 @@ class Node(NodeServicer):
 
     def _create_frames_handler_for_camera(self, camera: Camera) -> FrameHandler:
         frames_handler = FrameHandler()
-        frames_handler.observer = DontLookBackObserver(model_factory, camera.sensitivity)
+        frames_handler.observer = DontLookBackObserver(model_factory.create_model, camera.sensitivity)
         motion_handler = BufferedMotionHandler(camera, self.id, SECONDS_TO_BUFFER)
         frames_handler.add_motion_handler(motion_handler)
         global_events_manager = events_manager.get_events_manager()

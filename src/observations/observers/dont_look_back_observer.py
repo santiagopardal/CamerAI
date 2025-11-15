@@ -1,9 +1,12 @@
+from typing import Callable
+
 from .observer import Observer
 from src.constants import JUMP, DBS
+from .. import Model
 
 
 class DontLookBackObserver(Observer):
-    def __init__(self, model_factory, sensitivity: float):
+    def __init__(self, model_factory: Callable[[], Model], sensitivity: float):
         super().__init__(model_factory, sensitivity)
         self._recording = False
         self._last_two_frames = []
@@ -17,12 +20,11 @@ class DontLookBackObserver(Observer):
         self._last_two_frames = [frames[-2], frames[-1]]
 
         results = self._batch_movement_check(to_observe)
-        results = list(enumerate(results))
 
         frames_with_movement = []
 
         # Here i is shifted 1 to the left that's why frames[i * JUMP + j] instead of frames[(i - 1) * JUMP + j]
-        for i, movement in results:
+        for i, movement in enumerate(results):
             if movement or self._recording:
                 frames_with_movement += frames[i * JUMP : (i + 1) * JUMP]
 

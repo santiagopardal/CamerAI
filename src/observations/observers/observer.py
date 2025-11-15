@@ -1,4 +1,5 @@
 from abc import abstractmethod
+from typing import Callable
 
 import cv2
 
@@ -7,11 +8,12 @@ from src.media import Frame
 from src import constants
 import numpy as np
 from src.media.frame_editor import resize_frame, black_and_white
+from src.observations import Model
 
 
 class Observer(EventsSubscriber):
-    def __init__(self, model_factory, sensitivity: float):
-        self._model = model_factory.create_model()
+    def __init__(self, model_factory: Callable[[], Model], sensitivity: float):
+        self._model = model_factory()
         self._sensitivity = sensitivity
 
     def notify(self, event_type: str, publisher: object, **event_data):

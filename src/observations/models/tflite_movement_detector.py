@@ -1,3 +1,5 @@
+from numpy import ndarray
+
 from .model import Model
 from src import constants
 import numpy as np
@@ -21,20 +23,24 @@ class TFLiteModelDetector(Model):
         self._interpreter = Interpreter(model_path=tflite_model_path)
         self._interpreter.allocate_tensors()
 
-    def predict(self, data) -> float:
+    def predict(self, data: ndarray) -> float:
         return self.predict_on_batch([data])[0]
 
-    def predict_on_batch(self, data) -> list:
+    def predict_on_batch(self, data: list[ndarray]) -> list[float]:
         self._mutex.acquire()
         result = [self._predict(dta) for dta in data]
         self._mutex.release()
         return result
 
-    def _predict(self, data) -> float:
+    def _predict(self, data: ndarray) -> float:
         self._interpreter.set_tensor(self._interpreter.get_input_details()[0]["index"], [data])
 
         self._interpreter.invoke()
 
         output_data = self._interpreter.get_tensor(self._interpreter.get_output_details()[0]["index"])
 
-        return float(np.squeeze(output_data))
+        prediction = float(np.squeeze(output_data))
+
+        del output_data
+
+        return prediction

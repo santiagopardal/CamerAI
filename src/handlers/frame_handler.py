@@ -16,7 +16,7 @@ from src.handlers import MotionHandler
 class FrameHandler(EventsSubscriber):
     def __init__(self, observer: Observer = None, motion_handlers: list[MotionHandler] = None):
         super().__init__()
-        self.observer = observer or DontLookBackObserver(model_factory, constants.MOVEMENT_SENSITIVITY)
+        self.observer = observer or DontLookBackObserver(model_factory.create_model, constants.MOVEMENT_SENSITIVITY)
         self._motion_handlers = motion_handlers or []
         self._thread_pool = None
         self._buffer = deque()

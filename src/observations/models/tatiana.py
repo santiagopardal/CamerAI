@@ -1,4 +1,6 @@
 from keras.src.metrics import F1Score
+from numpy import ndarray
+
 from .model import Model
 import numpy as np
 import tensorflow as tf
@@ -16,11 +18,8 @@ class Tatiana(Model):
 
         return super().__new__(cls, *args, **kwargs)
 
-    def __init__(self):
-        super().__init__()
-
-    def predict(self, data) -> float:
+    def predict(self, data: ndarray) -> float:
         return self.predict_on_batch([data])[0]
 
-    def predict_on_batch(self, data) -> list:
-        return self._model(np.array(data))
+    def predict_on_batch(self, data: list[ndarray]) -> list[float]:
+        return self._model.predict(np.array(data))
