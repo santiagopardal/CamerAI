@@ -6,7 +6,7 @@ from numpy import ndarray
 class Frame(object):
     __slots__ = "_date", "_frame"
 
-    def __init__(self, frame, date=datetime.datetime.now()):
+    def __init__(self, frame: ndarray, date=datetime.datetime.now()):
         self._date = date
         self._frame = frame
 
