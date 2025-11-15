@@ -39,7 +39,7 @@ class TFLiteModelDetector(Model):
 
         output_data = self._interpreter.get_tensor(self._interpreter.get_output_details()[0]["index"])
 
-        prediction = float(np.squeeze(output_data))
+        prediction = float(np.squeeze(output_data.copy()))
 
         del output_data
 

@@ -29,7 +29,7 @@ class EventsManager:
 
             return subscription["subscriber"] != subscriber or subscription["publisher"] != publisher
 
-        self._subscriptions["event_type"] = [
+        self._subscriptions[event_type] = [
             subscription for subscription in self._subscriptions.get(event_type, []) if should_remain(subscription)
         ]
 
