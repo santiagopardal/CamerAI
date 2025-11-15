@@ -1,20 +1,21 @@
-from datetime import datetime
-import numpy as np
+import datetime
+
+from numpy import ndarray
 
 
 class Frame(object):
     __slots__ = "_date", "_frame"
 
-    def __init__(self, frame, date=datetime.now()):
+    def __init__(self, frame, date=datetime.datetime.now()):
         self._date = date
         self._frame = frame
 
     @property
-    def frame(self) -> np.ndarray:
+    def frame(self) -> ndarray:
         return self._frame
 
     @property
-    def date(self) -> datetime:
+    def date(self) -> datetime.datetime:
         return self._date
 
     @property
@@ -22,5 +23,5 @@ class Frame(object):
         return self._date.time()
 
     @frame.setter
-    def frame(self, frm: np.ndarray):
+    def frame(self, frm: ndarray):
         self._frame = frm

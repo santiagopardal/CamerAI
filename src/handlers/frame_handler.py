@@ -48,7 +48,7 @@ class FrameHandler(EventsSubscriber):
     def add_motion_handler(self, handler: MotionHandler):
         self._motion_handlers.append(handler)
 
-    def set_motion_handlers(self, handlers: list):
+    def set_motion_handlers(self, handlers: list[MotionHandler]):
         self._motion_handlers = handlers
 
     def handle(self, frame: np.ndarray):

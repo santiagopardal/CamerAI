@@ -1,9 +1,11 @@
+from numpy import ndarray
+
 from .observer import Observer
 from src.constants import JUMP, DBS
 
 
 class LookBackObserver(Observer):
-    def observe(self, frames: list) -> list:
+    def observe(self, frames: list[ndarray]) -> list[ndarray]:
         to_observe = [(frame, frames[i + 1]) for i, frame in enumerate(frames) if i % JUMP == 0]
 
         results = self._batch_movement_check(to_observe)

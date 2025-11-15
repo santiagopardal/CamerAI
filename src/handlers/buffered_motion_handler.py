@@ -1,3 +1,5 @@
+from numpy import ndarray
+
 from src.cameras import Camera
 from src.handlers import MotionHandler
 from collections import deque
@@ -37,7 +39,7 @@ class BufferedMotionHandler(MotionHandler):
 
         super().__init__()
 
-    def handle(self, frames: list):
+    def handle(self, frames: list[ndarray]):
         if frames:
             self._frames[0] = self._frames[0] + frames
 

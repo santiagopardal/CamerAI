@@ -2,6 +2,7 @@ from abc import abstractmethod
 from typing import Callable
 
 import cv2
+from numpy import ndarray
 
 from src.events_managers.events_subscriber import EventsSubscriber
 from src.media import Frame
@@ -20,7 +21,7 @@ class Observer(EventsSubscriber):
         self._sensitivity = event_data["sensitivity"]
 
     @abstractmethod
-    def observe(self, frames: list) -> list: ...
+    def observe(self, frames: list[ndarray]) -> list[ndarray]: ...
 
     @abstractmethod
     def frames_to_buffer(self) -> int: ...
@@ -38,7 +39,7 @@ class Observer(EventsSubscriber):
     def _frame_manipulation(self, frame: Frame) -> Frame:
         return frame
 
-    def _prepare_for_cnn(self, pf: Frame, frm: Frame) -> np.ndarray:
+    def _prepare_for_cnn(self, pf: Frame, frm: Frame) -> ndarray:
         p_frame = self._frame_manipulation(pf)
         p_frame = black_and_white(resize_frame(p_frame.frame, constants.RESOLUTION))
 
@@ -47,7 +48,7 @@ class Observer(EventsSubscriber):
 
         return np.array(cv2.absdiff(p_frame, frm) / 255, dtype="float32").reshape(constants.CNN_INPUT_SHAPE)
 
-    def _batch_movement_check(self, frames: list) -> list:
+    def _batch_movement_check(self, frames: list[ndarray]) -> list[bool]:
         images = [self._prepare_for_cnn(pf, frm) for pf, frm in frames]
         movements = self._model.predict_on_batch(images)
         return [movement >= self._sensitivity for movement in movements]

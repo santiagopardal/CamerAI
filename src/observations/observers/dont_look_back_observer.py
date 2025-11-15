@@ -1,5 +1,7 @@
 from typing import Callable
 
+from numpy import ndarray
+
 from .observer import Observer
 from src.constants import JUMP, DBS
 from .. import Model
@@ -11,7 +13,7 @@ class DontLookBackObserver(Observer):
         self._recording = False
         self._last_two_frames = []
 
-    def observe(self, frames: list) -> list:
+    def observe(self, frames: list[ndarray]) -> list[ndarray]:
         if self._last_two_frames:
             frames.insert(0, self._last_two_frames[-1])
             frames.insert(0, self._last_two_frames[-2])

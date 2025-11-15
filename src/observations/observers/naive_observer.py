@@ -1,9 +1,11 @@
+from numpy import ndarray
+
 from .observer import Observer
 from src.constants import DBS
 
 
 class NaiveObserver(Observer):
-    def observe(self, frames: list) -> list:
+    def observe(self, frames: list[ndarray]) -> list[ndarray]:
         to_observe = [(frames[i - 1], frame) for i, frame in enumerate(frames, 1)]
         results = self._batch_movement_check(to_observe)
         frames_with_movement = []
